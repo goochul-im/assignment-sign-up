@@ -2,6 +2,17 @@ spring:
   config:
     activate:
       on-profile: test
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GOOGLE_SMTP_USERNAME}
+    password: ${GOOGLE_SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   datasource:
     url: jdbc:tc:postgresql:///testdb
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver

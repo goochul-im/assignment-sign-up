@@ -4,12 +4,16 @@ import com.thinkfree.tfinder.workspace.infrastructure.external.iface.IMailSender
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mail.javamail.JavaMailSender;
 
 @SpringBootTest
 class GoogleMailSenderTest {
 
     @Autowired
     private IMailSender mailSender;
+
+    @Autowired
+    private JavaMailSender javaMailSender;
 
     @Test
     void 메일_발송이_정상적으로_완료되어야_한다(){
