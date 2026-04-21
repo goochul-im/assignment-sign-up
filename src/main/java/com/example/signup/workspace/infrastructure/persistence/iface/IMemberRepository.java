@@ -1,4 +1,4 @@
-package com.example.signup.workspace.infrastructure.persistence.port;
+package com.example.signup.workspace.infrastructure.persistence.iface;
 
 import com.example.signup.workspace.domain.Member;
 

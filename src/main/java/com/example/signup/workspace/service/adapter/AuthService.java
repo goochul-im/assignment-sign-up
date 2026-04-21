@@ -1,7 +1,7 @@
 package com.example.signup.workspace.service.adapter;
 
-import com.example.signup.workspace.infrastructure.persistence.port.IMemberRepository;
-import com.example.signup.workspace.service.port.IAuthUseCase;
+import com.example.signup.workspace.infrastructure.persistence.iface.IMemberRepository;
+import com.example.signup.workspace.service.iface.IAuthUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

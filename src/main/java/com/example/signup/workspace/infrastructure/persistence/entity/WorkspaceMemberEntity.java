@@ -42,11 +42,11 @@ public class WorkspaceMemberEntity {
     public WorkspaceMember toDomain() {
         return new WorkspaceMember(
                 this.id,
+                this.workspaceId,
+                this.memberId,
                 this.role,
                 this.isSaveSearchTerm,
-                this.lastLoginTime,
-                this.workspaceId,
-                this.memberId
+                this.lastLoginTime
         );
     }
 
