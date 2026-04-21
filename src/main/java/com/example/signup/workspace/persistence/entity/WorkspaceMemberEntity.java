@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
@@ -19,19 +20,19 @@ public class WorkspaceMemberEntity {
     @GeneratedValue
     private Long id;
 
-    @Column()
+    @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private MemberRole role;
-    @Column
+    @Column(nullable = false)
     private boolean isSaveSearchTerm;
-    @Column
-    private LocalDateTime lastLoginTime;
-    @Column
+    @Column()
+    private Instant lastLoginTime; // DB 저장시 UTC로 표준화
+    @Column(nullable = false)
     private Long workspaceId;
-    @Column
-    private Long memberId;
+    @Column(nullable = false)
+    private Long memberId; // 왜 다른 엔티티 클래스를 쓰지 않고 id를 직접 넣었는가
 
-    public WorkspaceMemberEntity(MemberRole role, boolean isSaveSearchTerm, LocalDateTime lastLoginTime, Long workspaceId, Long memberId) {
+    public WorkspaceMemberEntity(MemberRole role, boolean isSaveSearchTerm, Instant lastLoginTime, Long workspaceId, Long memberId) {
         this.role = role;
         this.isSaveSearchTerm = isSaveSearchTerm;
         this.lastLoginTime = lastLoginTime;

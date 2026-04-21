@@ -3,6 +3,7 @@ package com.example.signup.workspace.domain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
@@ -12,7 +13,7 @@ public class WorkspaceMember {
     private Long id;
     private MemberRole role;
     private boolean isSaveSearchTerm;
-    private LocalDateTime lastLoginTime;
+    private Instant lastLoginTime;
     private Long workspaceId;
     private Long memberId;
 

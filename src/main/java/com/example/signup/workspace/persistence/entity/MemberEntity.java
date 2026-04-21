@@ -17,13 +17,13 @@ public class MemberEntity {
     @Id
     @GeneratedValue
     private Long id;
-    @Column
+    @Column(nullable = false)
     private String name;
-    @Column
+    @Column(nullable = false, unique = true)
     private String email;
-    @Column
+    @Column(nullable = false)
     private String password;
-    @Column(name = "member_type")
+    @Column(name = "member_type", nullable = false)
     @Enumerated(value = EnumType.STRING)
     private MemberType memberType;
 

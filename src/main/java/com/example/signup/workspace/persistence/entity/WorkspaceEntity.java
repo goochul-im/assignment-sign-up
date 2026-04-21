@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @AllArgsConstructor
@@ -17,20 +18,21 @@ public class WorkspaceEntity {
     @Id
     @GeneratedValue
     private Long id;
-    @Column
+    @Column(nullable = false, unique = true)
     private String name;
-    @Column
+    @Column(nullable = false, unique = true)
     private String address;
     @Column(name = "remain_message_count")
-    private Long remainMessageCount;
+    private Long remainMessageCount = 0L;
     @Column
-    private boolean isDelete;
+    private boolean isDelete = false;
 
-    public WorkspaceEntity(String name, String address, Long remainMessageCount, boolean isDelete) {
+    public WorkspaceEntity(String name, String address) {
         this.name = name;
         this.address = address;
-        this.remainMessageCount = remainMessageCount;
-        this.isDelete = isDelete;
+        // remainMessageCount랑 isDelete가 없는 이유?
+        // 생성자를 이용하는 경우는 엔티티를 만들 떄는 새로 워크스페이스를 만들 때
+        // 워크스페이스가 새로 만들어질 때 remainMessageCount와 isDelete는 기본값이 있어야 함
     }
 
     public Workspace toDomain() {
