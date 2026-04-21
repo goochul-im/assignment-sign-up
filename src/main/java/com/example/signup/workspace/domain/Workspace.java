@@ -14,6 +14,4 @@ public class Workspace {
     private Long remainMessageCount;
     private boolean isDelete;
 
-
-
 }
