@@ -1,4 +1,4 @@
-package com.example.signup.workspace.persistence.entity;
+package com.example.signup.workspace.infrastructure.persistence.entity;
 
 import com.example.signup.workspace.domain.MemberRole;
 import com.example.signup.workspace.domain.WorkspaceMember;
@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,7 +16,7 @@ import java.time.LocalDateTime;
 public class WorkspaceMemberEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)

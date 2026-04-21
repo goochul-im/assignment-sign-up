@@ -1,6 +1,6 @@
 package com.example.signup.workspace.controller;
 
-import com.example.signup.workspace.service.WorkspaceUseCase;
+import com.example.signup.workspace.service.port.IWorkspaceUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class WorkspaceController {
 
-    private final WorkspaceUseCase workspaceUseCase;
+    private final IWorkspaceUseCase workspaceUseCase;
 
 }

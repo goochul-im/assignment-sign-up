@@ -1,4 +1,4 @@
-package com.example.signup.workspace.persistence.entity;
+package com.example.signup.workspace.infrastructure.persistence.entity;
 
 import com.example.signup.workspace.domain.Member;
 import com.example.signup.workspace.domain.MemberType;
@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class MemberEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
     private String name;

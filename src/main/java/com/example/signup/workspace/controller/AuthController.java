@@ -1,6 +1,6 @@
 package com.example.signup.workspace.controller;
 
-import com.example.signup.workspace.service.AuthUseCase;
+import com.example.signup.workspace.service.port.IAuthUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthUseCase authUseCase;
+    private final IAuthUseCase authUseCase;
 
 }

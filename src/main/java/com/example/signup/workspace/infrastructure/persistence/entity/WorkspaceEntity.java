@@ -1,14 +1,10 @@
-package com.example.signup.workspace.persistence.entity;
+package com.example.signup.workspace.infrastructure.persistence.entity;
 
 import com.example.signup.workspace.domain.Workspace;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @AllArgsConstructor
@@ -16,7 +12,7 @@ import org.hibernate.annotations.ColumnDefault;
 public class WorkspaceEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false, unique = true)
     private String name;
