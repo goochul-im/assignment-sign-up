@@ -42,7 +42,7 @@ public class WorkspaceService implements IWorkspaceUseCase {
                 inviteWorkspace.getWorkspaceUrl(),
                 Instant.now().plusSeconds(inviteTokenExpirationTime));
 
-        String subject = "";
+        String subject = ""; //TODO: subject 넣기
         mailSender.asyncSend(
                 toEmail,
                 subject,
