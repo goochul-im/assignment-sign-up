@@ -1,11 +1,15 @@
 package com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter;
 
+import com.thinkfree.tfinder.common.exception.BusinessException;
+import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.workspace.domain.Member;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.iface.IMemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class MemberRepository implements IMemberRepository {
@@ -20,7 +24,10 @@ public class MemberRepository implements IMemberRepository {
     @Override
     public Member findById(Long id) {
         return memberJpaRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("") // TODO: 예외처리 수정
+                () -> {
+                    log.warn("member not found, id : {}", id);
+                    throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
+                }
         ).toDomain();
     }
 
@@ -32,7 +39,10 @@ public class MemberRepository implements IMemberRepository {
     @Override
     public Member findByEmail(String email) {
         return memberJpaRepository.findByEmail(email).orElseThrow(
-                () -> new RuntimeException("") // TODO: 예외처리 수정
+                () -> {
+                    log.warn("member not found, email : {}", email);
+                    throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
+                }
         ).toDomain();
     }
 }
