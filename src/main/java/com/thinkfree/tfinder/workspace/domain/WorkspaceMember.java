@@ -23,4 +23,11 @@ public class WorkspaceMember {
     private boolean isSaveSearchTerm;
     private Instant lastLoginTime; // 마지막 워크스페이스 접속 시간을 어떻게 잴 것인가
 
+    public WorkspaceMember(Long memberId, Long workspaceId, WorkspaceMemberRole role, Instant lastLoginTime) {
+        this.memberId = memberId;
+        this.workspaceId = workspaceId;
+        this.role = role;
+        this.isSaveSearchTerm = false;
+        this.lastLoginTime = lastLoginTime;
+    }
 }
