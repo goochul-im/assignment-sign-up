@@ -1,12 +1,9 @@
 package com.thinkfree.tfinder.workspace.service.adapter;
 
+import com.thinkfree.tfinder.common.service.adpater.JwtManager;
 import com.thinkfree.tfinder.workspace.service.dto.InviteTokenResult;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 

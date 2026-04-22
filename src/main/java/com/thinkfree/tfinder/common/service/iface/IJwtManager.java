@@ -1,9 +1,8 @@
-package com.thinkfree.tfinder.workspace.service.iface;
+package com.thinkfree.tfinder.common.service.iface;
 
 import com.thinkfree.tfinder.workspace.service.dto.InviteTokenResult;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 public interface IJwtManager {
 

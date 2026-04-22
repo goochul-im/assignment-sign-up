@@ -1,7 +1,7 @@
-package com.thinkfree.tfinder.workspace.service.adapter;
+package com.thinkfree.tfinder.common.service.adpater;
 
+import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.service.dto.InviteTokenResult;
-import com.thinkfree.tfinder.workspace.service.iface.IJwtManager;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -21,13 +21,13 @@ public class JwtManager implements IJwtManager {
 
     private final SecretKey secretKey; // 서명을 위한 시크릿 키
 
-    private static final String FROM_EMAIL = "from_email";
-    private static final String TO_EMAIL = "to_email";
-    private static final String WORKSPACE_URL = "workspace_url";
-    private static final String INVITE_TOKEN_SUBJECT = "workspace_invite_token";
+    private final String FROM_EMAIL = "from_email";
+    private final String TO_EMAIL = "to_email";
+    private final String WORKSPACE_URL = "workspace_url";
+    private final String INVITE_TOKEN_SUBJECT = "workspace_invite_token";
 
-    private static final String MEMBER_ID = "member_id";
-    private static final String ACCESS_TOKEN_SUBJECT = "access_token";
+    private final String MEMBER_ID = "member_id";
+    private final String ACCESS_TOKEN_SUBJECT = "access_token";
 
 
     public JwtManager(@Value("${spring.jwt.key}") String secretKey) {
