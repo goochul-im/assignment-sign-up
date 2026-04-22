@@ -1,5 +1,7 @@
 package com.thinkfree.tfinder.workspace.infrastructure.external.adpater;
 
+import com.thinkfree.tfinder.common.exception.BusinessException;
+import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.workspace.infrastructure.external.iface.IMailSender;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -38,7 +40,8 @@ public class GoogleMailSender implements IMailSender {
 
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            throw new RuntimeException(e); // TODO: 수정 필요
+            log.warn("메일을 보내는 중 에러 발생. toEmail : {}, message : {}", toEmail, e.getMessage());
+//            throw new BusinessException(ErrorCode.MAIL_SEND_ERROR); // TODO: 수정 필요
         }
 
         log.info("{} 로 전송 완료", toEmail);
