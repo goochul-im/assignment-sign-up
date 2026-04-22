@@ -11,7 +11,7 @@ public enum ErrorCode {
     INVITE_TOKEN_ERROR(BAD_REQUEST,"I-001"),
     SIGNUP_FIRST(SEE_OTHER, "I-002"),
 
-    MEMBER_NOT_FOUND(NOT_FOUND, "M-001"),
+    ENTITY_NOT_FOUND(NOT_FOUND, "E-001"),
     ;
     private final HttpStatus statusCode;
     private final String code;

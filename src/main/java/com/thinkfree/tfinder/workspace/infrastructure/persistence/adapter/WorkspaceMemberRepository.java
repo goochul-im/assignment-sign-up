@@ -1,5 +1,7 @@
 package com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter;
 
+import com.thinkfree.tfinder.common.exception.BusinessException;
+import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMember;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.iface.IWorkspaceMemberRepository;
@@ -22,7 +24,7 @@ public class WorkspaceMemberRepository implements IWorkspaceMemberRepository {
     @Override
     public WorkspaceMember findById(Long workspaceMemberId) {
         return workspaceMemberJpaRepository.findById(workspaceMemberId).orElseThrow(
-                () -> new RuntimeException("") //TODO: 예외처리 필요
+                () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
         ).toDomain();
     }
 

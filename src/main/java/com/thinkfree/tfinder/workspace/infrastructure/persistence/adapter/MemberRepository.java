@@ -26,7 +26,7 @@ public class MemberRepository implements IMemberRepository {
         return memberJpaRepository.findById(id).orElseThrow(
                 () -> {
                     log.warn("member not found, id : {}", id);
-                    throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
+                    throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND);
                 }
         ).toDomain();
     }
@@ -41,7 +41,7 @@ public class MemberRepository implements IMemberRepository {
         return memberJpaRepository.findByEmail(email).orElseThrow(
                 () -> {
                     log.warn("member not found, email : {}", email);
-                    throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
+                    throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND);
                 }
         ).toDomain();
     }
