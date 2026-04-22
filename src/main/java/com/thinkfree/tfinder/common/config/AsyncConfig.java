@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.config;
+package com.thinkfree.tfinder.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
