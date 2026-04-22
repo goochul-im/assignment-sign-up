@@ -1,10 +1,8 @@
 package com.thinkfree.tfinder.workspace.service.adapter;
 
-import com.thinkfree.tfinder.common.JwtConstant;
 import com.thinkfree.tfinder.workspace.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.workspace.service.iface.IJwtManager;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -14,8 +12,6 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +24,11 @@ public class JwtManager implements IJwtManager {
     private static final String FROM_EMAIL = "from_email";
     private static final String TO_EMAIL = "to_email";
     private static final String WORKSPACE_URL = "workspace_url";
-    private static final String EXPIRATION_TIME = "expiration_time";
+    private static final String INVITE_TOKEN_SUBJECT = "workspace_invite_token";
+
+    private static final String MEMBER_ID = "member_id";
+    private static final String ACCESS_TOKEN_SUBJECT = "access_token";
+
 
     public JwtManager(@Value("${spring.jwt.key}") String secretKey) {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey));
@@ -40,14 +40,15 @@ public class JwtManager implements IJwtManager {
         claims.put(FROM_EMAIL, fromEmail);
         claims.put(WORKSPACE_URL, workspaceUrl);
         claims.put(TO_EMAIL, toEmail);
-        String subject = "workspace invite token";
 
-        return produceJWT(subject, expirationTime, claims);
+        return produceJwt(INVITE_TOKEN_SUBJECT, expirationTime, claims);
     }
 
     @Override
-    public String generateAccessToken() {
-        return "";
+    public String generateAccessToken(Long memberId, Instant expirationTime) {
+        HashMap<String, Long> claims = new HashMap<>();
+        claims.put(MEMBER_ID, memberId);
+        return produceJwt(ACCESS_TOKEN_SUBJECT, expirationTime, claims);
     }
 
     @Override
@@ -55,11 +56,15 @@ public class JwtManager implements IJwtManager {
         Claims claims;
 
         try {
+
             claims = Jwts.parser()
                     .verifyWith(secretKey)
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
+
+            if (!claims.getSubject().equals(INVITE_TOKEN_SUBJECT))
+                throw new JwtException("this token isn't for invite");
 
         } catch (JwtException e) {
             throw new RuntimeException(""); //TODO: 예외처리 수정 필요
@@ -76,7 +81,7 @@ public class JwtManager implements IJwtManager {
         );
     }
 
-    private String produceJWT(String subject, Instant expirationTime, Map<String, ?> claims) {
+    private String produceJwt(String subject, Instant expirationTime, Map<String, ?> claims) {
 
         return Jwts.builder()
                 .expiration(Date.from(expirationTime))
