@@ -1,10 +1,10 @@
 package com.thinkfree.tfinder.common.service.adpater;
 
+import com.thinkfree.tfinder.common.exception.BusinessException;
+import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.service.dto.InviteTokenResult;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +15,8 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.thinkfree.tfinder.common.exception.ErrorCode.*;
 
 @Component
 public class JwtManager implements IJwtManager {
@@ -67,7 +69,7 @@ public class JwtManager implements IJwtManager {
                 throw new JwtException("this token isn't for invite");
 
         } catch (JwtException e) {
-            throw new RuntimeException(""); //TODO: 예외처리 수정 필요
+            throw new BusinessException(e.getMessage(), INVITE_TOKEN_ERROR);
         }
 
         String fromEmail = (String) claims.get(FROM_EMAIL);
