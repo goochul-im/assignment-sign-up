@@ -10,4 +10,6 @@ public interface IMemberRepository {
 
     boolean isExistByEmail(String email);
 
+    Member findByEmail(String email);
+
 }
