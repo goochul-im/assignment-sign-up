@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -18,6 +19,12 @@ public class GoogleMailSender implements IMailSender {
     private final JavaMailSender mailSender;
     @Value("${spring.mail.username}")
     private String fromEMail;
+
+    @Override
+    @Async
+    public void asyncSend(String toEmail, String title, String message) {
+        send(toEmail, title, message);
+    }
 
     @Override
     public void send(String toEmail, String title, String message) {
