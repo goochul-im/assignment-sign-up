@@ -1,0 +1,25 @@
+package com.thinkfree.tfinder.common.exception;
+
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+import static org.springframework.http.HttpStatus.*;
+
+@Getter
+public enum ErrorCode {
+
+    INVITE_TOKEN_ERROR(BAD_REQUEST,"I-001"),
+    SIGNUP_FIRST(SEE_OTHER, "I-002"),
+
+    MEMBER_NOT_FOUND(NOT_FOUND, "M-001"),
+    ;
+    private final HttpStatus statusCode;
+    private final String code;
+
+    ErrorCode(HttpStatus statusCode, String code) {
+        this.statusCode = statusCode;
+        this.code = code;
+    }
+
+
+}
