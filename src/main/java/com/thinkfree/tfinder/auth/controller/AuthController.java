@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.workspace.controller;
+package com.thinkfree.tfinder.auth.controller;
 
 import com.thinkfree.tfinder.workspace.service.iface.IAuthUseCase;
 import lombok.RequiredArgsConstructor;

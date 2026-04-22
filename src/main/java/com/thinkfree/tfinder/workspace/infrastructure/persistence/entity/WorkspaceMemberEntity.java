@@ -1,6 +1,6 @@
 package com.thinkfree.tfinder.workspace.infrastructure.persistence.entity;
 
-import com.thinkfree.tfinder.workspace.domain.MemberRole;
+import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMember;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,7 +21,7 @@ public class WorkspaceMemberEntity {
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
-    private MemberRole role;
+    private WorkspaceMemberRole role;
     @Column(nullable = false)
     private boolean isSaveSearchTerm;
     @Column()
@@ -31,7 +31,7 @@ public class WorkspaceMemberEntity {
     @Column(nullable = false)
     private Long memberId; // 왜 다른 엔티티 클래스를 쓰지 않고 id를 직접 넣었는가
 
-    public WorkspaceMemberEntity(MemberRole role, boolean isSaveSearchTerm, Instant lastLoginTime, Long workspaceId, Long memberId) {
+    public WorkspaceMemberEntity(WorkspaceMemberRole role, boolean isSaveSearchTerm, Instant lastLoginTime, Long workspaceId, Long memberId) {
         this.role = role;
         this.isSaveSearchTerm = isSaveSearchTerm;
         this.lastLoginTime = lastLoginTime;

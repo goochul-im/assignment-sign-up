@@ -17,17 +17,17 @@ public class WorkspaceEntity {
     @Column(nullable = false, unique = true)
     private String name;
     @Column(nullable = false, unique = true)
-    private String address;
+    private String url;
     @Column(name = "remain_message_count")
     private Long remainMessageCount = 0L;
     @Column
     private boolean isDelete = false;
 
-    public WorkspaceEntity(String name, String address) {
+    public WorkspaceEntity(String name, String url) {
         this.name = name;
-        this.address = address;
+        this.url = url;
         // remainMessageCount랑 isDelete가 없는 이유?
-        // 생성자를 이용하는 경우는 엔티티를 만들 떄는 새로 워크스페이스를 만들 때
+        // 생성자를 이용하는 경우는 엔티티를 만들 떄는 새로 워크스페이스를 만드는 경우임
         // 워크스페이스가 새로 만들어질 때 remainMessageCount와 isDelete는 기본값이 있어야 함
     }
 
@@ -35,7 +35,7 @@ public class WorkspaceEntity {
         return new Workspace(
                 this.id,
                 this.name,
-                this.address,
+                this.url,
                 this.remainMessageCount,
                 this.isDelete
         );
@@ -45,7 +45,7 @@ public class WorkspaceEntity {
         return new WorkspaceEntity(
                 domain.getId(),
                 domain.getWorkspaceName(),
-                domain.getAddress(),
+                domain.getWorkspaceUrl(),
                 domain.getRemainMessageCount(),
                 domain.isDelete()
         );

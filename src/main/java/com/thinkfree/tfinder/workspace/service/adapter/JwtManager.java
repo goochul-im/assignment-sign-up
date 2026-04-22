@@ -1,6 +1,6 @@
-package com.thinkfree.tfinder.workspace.infrastructure.external.adpater;
+package com.thinkfree.tfinder.workspace.service.adapter;
 
-import com.thinkfree.tfinder.workspace.infrastructure.external.iface.IJwtManager;
+import com.thinkfree.tfinder.workspace.service.iface.IJwtManager;
 import org.springframework.stereotype.Component;
 
 @Component

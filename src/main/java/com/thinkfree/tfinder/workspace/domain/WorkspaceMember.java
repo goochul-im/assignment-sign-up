@@ -19,8 +19,8 @@ public class WorkspaceMember {
     private Long id;
     private Long memberId;
     private Long workspaceId;
-    private MemberRole role;
+    private WorkspaceMemberRole role;
     private boolean isSaveSearchTerm;
-    private Instant lastLoginTime;
+    private Instant lastLoginTime; // 마지막 워크스페이스 접속 시간을 어떻게 잴 것인가
 
 }
