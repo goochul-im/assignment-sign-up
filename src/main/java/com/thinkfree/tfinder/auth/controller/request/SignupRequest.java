@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.auth.controller.dto;
+package com.thinkfree.tfinder.auth.controller.request;
 
 public record SignupRequest(
         String name,
