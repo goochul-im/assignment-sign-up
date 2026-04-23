@@ -13,7 +13,7 @@ Content-Type: application/json
 
 ###
 GET localhost:8080/auth/test
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NzY5MTIwOTQsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6Imdvb2NoMTIzQG5hdmVyLmNvbSJ9.tJSYsI41nUPi7RGUH38cpKYguIE9xfRxOHC8mHn-JEs
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NzY5NDU0NzgsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6Im5ld0BlbWFpbC5jb20ifQ.PBhCwz7T4uzq_HOAvqSJRHhYg0xgBXxtC8tbGXBaMlE
 
 ###
 POST http://localhost:8080/auth/signup

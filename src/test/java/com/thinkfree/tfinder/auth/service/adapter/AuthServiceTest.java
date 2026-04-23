@@ -3,22 +3,19 @@ package com.thinkfree.tfinder.auth.service.adapter;
 import com.thinkfree.tfinder.auth.service.dto.LoginDto;
 import com.thinkfree.tfinder.auth.service.dto.LoginResult;
 import com.thinkfree.tfinder.auth.service.dto.SignupDto;
-import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
-import com.thinkfree.tfinder.workspace.domain.Member;
 import com.thinkfree.tfinder.workspace.domain.MemberType;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.iface.IMemberRepository;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.MemberJpaRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.AdditionalAnswers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +27,7 @@ class AuthServiceTest {
     @Mock
     private PasswordEncoder encoder;
     @Mock
-    private IMemberRepository memberRepository;
+    private MemberJpaRepository memberRepository;
     @Mock
     private IJwtManager jwtManager;
 
@@ -50,7 +47,7 @@ class AuthServiceTest {
                 passwd
         );
 
-        Member returnMember = new Member(
+        MemberEntity returnMember = new MemberEntity(
                 1L,
                 name,
                 email,
@@ -58,19 +55,19 @@ class AuthServiceTest {
                 MemberType.DEFAULT
         );
 
-        when(memberRepository.isExistByEmail(any())).thenReturn(false);
+        when(memberRepository.existsByEmail(any())).thenReturn(false);
         when(encoder.encode(passwd)).thenReturn(encodePasswd);
         when(memberRepository.save(any())).thenReturn(returnMember);
 
         //when
-        Member member = authService.signUp(dto);
+        MemberEntity member = authService.signUp(dto);
 
         //then
         assertThat(member.getId()).isNotNull();
         assertThat(member.getEmail()).isEqualTo(email);
         assertThat(member.getName()).isEqualTo(name);
         assertThat(member.getPassword()).isEqualTo(encodePasswd);
-        assertThat(member.getUserType()).isEqualTo(MemberType.DEFAULT);
+        assertThat(member.getMemberType()).isEqualTo(MemberType.DEFAULT);
     }
 
     @Test
@@ -79,14 +76,13 @@ class AuthServiceTest {
         String email = "test@email.com";
         String name = "test";
         String passwd = "testPasswd";
-        String encodePasswd = "encoded";
         SignupDto dto = new SignupDto(
                 email,
                 name,
                 passwd
         );
 
-        when(memberRepository.isExistByEmail(any())).thenReturn(true);
+        when(memberRepository.existsByEmail(any())).thenReturn(true);
 
         //when
         assertThrows(BusinessException.class, () -> authService.signUp(dto));
@@ -102,7 +98,7 @@ class AuthServiceTest {
                 email,
                 passwd
         );
-        Member returnMember = new Member(
+        MemberEntity returnMember = new MemberEntity(
                 1L,
                 "name",
                 email,
@@ -110,7 +106,7 @@ class AuthServiceTest {
                 MemberType.DEFAULT
         );
 
-        when(memberRepository.findByEmail(any())).thenReturn(returnMember);
+        when(memberRepository.findByEmail(any())).thenReturn(Optional.of(returnMember));
         when(encoder.matches(any(), any())).thenReturn(true);
         when(jwtManager.generateAccessToken(any(), any())).thenReturn(accessToken);
 
@@ -130,7 +126,7 @@ class AuthServiceTest {
                 email,
                 passwd
         );
-        Member returnMember = new Member(
+        MemberEntity returnMember = new MemberEntity(
                 1L,
                 "name",
                 email,
@@ -138,12 +134,11 @@ class AuthServiceTest {
                 MemberType.DEFAULT
         );
 
-        when(memberRepository.findByEmail(any())).thenReturn(returnMember);
+        when(memberRepository.findByEmail(any())).thenReturn(Optional.of(returnMember));
         when(encoder.matches(any(), any())).thenReturn(false);
 
         //when & then
         assertThrows(BusinessException.class, () -> authService.login(dto));
     }
-
 
 }

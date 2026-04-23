@@ -3,14 +3,19 @@ package com.thinkfree.tfinder.workspace.service.adapter;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
-import com.thinkfree.tfinder.workspace.domain.*;
+import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
+import com.thinkfree.tfinder.workspace.domain.MemberType;
 import com.thinkfree.tfinder.workspace.infrastructure.external.iface.IMailSender;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.iface.IMemberRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.iface.IWorkspaceMemberRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.iface.IWorkspaceRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.MemberJpaRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.WorkspaceJpaRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.WorkspaceMemberJpaRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
@@ -22,11 +27,11 @@ import static org.mockito.BDDMockito.*;
 class WorkspaceServiceTest {
 
     @Mock
-    private IWorkspaceMemberRepository workspaceMemberRepository;
+    private WorkspaceMemberJpaRepository workspaceMemberRepository;
     @Mock
-    private IMemberRepository memberRepository;
+    private MemberJpaRepository memberRepository;
     @Mock
-    private IWorkspaceRepository workspaceRepository;
+    private WorkspaceJpaRepository workspaceRepository;
     @Mock
     private IMailSender mailSender;
     @Mock
@@ -46,7 +51,7 @@ class WorkspaceServiceTest {
                 "testworkspace"
         );
 
-        Member member = new Member(
+        MemberEntity member = new MemberEntity(
                 1L,
                 "testUser",
                 toEmail,
@@ -54,7 +59,7 @@ class WorkspaceServiceTest {
                 MemberType.DEFAULT
         );
 
-        Workspace workspace = new Workspace(
+        WorkspaceEntity workspace = new WorkspaceEntity(
                 1L,
                 "testWorkspace",
                 "testUrl",
@@ -62,27 +67,27 @@ class WorkspaceServiceTest {
                 false
         );
 
-        WorkspaceMember workspaceMember = new WorkspaceMember(
+        WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(
                 1L,
-                member.getId(),
-                workspace.getId(),
                 WorkspaceMemberRole.MEMBER,
                 false,
-                Instant.now()
+                Instant.now(),
+                workspace.getId(),
+                member.getId()
         );
 
 
         given(jwtManager.parsingInviteToken(token)).willReturn(tokenResult);
-        given(memberRepository.isExistByEmail(toEmail)).willReturn(true);
-        given(memberRepository.findByEmail(toEmail)).willReturn(member);
-        given(workspaceRepository.findByUrl(any())).willReturn(workspace);
+        given(memberRepository.existsByEmail(toEmail)).willReturn(true);
+        given(memberRepository.findByEmail(toEmail)).willReturn(java.util.Optional.of(member));
+        given(workspaceRepository.findByUrl(any())).willReturn(java.util.Optional.of(workspace));
 
         //when
         workspaceService.acceptMember(token);
 
         //then
         then(jwtManager).should(times(1)).parsingInviteToken(token);
-        then(memberRepository).should(times(1)).isExistByEmail(toEmail);
+        then(memberRepository).should(times(1)).existsByEmail(toEmail);
         then(memberRepository).should(times(1)).findByEmail(toEmail);
         then(workspaceRepository).should(times(1)).findByUrl(any());
         then(workspaceMemberRepository).should(times(1)).save(any());
@@ -101,7 +106,7 @@ class WorkspaceServiceTest {
         );
 
         given(jwtManager.parsingInviteToken(token)).willReturn(tokenResult);
-        given(memberRepository.isExistByEmail(toEmail)).willReturn(false);
+        given(memberRepository.existsByEmail(toEmail)).willReturn(false);
 
         //when & then
         assertThrows(BusinessException.class, () -> workspaceService.acceptMember(token));

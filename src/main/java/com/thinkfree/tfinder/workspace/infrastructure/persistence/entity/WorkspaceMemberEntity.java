@@ -1,7 +1,6 @@
 package com.thinkfree.tfinder.workspace.infrastructure.persistence.entity;
 
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
-import com.thinkfree.tfinder.workspace.domain.WorkspaceMember;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,28 +36,6 @@ public class WorkspaceMemberEntity {
         this.lastLoginTime = lastLoginTime;
         this.workspaceId = workspaceId;
         this.memberId = memberId;
-    }
-
-    public WorkspaceMember toDomain() {
-        return new WorkspaceMember(
-                this.id,
-                this.workspaceId,
-                this.memberId,
-                this.role,
-                this.isSaveSearchTerm,
-                this.lastLoginTime
-        );
-    }
-
-    public static WorkspaceMemberEntity fromDomain(WorkspaceMember domain) {
-        return new WorkspaceMemberEntity(
-                domain.getId(),
-                domain.getRole(),
-                domain.isSaveSearchTerm(),
-                domain.getLastLoginTime(),
-                domain.getWorkspaceId(),
-                domain.getMemberId()
-        );
     }
 
 }

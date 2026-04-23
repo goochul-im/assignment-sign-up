@@ -7,9 +7,9 @@ import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
-import com.thinkfree.tfinder.workspace.domain.Member;
 import com.thinkfree.tfinder.workspace.domain.MemberType;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.iface.IMemberRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.MemberJpaRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +22,7 @@ import java.time.Instant;
 public class AuthService implements IAuthUseCase {
 
     private final PasswordEncoder encoder;
-    private final IMemberRepository memberRepository;
+    private final MemberJpaRepository memberRepository;
     private final IJwtManager jwtManager;
 
     @Value("${spring.jwt.expiration.access}")
@@ -32,11 +32,11 @@ public class AuthService implements IAuthUseCase {
     private long JWT_REFRESH_EXPIRATION_TIME;
 
     @Override
-    public Member signUp(SignupDto dto) {
+    public MemberEntity signUp(SignupDto dto) {
 
-        if (memberRepository.isExistByEmail(dto.email())) throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
+        if (memberRepository.existsByEmail(dto.email())) throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
 
-        Member member = new Member(
+        MemberEntity member = new MemberEntity(
                 dto.name(),
                 dto.email(),
                 encoder.encode(dto.password()),
@@ -49,7 +49,9 @@ public class AuthService implements IAuthUseCase {
     @Override
     public LoginResult login(LoginDto dto) {
 
-        Member member = memberRepository.findByEmail(dto.email());
+        MemberEntity member = memberRepository.findByEmail(dto.email()).orElseThrow(
+                () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
+        );
         if (!encoder.matches(dto.password(), member.getPassword())) {
             throw new BusinessException(ErrorCode.PASSWORD_UNMATCHED);
         }

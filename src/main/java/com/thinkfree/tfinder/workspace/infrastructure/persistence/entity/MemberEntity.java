@@ -1,6 +1,5 @@
 package com.thinkfree.tfinder.workspace.infrastructure.persistence.entity;
 
-import com.thinkfree.tfinder.workspace.domain.Member;
 import com.thinkfree.tfinder.workspace.domain.MemberType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -32,26 +31,6 @@ public class MemberEntity {
         this.email = email;
         this.password = password;
         this.memberType = memberType;
-    }
-
-    public Member toDomain() {
-        return new Member(
-                this.id,
-                this.name,
-                this.email,
-                this.password,
-                this.memberType
-        );
-    }
-
-    public static MemberEntity fromDomain(Member domain) {
-        return new MemberEntity(
-                domain.getId(),
-                domain.getName(),
-                domain.getEmail(),
-                domain.getPassword(),
-                domain.getUserType()
-        );
     }
 
 }

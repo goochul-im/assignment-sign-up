@@ -2,7 +2,6 @@ package com.thinkfree.tfinder.auth.security;
 
 import com.thinkfree.tfinder.common.service.dto.AccessTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.iface.IMemberRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
