@@ -1,6 +1,8 @@
 package com.thinkfree.tfinder.auth.security;
 
 import com.thinkfree.tfinder.auth.security.dto.SecurityErrorResponse;
+import com.thinkfree.tfinder.common.exception.ErrorCode;
+import com.thinkfree.tfinder.common.exception.ErrorResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,23 +16,20 @@ import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
 
         log.warn("권한 인가가 거부되었습니다.");
 
-        SecurityErrorResponse errorResponse = new SecurityErrorResponse(
-                HttpStatus.FORBIDDEN,
-                accessDeniedException.getMessage()
-        );
+        Map<String, String> errorResponse = ErrorResponse.toSecurityErrorResponse(ErrorCode.AUTHENTICATION_FAILED);
 
         String body = objectMapper.writeValueAsString(errorResponse);
 
