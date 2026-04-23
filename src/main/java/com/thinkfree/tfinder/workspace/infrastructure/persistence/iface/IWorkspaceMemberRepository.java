@@ -10,6 +10,9 @@ public interface IWorkspaceMemberRepository {
 
     WorkspaceMember findById(Long workspaceMemberId);
 
+    /**
+     *
+     */
     List<WorkspaceMember> findByWorkspaceId(Long workspaceId);
 
 }

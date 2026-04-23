@@ -13,7 +13,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
-    private final CustomUserInfo member;
+    private final CustomUserInfo member; // 이걸 굳이 래핑해서 쓸 이유가 있을까?
+
+    public long getMemberId() {
+        return member.memberId();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

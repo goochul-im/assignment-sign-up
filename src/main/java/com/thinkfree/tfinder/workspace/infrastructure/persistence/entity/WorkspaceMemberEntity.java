@@ -25,7 +25,7 @@ public class WorkspaceMemberEntity {
     @Column(nullable = false)
     private boolean isSaveSearchTerm;
     @Column()
-    private Instant lastLoginTime; // DB 저장시 UTC로 표준화
+    private Instant lastLoginTime; // DB 저장시 Timestamp로 저장됨, TZ가 있음.
     @Column(nullable = false)
     private Long workspaceId;
     @Column(nullable = false)

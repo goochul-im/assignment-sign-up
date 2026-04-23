@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+/**
+ * 이렇게 굳이 계층을 나눌 필요가 있나?
+ */
 @Slf4j
 @Repository
 @RequiredArgsConstructor
