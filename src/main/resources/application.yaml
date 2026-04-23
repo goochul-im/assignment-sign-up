@@ -33,3 +33,6 @@ spring:
     expiration:
       access : ${JWT_ACCESS_EXPIRATION_SECOND}
       refresh: ${JWT_REFRESH_EXPIRATION_SECOND}
+
+frontend:
+  url: ${FRONTEND_URL}
