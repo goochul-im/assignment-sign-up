@@ -14,6 +14,7 @@ import com.thinkfree.tfinder.workspace.infrastructure.persistence.iface.IWorkspa
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -22,13 +23,16 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class WorkspaceService implements IWorkspaceUseCase {
 
-    private final IWorkspaceRepository workspaceRepository;
-    private final IMemberRepository memberRepository;
     private final IWorkspaceMemberRepository workspaceMemberRepository;
+    private final IMemberRepository memberRepository;
+    private final IWorkspaceRepository workspaceRepository;
     private final IMailSender mailSender;
     private final IJwtManager jwtManager;
 
-    private final Long inviteTokenExpirationTime = (long) (2 * 24 * 60 * 60);
+    private final long inviteTokenExpirationTime = 2 * 24 * 60 * 60;
+
+    @Value("${frontend.url}")
+    private String FRONTEND_URL;
 
     @Override
     public void inviteMember(String toEmail, Long inviterId, Long workspaceId) {
@@ -42,12 +46,12 @@ public class WorkspaceService implements IWorkspaceUseCase {
                 inviteWorkspace.getWorkspaceUrl(),
                 Instant.now().plusSeconds(inviteTokenExpirationTime));
 
-        String subject = ""; //TODO: subject 넣기
+        String subject = "invite token"; // TODO: 이걸 상수로 뺄까? 아니면 환경변수로 뺄까?
         mailSender.asyncSend(
                 toEmail,
                 subject,
-                makeInviteMailMessage(inviteToken)
-                );
+                makeInviteMailMessage(inviter, inviteToken)
+        );
 
     }
 
@@ -77,10 +81,13 @@ public class WorkspaceService implements IWorkspaceUseCase {
 
     }
 
-    private String makeInviteMailMessage(String token) {
+    private String makeInviteMailMessage(Member member, String token) {
         // 들어가야 할 정보
         // 클릭할 URL + 메시지 내용
-        return "";
+        StringBuilder sb = new StringBuilder()
+                .append("<p>tfinder에서 초대가 왔습니다. 다음 링크를 눌러 참가하세요</p>")
+                .append("<p><a href=" + FRONTEND_URL + ">참가하기</a></p>");
+        return sb.toString();
     }
 
 }
