@@ -30,3 +30,6 @@ spring:
 
   jwt:
     key: ${JWT_SECRET}
+    expiration:
+      access : ${JWT_ACCESS_EXPIRATION_SECOND}
+      refresh: ${JWT_REFRESH_EXPIRATION_SECOND}
