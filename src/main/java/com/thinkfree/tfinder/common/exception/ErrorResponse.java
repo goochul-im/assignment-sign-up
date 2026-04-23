@@ -3,6 +3,9 @@ package com.thinkfree.tfinder.common.exception;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @AllArgsConstructor
 public class ErrorResponse {
 
@@ -12,12 +15,21 @@ public class ErrorResponse {
 
     public static ResponseEntity<ErrorResponse> toEntity(ErrorCode errorCode) {
         return ResponseEntity
-                .status(errorCode.getStatusCode().value())
+                .status(errorCode.getStatus().value())
                 .body(new ErrorResponse(
-                        errorCode.getStatusCode().value(),
-                        errorCode.getStatusCode().getReasonPhrase(),
+                        errorCode.getStatus().value(),
+                        errorCode.getStatus().getReasonPhrase(),
                         errorCode.getCode()
                 ));
+    }
+
+    // TODO: 이렇게 만들어도 되는건지?
+    public static Map<String, String> toSecurityErrorResponse(ErrorCode errorCode) {
+        HashMap<String, String> map = new HashMap<>();
+        map.put("status", String.valueOf(errorCode.getStatus().value()));
+        map.put("error", errorCode.getStatus().getReasonPhrase());
+        map.put("code", errorCode.getCode());
+        return map;
     }
 
 }
