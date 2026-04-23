@@ -1,12 +1,11 @@
 package com.thinkfree.tfinder.auth.controller;
 
-import com.thinkfree.tfinder.auth.controller.dto.LoginRequest;
-import com.thinkfree.tfinder.auth.controller.dto.SignupRequest;
+import com.thinkfree.tfinder.auth.controller.request.LoginRequest;
+import com.thinkfree.tfinder.auth.controller.request.SignupRequest;
 import com.thinkfree.tfinder.auth.service.dto.LoginDto;
 import com.thinkfree.tfinder.auth.service.dto.LoginResult;
 import com.thinkfree.tfinder.auth.service.dto.SignupDto;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
-import com.thinkfree.tfinder.workspace.domain.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
