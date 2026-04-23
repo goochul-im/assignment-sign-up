@@ -1,0 +1,35 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+###
+POST localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "gooch123@naver.com",
+  "password": "1234"
+}
+
+###
+GET localhost:8080/auth/test
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NzY5MTIwOTQsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6Imdvb2NoMTIzQG5hdmVyLmNvbSJ9.tJSYsI41nUPi7RGUH38cpKYguIE9xfRxOHC8mHn-JEs
+
+###
+POST http://localhost:8080/auth/signup
+Content-Type: application/json
+
+{
+  "email": "new@email.com",
+  "password": "1234",
+  "name": " 새로운 사용자"
+}
+
+###
+POST localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "new@email.com",
+  "password": "1234"
+}
