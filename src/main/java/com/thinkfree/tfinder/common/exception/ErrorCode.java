@@ -13,7 +13,9 @@ public enum ErrorCode {
 
     ENTITY_NOT_FOUND(NOT_FOUND, "E-001"),
 
-    ACCESS_TOKEN_ERROR(BAD_REQUEST, "A-001");
+    ACCESS_TOKEN_ERROR(BAD_REQUEST, "A-001"),
+    PASSWORD_UNMATCHED(BAD_REQUEST, "A-002"),
+    DUPLICATE_EMAIL(CONFLICT, "A-003");
 
     private final HttpStatus statusCode;
     private final String code;

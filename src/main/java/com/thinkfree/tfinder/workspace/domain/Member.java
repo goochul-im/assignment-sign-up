@@ -13,4 +13,10 @@ public class Member {
     private String password;
     private MemberType userType;
 
+    public Member(String name, String email, String password, MemberType userType) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.userType = userType;
+    }
 }

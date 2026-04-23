@@ -47,9 +47,9 @@ public class JwtManager implements IJwtManager {
     }
 
     @Override
-    public String generateAccessToken(Long memberId, Instant expirationTime) {
-        HashMap<String, Long> claims = new HashMap<>();
-        claims.put(MEMBER_EMAIL, memberId);
+    public String generateAccessToken(String memberEmail, Instant expirationTime) {
+        HashMap<String, String > claims = new HashMap<>();
+        claims.put(MEMBER_EMAIL, memberEmail);
         return produceJwt(ACCESS_TOKEN_SUBJECT, expirationTime, claims);
     }
 

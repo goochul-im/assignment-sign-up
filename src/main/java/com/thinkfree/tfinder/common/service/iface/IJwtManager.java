@@ -9,7 +9,7 @@ public interface IJwtManager {
 
     String generateInviteToken(String fromEmail, String toEmail, String workspaceUrl, Instant expirationTime);
 
-    String generateAccessToken(Long memberId, Instant expirationTime);
+    String generateAccessToken(String memberEmail, Instant expirationTime);
 
     InviteTokenResult parsingInviteToken(String token);
 

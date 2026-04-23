@@ -55,7 +55,7 @@ class JwtManagerTest {
     void 초대_토큰이_아닐_경우_예외를_반환해야_한다(){
         //given
         Instant expTime = Instant.now().plusSeconds(1000);
-        String token = jwtManager.generateAccessToken(1L, expTime);
+        String token = jwtManager.generateAccessToken("test@email.com", expTime);
 
         //when & then
         assertThrows(RuntimeException.class, () -> jwtManager.parsingInviteToken(token));
