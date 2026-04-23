@@ -11,7 +11,7 @@ import com.thinkfree.tfinder.workspace.infrastructure.external.iface.IMailSender
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.iface.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.iface.IWorkspaceMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.iface.IWorkspaceRepository;
-import com.thinkfree.tfinder.workspace.service.dto.InviteTokenResult;
+import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
