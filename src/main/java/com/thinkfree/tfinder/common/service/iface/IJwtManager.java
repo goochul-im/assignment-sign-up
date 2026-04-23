@@ -1,6 +1,7 @@
 package com.thinkfree.tfinder.common.service.iface;
 
-import com.thinkfree.tfinder.workspace.service.dto.InviteTokenResult;
+import com.thinkfree.tfinder.common.service.dto.AccessTokenResult;
+import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 
 import java.time.Instant;
 
@@ -11,5 +12,7 @@ public interface IJwtManager {
     String generateAccessToken(Long memberId, Instant expirationTime);
 
     InviteTokenResult parsingInviteToken(String token);
+
+    AccessTokenResult parsingAccessToken(String token);
 
 }

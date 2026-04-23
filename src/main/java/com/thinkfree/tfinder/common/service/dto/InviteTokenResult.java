@@ -1,6 +1,4 @@
-package com.thinkfree.tfinder.workspace.service.dto;
-
-import java.time.Instant;
+package com.thinkfree.tfinder.common.service.dto;
 
 public record InviteTokenResult(
         String toEmail,

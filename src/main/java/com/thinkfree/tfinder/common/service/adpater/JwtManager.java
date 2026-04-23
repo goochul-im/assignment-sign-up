@@ -1,9 +1,9 @@
 package com.thinkfree.tfinder.common.service.adpater;
 
 import com.thinkfree.tfinder.common.exception.BusinessException;
-import com.thinkfree.tfinder.common.exception.ErrorCode;
+import com.thinkfree.tfinder.common.service.dto.AccessTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
-import com.thinkfree.tfinder.workspace.service.dto.InviteTokenResult;
+import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -28,7 +28,7 @@ public class JwtManager implements IJwtManager {
     private final String WORKSPACE_URL = "workspace_url";
     private final String INVITE_TOKEN_SUBJECT = "workspace_invite_token";
 
-    private final String MEMBER_ID = "member_id";
+    private final String MEMBER_EMAIL = "member_email";
     private final String ACCESS_TOKEN_SUBJECT = "access_token";
 
 
@@ -49,7 +49,7 @@ public class JwtManager implements IJwtManager {
     @Override
     public String generateAccessToken(Long memberId, Instant expirationTime) {
         HashMap<String, Long> claims = new HashMap<>();
-        claims.put(MEMBER_ID, memberId);
+        claims.put(MEMBER_EMAIL, memberId);
         return produceJwt(ACCESS_TOKEN_SUBJECT, expirationTime, claims);
     }
 
@@ -80,6 +80,32 @@ public class JwtManager implements IJwtManager {
                 toEmail,
                 fromEmail,
                 workspaceUrl
+        );
+    }
+
+    @Override
+    public AccessTokenResult parsingAccessToken(String token) {
+        Claims claims;
+
+        try {
+
+            claims = Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            if (!claims.getSubject().equals(ACCESS_TOKEN_SUBJECT))
+                throw new JwtException("this token isn't for accessToken");
+
+        } catch (JwtException e) {
+            throw new BusinessException(e.getMessage(), ACCESS_TOKEN_ERROR);
+        }
+
+        String memberEmail = (String) claims.get(MEMBER_EMAIL);
+
+        return new AccessTokenResult(
+                memberEmail
         );
     }
 

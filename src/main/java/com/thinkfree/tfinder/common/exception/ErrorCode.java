@@ -12,7 +12,9 @@ public enum ErrorCode {
     SIGNUP_FIRST(SEE_OTHER, "I-002"),
 
     ENTITY_NOT_FOUND(NOT_FOUND, "E-001"),
-    ;
+
+    ACCESS_TOKEN_ERROR(BAD_REQUEST, "A-001");
+
     private final HttpStatus statusCode;
     private final String code;
 

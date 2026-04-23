@@ -1,7 +1,7 @@
 package com.thinkfree.tfinder.workspace.service.adapter;
 
 import com.thinkfree.tfinder.common.service.adpater.JwtManager;
-import com.thinkfree.tfinder.workspace.service.dto.InviteTokenResult;
+import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
