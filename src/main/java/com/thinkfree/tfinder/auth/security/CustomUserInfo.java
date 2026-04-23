@@ -1,7 +1,7 @@
 package com.thinkfree.tfinder.auth.security;
 
 public record CustomUserInfo(
-        Long memberId,
+        long memberId,
         String email,
         String password
 ) {
