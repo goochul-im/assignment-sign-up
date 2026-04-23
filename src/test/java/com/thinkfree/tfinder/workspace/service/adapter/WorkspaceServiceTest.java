@@ -80,7 +80,7 @@ class WorkspaceServiceTest {
         given(jwtManager.parsingInviteToken(token)).willReturn(tokenResult);
         given(memberRepository.existsByEmail(toEmail)).willReturn(true);
         given(memberRepository.findByEmail(toEmail)).willReturn(java.util.Optional.of(member));
-        given(workspaceRepository.findByUrl(any())).willReturn(java.util.Optional.of(workspace));
+        given(workspaceRepository.findByWorkspaceUrl(any())).willReturn(java.util.Optional.of(workspace));
 
         //when
         workspaceService.acceptMember(token);
@@ -89,7 +89,7 @@ class WorkspaceServiceTest {
         then(jwtManager).should(times(1)).parsingInviteToken(token);
         then(memberRepository).should(times(1)).existsByEmail(toEmail);
         then(memberRepository).should(times(1)).findByEmail(toEmail);
-        then(workspaceRepository).should(times(1)).findByUrl(any());
+        then(workspaceRepository).should(times(1)).findByWorkspaceUrl(any());
         then(workspaceMemberRepository).should(times(1)).save(any());
     }
 
@@ -111,7 +111,6 @@ class WorkspaceServiceTest {
         //when & then
         assertThrows(BusinessException.class, () -> workspaceService.acceptMember(token));
 
-        //then
     }
 
 }
