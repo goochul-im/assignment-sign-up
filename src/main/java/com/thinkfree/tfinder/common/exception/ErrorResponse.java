@@ -1,18 +1,18 @@
 package com.thinkfree.tfinder.common.exception;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.http.ResponseEntity;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@AllArgsConstructor
-public class ErrorResponse {
-
-    private final int status;
-    private final String error;
-    private final String code;
-    private Map<String, String > cause;
+public record ErrorResponse(
+        int status,
+        String error,
+        String code,
+        Map<String, String> cause
+) {
 
     public static ResponseEntity<ErrorResponse> toEntity(ErrorCode errorCode) {
         return ResponseEntity

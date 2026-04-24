@@ -1,5 +1,6 @@
 package com.thinkfree.tfinder.auth.security;
 
+import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,12 +22,16 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final OncePerRequestFilter jwtAuthenticationFilter;
+    private final IJwtManager jwtManager;
+    private final CustomUserDetailsService customUserDetailsService;
     private final AccessDeniedHandler customAccessDeniedHandler;
     private final AuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) {
+
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtManager, customUserDetailsService);
+
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/test").authenticated()
