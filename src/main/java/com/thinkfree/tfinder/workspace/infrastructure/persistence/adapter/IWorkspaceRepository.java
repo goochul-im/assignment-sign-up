@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface WorkspaceJpaRepository extends JpaRepository<WorkspaceEntity, Long> {
+public interface IWorkspaceRepository extends JpaRepository<WorkspaceEntity, Long> {
 
     Optional<WorkspaceEntity> findByWorkspaceUrl(String workspaceUrl);
 
