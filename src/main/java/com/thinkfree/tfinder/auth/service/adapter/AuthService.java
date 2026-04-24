@@ -8,7 +8,7 @@ import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.domain.MemberType;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.MemberJpaRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +22,7 @@ import java.time.Instant;
 public class AuthService implements IAuthUseCase {
 
     private final PasswordEncoder encoder;
-    private final MemberJpaRepository memberRepository;
+    private final IMemberRepository memberRepository;
     private final IJwtManager jwtManager;
 
     @Value("${spring.jwt.expiration.access}")

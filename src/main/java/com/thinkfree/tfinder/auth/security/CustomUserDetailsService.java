@@ -1,6 +1,6 @@
 package com.thinkfree.tfinder.auth.security;
 
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.MemberJpaRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,12 +12,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final MemberJpaRepository memberJpaRepository;
+    private final IMemberRepository memberRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        MemberEntity member = memberJpaRepository.findByEmail(email).orElseThrow(
+        MemberEntity member = memberRepository.findByEmail(email).orElseThrow(
                 () -> new UsernameNotFoundException("email [" + email + "] not found")
         );
 

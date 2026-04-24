@@ -6,7 +6,7 @@ import com.thinkfree.tfinder.auth.service.dto.SignupDto;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.domain.MemberType;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.MemberJpaRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +27,7 @@ class AuthServiceTest {
     @Mock
     private PasswordEncoder encoder;
     @Mock
-    private MemberJpaRepository memberRepository;
+    private IMemberRepository memberRepository;
     @Mock
     private IJwtManager jwtManager;
 

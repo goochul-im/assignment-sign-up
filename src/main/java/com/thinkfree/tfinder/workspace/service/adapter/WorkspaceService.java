@@ -6,9 +6,9 @@ import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.workspace.infrastructure.external.iface.IMailSender;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.MemberJpaRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.WorkspaceJpaRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.WorkspaceMemberJpaRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IMemberRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IWorkspaceRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IWorkspaceMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
@@ -23,9 +23,9 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class WorkspaceService implements IWorkspaceUseCase {
 
-    private final WorkspaceMemberJpaRepository workspaceMemberJpaRepository;
-    private final MemberJpaRepository memberJpaRepository;
-    private final WorkspaceJpaRepository workspaceJpaRepository;
+    private final IWorkspaceMemberRepository IWorkspaceMemberRepository;
+    private final IMemberRepository memberRepository;
+    private final IWorkspaceRepository workspaceRepository;
     private final IMailSender mailSender;
     private final IJwtManager jwtManager;
 
@@ -37,10 +37,10 @@ public class WorkspaceService implements IWorkspaceUseCase {
     @Override
     public void inviteMember(String toEmail, Long inviterId, Long workspaceId) {
 
-        MemberEntity inviter = memberJpaRepository.findById(inviterId).orElseThrow(
+        MemberEntity inviter = memberRepository.findById(inviterId).orElseThrow(
                 () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
         );
-        WorkspaceEntity inviteWorkspace = workspaceJpaRepository.findById(workspaceId).orElseThrow(
+        WorkspaceEntity inviteWorkspace = workspaceRepository.findById(workspaceId).orElseThrow(
                 () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
         );
 
@@ -64,25 +64,24 @@ public class WorkspaceService implements IWorkspaceUseCase {
 
         InviteTokenResult result = jwtManager.parsingInviteToken(token);
         String toMail = result.toEmail();
-        if (memberJpaRepository.existsByEmail(toMail)) {
+        if (memberRepository.existsByEmail(toMail)) {
             // 이미 회원일 경우
             String workspaceUrl = result.workspaceUrl();
-            MemberEntity member = memberJpaRepository.findByEmail(toMail).orElseThrow(
+            MemberEntity member = memberRepository.findByEmail(toMail).orElseThrow(
                     () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
             );
-            WorkspaceEntity workspace = workspaceJpaRepository.findByWorkspaceUrl(workspaceUrl).orElseThrow(
+            WorkspaceEntity workspace = workspaceRepository.findByWorkspaceUrl(workspaceUrl).orElseThrow(
                     () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
             );
 
             WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(
+                    workspace,
+                    member,
                     WorkspaceMemberRole.MEMBER,
-                    false,
-                    Instant.now(),
-                    workspace.getId(),
-                    member.getId()
+                    Instant.now()
             );
 
-            workspaceMemberJpaRepository.save(workspaceMember);
+            IWorkspaceMemberRepository.save(workspaceMember);
         } else {
             // 회원이 아닐 경우
             throw new BusinessException(ErrorCode.SIGNUP_FIRST);

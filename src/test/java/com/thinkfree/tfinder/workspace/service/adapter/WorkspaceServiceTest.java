@@ -6,9 +6,9 @@ import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.workspace.domain.MemberType;
 import com.thinkfree.tfinder.workspace.infrastructure.external.iface.IMailSender;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.MemberJpaRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.WorkspaceJpaRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.WorkspaceMemberJpaRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IMemberRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IWorkspaceRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IWorkspaceMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
@@ -27,11 +27,11 @@ import static org.mockito.BDDMockito.*;
 class WorkspaceServiceTest {
 
     @Mock
-    private WorkspaceMemberJpaRepository workspaceMemberRepository;
+    private IWorkspaceMemberRepository workspaceMemberRepository;
     @Mock
-    private MemberJpaRepository memberRepository;
+    private IMemberRepository memberRepository;
     @Mock
-    private WorkspaceJpaRepository workspaceRepository;
+    private IWorkspaceRepository workspaceRepository;
     @Mock
     private IMailSender mailSender;
     @Mock
@@ -68,12 +68,10 @@ class WorkspaceServiceTest {
         );
 
         WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(
-                1L,
+                workspace,
+                member,
                 WorkspaceMemberRole.MEMBER,
-                false,
-                Instant.now(),
-                workspace.getId(),
-                member.getId()
+                Instant.now()
         );
 
 
