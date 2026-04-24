@@ -29,6 +29,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) {
         http
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/auth/test").authenticated()
                         .requestMatchers("/auth/**","/invite/accept").permitAll()
                         .anyRequest().authenticated())
                 .cors(Customizer.withDefaults())

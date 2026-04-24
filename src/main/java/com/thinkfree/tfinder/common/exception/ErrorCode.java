@@ -3,6 +3,13 @@ package com.thinkfree.tfinder.common.exception;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+/**
+ * 에러 코드
+ * A - Authentication : 인증/가입 중 발생한 에러
+ * I - Invite : 초대 중 발생한 에러
+ * E - Error : 기타 에러
+ * R - Request : 요청 에러
+ */
 @Getter
 public enum ErrorCode {
 
@@ -16,7 +23,7 @@ public enum ErrorCode {
     SIGNUP_FIRST(HttpStatus.SEE_OTHER, "I-002"),
 
     ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "E-001"),
-    ;
+    INVALID_ARGUMENT(HttpStatus.BAD_REQUEST, "R-001");
 
     private final HttpStatus status;
     private final String code;

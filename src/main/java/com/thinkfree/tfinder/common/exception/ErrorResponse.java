@@ -12,6 +12,7 @@ public class ErrorResponse {
     private final int status;
     private final String error;
     private final String code;
+    private Map<String, String > cause;
 
     public static ResponseEntity<ErrorResponse> toEntity(ErrorCode errorCode) {
         return ResponseEntity
@@ -19,7 +20,8 @@ public class ErrorResponse {
                 .body(new ErrorResponse(
                         errorCode.getStatus().value(),
                         errorCode.getStatus().getReasonPhrase(),
-                        errorCode.getCode()
+                        errorCode.getCode(),
+                        null
                 ));
     }
 
@@ -30,6 +32,17 @@ public class ErrorResponse {
         map.put("error", errorCode.getStatus().getReasonPhrase());
         map.put("code", errorCode.getCode());
         return map;
+    }
+
+    public static ResponseEntity<ErrorResponse> toEntity(ErrorCode errorCode, Map<String, String> cause) {
+        return ResponseEntity
+                .status(errorCode.getStatus().value())
+                .body(new ErrorResponse(
+                        errorCode.getStatus().value(),
+                        errorCode.getStatus().getReasonPhrase(),
+                        errorCode.getCode(),
+                        cause
+                ));
     }
 
 }

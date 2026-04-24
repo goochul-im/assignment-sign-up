@@ -6,6 +6,7 @@ import com.thinkfree.tfinder.auth.service.dto.LoginDto;
 import com.thinkfree.tfinder.auth.service.dto.LoginResult;
 import com.thinkfree.tfinder.auth.service.dto.SignupDto;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class AuthController {
     private final IAuthUseCase authUseCase;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request){
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request){
 
         LoginResult result = authUseCase.login(new LoginDto(
                 request.email(),
@@ -30,11 +31,11 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignupRequest request){
+    public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest request){
 
         authUseCase.signUp(new SignupDto(
                 request.email(),
-                request.name(),
+                request.username(),
                 request.password()
         ));
 
