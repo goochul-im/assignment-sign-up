@@ -12,8 +12,8 @@ Content-Type: application/json
 }
 
 ###
-GET localhost:8080/auth/test
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NzY5OTIwMTQsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6Imdvb2NoMTIzQG5hdmVyLmNvbSJ9.Y72O4URgIOhSycpg_1qdoQgj2rbWTk7x0Jj7HU4C2lc
+GET localhost:8080/test
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NzcwMzU5NzEsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6Imdvb2NoMTIzQG5hdmVyLmNvbSJ9.EeQf8PgtenrPj6qfXF9pbwQ7X9pDyxVknHE8gmL6J-I
 
 ###
 POST http://localhost:8080/auth/signup

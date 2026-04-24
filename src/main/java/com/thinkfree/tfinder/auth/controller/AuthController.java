@@ -42,10 +42,4 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<?> test(){
-
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
 }
