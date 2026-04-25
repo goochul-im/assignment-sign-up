@@ -2,7 +2,7 @@
 GET https://examples.http-client.intellij.net/get
     ?generated-in=IntelliJ IDEA
 
-###
+### 로그인
 POST localhost:8080/auth/login
 Content-Type: application/json
 
@@ -11,11 +11,11 @@ Content-Type: application/json
   "password": "1234"
 }
 
-###
+### 액세스 토큰 검증
 GET localhost:8080/test
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NzcxMTI0MTksInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6Imdvb2NoMTIzQG5hdmVyLmNvbSJ9.PKC04gl1NctDZuKAYqRKTQjXFaeZmWYGp6N98tj-rm4
 
-###
+### 새 유저 회원가입
 POST http://localhost:8080/auth/signup
 Content-Type: application/json
 
@@ -25,7 +25,7 @@ Content-Type: application/json
   "username": "newemail"
 }
 
-###
+### 새 유저 로그인
 POST localhost:8080/auth/login
 Content-Type: application/json
 
@@ -33,3 +33,6 @@ Content-Type: application/json
   "email": "new@email.com",
   "password": "1234"
 }
+
+### 리프레쉬 토큰 인증
+POST localhost:8080/auth/refresh
