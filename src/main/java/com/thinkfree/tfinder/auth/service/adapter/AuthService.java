@@ -1,7 +1,8 @@
 package com.thinkfree.tfinder.auth.service.adapter;
 
 import com.thinkfree.tfinder.auth.service.dto.LoginDto;
-import com.thinkfree.tfinder.auth.service.dto.LoginResult;
+import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
+import com.thinkfree.tfinder.auth.service.dto.MemberSignupResultDto;
 import com.thinkfree.tfinder.auth.service.dto.SignupDto;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
 import com.thinkfree.tfinder.common.exception.BusinessException;
@@ -32,7 +33,7 @@ public class AuthService implements IAuthUseCase {
     private long JWT_REFRESH_EXPIRATION_TIME;
 
     @Override
-    public MemberEntity signUp(SignupDto dto) {
+    public MemberSignupResultDto signUp(SignupDto dto) {
 
         if (memberRepository.existsByEmail(dto.email())) throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
 
@@ -43,11 +44,14 @@ public class AuthService implements IAuthUseCase {
                 MemberType.DEFAULT
         );
 
-        return memberRepository.save(member);
+        return new MemberSignupResultDto(
+                member.getId(),
+                member.getUsername()
+        );
     }
 
     @Override
-    public LoginResult login(LoginDto dto) {
+    public LoginResultDto login(LoginDto dto) {
 
         MemberEntity member = memberRepository.findByEmail(dto.email()).orElseThrow(
                 () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
@@ -58,7 +62,7 @@ public class AuthService implements IAuthUseCase {
 
         String accessToken = jwtManager.generateAccessToken(member.getEmail(), Instant.now().plusSeconds(JWT_ACCESS_EXPIRATION_TIME));
 
-        return new LoginResult(
+        return new LoginResultDto(
                 accessToken
         );
     }

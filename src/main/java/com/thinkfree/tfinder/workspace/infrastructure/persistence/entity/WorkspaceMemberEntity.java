@@ -29,7 +29,6 @@ public class WorkspaceMemberEntity {
     private WorkspaceMemberRole role;
     @Column()
     private Instant lastLoginTime; // DB 저장시 Timestamp로 저장됨, TZ가 있음.
-     // 왜 다른 엔티티 클래스를 쓰지 않고 id를 직접 넣었는가
 
 
     public WorkspaceMemberEntity(WorkspaceEntity workspace, MemberEntity member, WorkspaceMemberRole role, Instant lastLoginTime) {

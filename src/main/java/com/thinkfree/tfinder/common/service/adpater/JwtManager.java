@@ -37,20 +37,20 @@ public class JwtManager implements IJwtManager {
     }
 
     @Override
-    public String generateInviteToken(String fromEmail, String toEmail, String workspaceUrl, Instant expirationTime) {
+    public String generateInviteToken(String fromEmail, String toEmail, String workspaceUrl, Instant expirationDate) {
         Map<String, String> claims = new HashMap<>();
         claims.put(FROM_EMAIL, fromEmail);
         claims.put(WORKSPACE_URL, workspaceUrl);
         claims.put(TO_EMAIL, toEmail);
 
-        return produceJwt(INVITE_TOKEN_SUBJECT, expirationTime, claims);
+        return produceJwt(INVITE_TOKEN_SUBJECT, expirationDate, claims);
     }
 
     @Override
-    public String generateAccessToken(String memberEmail, Instant expirationTime) {
+    public String generateAccessToken(String memberEmail, Instant expirationDate) {
         HashMap<String, String > claims = new HashMap<>();
         claims.put(MEMBER_EMAIL, memberEmail);
-        return produceJwt(ACCESS_TOKEN_SUBJECT, expirationTime, claims);
+        return produceJwt(ACCESS_TOKEN_SUBJECT, expirationDate, claims);
     }
 
     @Override
@@ -109,10 +109,10 @@ public class JwtManager implements IJwtManager {
         );
     }
 
-    private String produceJwt(String subject, Instant expirationTime, Map<String, ?> claims) {
+    private String produceJwt(String subject, Instant expirationDate, Map<String, ?> claims) {
 
         return Jwts.builder()
-                .expiration(Date.from(expirationTime))
+                .expiration(Date.from(expirationDate))
                 .subject(subject)
                 .claims(claims)
                 .signWith(secretKey)

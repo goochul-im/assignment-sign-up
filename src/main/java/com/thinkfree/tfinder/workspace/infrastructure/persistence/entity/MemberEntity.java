@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED) //PRIVATE가 안되는 이유? -> 프록시 객체는 super를 호출해야 하기 때문에
 @Entity
 @Getter
 public class MemberEntity {
@@ -17,7 +17,7 @@ public class MemberEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    private String name;
+    private String username;
     @Column(nullable = false, unique = true)
     private String email;
     @Column(nullable = true)
@@ -26,8 +26,8 @@ public class MemberEntity {
     @Enumerated(value = EnumType.STRING)
     private MemberType memberType;
 
-    public MemberEntity(String name, String email, String password, MemberType memberType) {
-        this.name = name;
+    public MemberEntity(String username, String email, String password, MemberType memberType) {
+        this.username = username;
         this.email = email;
         this.password = password;
         this.memberType = memberType;

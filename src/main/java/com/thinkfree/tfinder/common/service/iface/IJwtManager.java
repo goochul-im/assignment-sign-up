@@ -7,9 +7,9 @@ import java.time.Instant;
 
 public interface IJwtManager {
 
-    String generateInviteToken(String fromEmail, String toEmail, String workspaceUrl, Instant expirationTime);
+    String generateInviteToken(String fromEmail, String toEmail, String workspaceUrl, Instant expirationDate);
 
-    String generateAccessToken(String memberEmail, Instant expirationTime);
+    String generateAccessToken(String memberEmail, Instant expirationDate);
 
     InviteTokenResult parsingInviteToken(String token);
 

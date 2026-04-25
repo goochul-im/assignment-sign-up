@@ -26,11 +26,11 @@ public enum ErrorCode {
     INVALID_ARGUMENT(HttpStatus.BAD_REQUEST, "R-001");
 
     private final HttpStatus status;
-    private final String code;
+    private final String errorCode;
 
-    ErrorCode(HttpStatus status, String code) {
+    ErrorCode(HttpStatus status, String errorCode) {
         this.status = status;
-        this.code = code;
+        this.errorCode = errorCode;
     }
 
 

@@ -29,8 +29,8 @@ public class SecurityConfig {
 
     private final IJwtManager jwtManager;
     private final CustomUserDetailsService customUserDetailsService;
-    private final AccessDeniedHandler customAccessDeniedHandler;
-    private final AuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {

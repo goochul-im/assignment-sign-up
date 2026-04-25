@@ -1,16 +1,21 @@
 package com.thinkfree.tfinder.common.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.springframework.http.ResponseEntity;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 에러 응답을 위한 레코드
+ * @param httpStatus HTTP 코드
+ * @param reasonPhrase 에러 설명
+ * @param errorCode 커스텀 에러 코드, ErrorCode 참고
+ * @param cause 에러 발생 상세 이유
+ */
 public record ErrorResponse(
-        int status,
-        String error,
-        String code,
+        int httpStatus,
+        String reasonPhrase,
+        String errorCode,
         Map<String, String> cause
 ) {
 
@@ -20,17 +25,16 @@ public record ErrorResponse(
                 .body(new ErrorResponse(
                         errorCode.getStatus().value(),
                         errorCode.getStatus().getReasonPhrase(),
-                        errorCode.getCode(),
+                        errorCode.getErrorCode(),
                         null
                 ));
     }
 
-    // TODO: 이렇게 만들어도 되는건지?
     public static Map<String, String> toSecurityErrorResponse(ErrorCode errorCode) {
         HashMap<String, String> map = new HashMap<>();
         map.put("status", String.valueOf(errorCode.getStatus().value()));
         map.put("error", errorCode.getStatus().getReasonPhrase());
-        map.put("code", errorCode.getCode());
+        map.put("code", errorCode.getErrorCode());
         return map;
     }
 
@@ -40,7 +44,7 @@ public record ErrorResponse(
                 .body(new ErrorResponse(
                         errorCode.getStatus().value(),
                         errorCode.getStatus().getReasonPhrase(),
-                        errorCode.getCode(),
+                        errorCode.getErrorCode(),
                         cause
                 ));
     }

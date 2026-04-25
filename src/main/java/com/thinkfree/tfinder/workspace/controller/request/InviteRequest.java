@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 public record InviteRequest(
         @NotBlank(message = ValidationMessage.NOT_BLANK_MESSAGE)
         long workspaceId,
+        @NotBlank(message = ValidationMessage.NOT_BLANK_MESSAGE)
         @Email(message = ValidationMessage.EMAIL_MESSAGE)
         String toEmail
 ) {

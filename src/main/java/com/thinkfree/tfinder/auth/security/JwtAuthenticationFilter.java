@@ -24,10 +24,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final IJwtManager jwtManager;
     private final CustomUserDetailsService customUserDetailsService;
+    private final RequestMatcher skipRequestPattern;
 
     private final String AUTHORIZATION_HEADER = "Authorization";
     private final String BEARER_PREFIX = "Bearer ";
-    private final RequestMatcher skipRequestPattern;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

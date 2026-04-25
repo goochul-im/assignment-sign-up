@@ -1,7 +1,8 @@
 package com.thinkfree.tfinder.auth.service.adapter;
 
 import com.thinkfree.tfinder.auth.service.dto.LoginDto;
-import com.thinkfree.tfinder.auth.service.dto.LoginResult;
+import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
+import com.thinkfree.tfinder.auth.service.dto.MemberSignupResultDto;
 import com.thinkfree.tfinder.auth.service.dto.SignupDto;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
@@ -38,18 +39,18 @@ class AuthServiceTest {
     void 회원가입이_정상적으로_완료되어야_한다(){
         //given
         String email = "test@email.com";
-        String name = "test";
+        String username = "test";
         String passwd = "testPasswd";
         String encodePasswd = "encoded";
         SignupDto dto = new SignupDto(
                 email,
-                name,
+                username,
                 passwd
         );
 
         MemberEntity returnMember = new MemberEntity(
                 1L,
-                name,
+                username,
                 email,
                 encodePasswd,
                 MemberType.DEFAULT
@@ -60,14 +61,11 @@ class AuthServiceTest {
         when(memberRepository.save(any())).thenReturn(returnMember);
 
         //when
-        MemberEntity member = authService.signUp(dto);
+        MemberSignupResultDto result = authService.signUp(dto);
 
         //then
-        assertThat(member.getId()).isNotNull();
-        assertThat(member.getEmail()).isEqualTo(email);
-        assertThat(member.getName()).isEqualTo(name);
-        assertThat(member.getPassword()).isEqualTo(encodePasswd);
-        assertThat(member.getMemberType()).isEqualTo(MemberType.DEFAULT);
+        assertThat(result.memberId()).isEqualTo(returnMember.getId());
+        assertThat(result.username()).isEqualTo(username);
     }
 
     @Test
@@ -111,7 +109,7 @@ class AuthServiceTest {
         when(jwtManager.generateAccessToken(any(), any())).thenReturn(accessToken);
 
         //when
-        LoginResult result = authService.login(dto);
+        LoginResultDto result = authService.login(dto);
 
         //then
         assertThat(result.accessToken()).isEqualTo(accessToken);

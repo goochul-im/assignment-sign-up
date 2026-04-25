@@ -35,7 +35,7 @@ public class WorkspaceService implements IWorkspaceUseCase {
     private String FRONTEND_URL;
 
     @Override
-    public void inviteMember(String toEmail, Long inviterId, Long workspaceId) {
+    public void inviteMember(String toEmail, long inviterId, long workspaceId) {
 
         MemberEntity inviter = memberRepository.findById(inviterId).orElseThrow(
                 () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
