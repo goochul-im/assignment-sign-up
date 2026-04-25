@@ -2,6 +2,7 @@ package com.thinkfree.tfinder.common.service.adpater;
 
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.service.dto.AccessTokenResult;
+import com.thinkfree.tfinder.common.service.dto.RefreshTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import io.jsonwebtoken.*;
@@ -30,6 +31,7 @@ public class JwtManager implements IJwtManager {
 
     private final String MEMBER_EMAIL = "member_email";
     private final String ACCESS_TOKEN_SUBJECT = "access_token";
+    private final String REFRESH_TOKEN_SUBJECT = "refresh_token";
 
 
     public JwtManager(@Value("${spring.jwt.key}") String secretKey) {
@@ -51,6 +53,13 @@ public class JwtManager implements IJwtManager {
         HashMap<String, String > claims = new HashMap<>();
         claims.put(MEMBER_EMAIL, memberEmail);
         return produceJwt(ACCESS_TOKEN_SUBJECT, expirationDate, claims);
+    }
+
+    @Override
+    public String generateRefreshToken(String memberEmail, Instant expirationDate) {
+        HashMap<String, String > claims = new HashMap<>();
+        claims.put(MEMBER_EMAIL, memberEmail);
+        return produceJwt(REFRESH_TOKEN_SUBJECT, expirationDate, claims);
     }
 
     @Override
@@ -105,6 +114,32 @@ public class JwtManager implements IJwtManager {
         String memberEmail = (String) claims.get(MEMBER_EMAIL);
 
         return new AccessTokenResult(
+                memberEmail
+        );
+    }
+
+    @Override
+    public RefreshTokenResult parsingRefreshToken(String token) {
+        Claims claims;
+
+        try {
+
+            claims = Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            if (!claims.getSubject().equals(REFRESH_TOKEN_SUBJECT))
+                throw new JwtException("this token isn't for refreshToken");
+
+        } catch (JwtException e) {
+            throw new BusinessException(e.getMessage(), REFRESH_TOKEN_ERROR);
+        }
+
+        String memberEmail = (String) claims.get(MEMBER_EMAIL);
+
+        return new RefreshTokenResult(
                 memberEmail
         );
     }

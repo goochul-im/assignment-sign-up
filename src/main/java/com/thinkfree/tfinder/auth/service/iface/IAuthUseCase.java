@@ -25,4 +25,8 @@ public interface IAuthUseCase {
      */
     LoginResultDto login(LoginDto dto) throws BusinessException;
 
+    LoginResultDto refresh(String refreshToken) throws BusinessException;
+
+    void logout(String refreshToken) throws BusinessException;
+
 }

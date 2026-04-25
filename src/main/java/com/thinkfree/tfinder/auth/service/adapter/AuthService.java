@@ -5,8 +5,10 @@ import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
 import com.thinkfree.tfinder.auth.service.dto.MemberSignupResultDto;
 import com.thinkfree.tfinder.auth.service.dto.SignupDto;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
+import com.thinkfree.tfinder.auth.service.iface.IRefreshTokenRepository;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
+import com.thinkfree.tfinder.common.service.dto.RefreshTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.domain.MemberType;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IMemberRepository;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 
 @Service
@@ -25,6 +28,7 @@ public class AuthService implements IAuthUseCase {
     private final PasswordEncoder encoder;
     private final IMemberRepository memberRepository;
     private final IJwtManager jwtManager;
+    private final IRefreshTokenRepository refreshTokenRepository;
 
     @Value("${spring.jwt.expiration.access}")
     private long JWT_ACCESS_EXPIRATION_TIME;
@@ -43,11 +47,11 @@ public class AuthService implements IAuthUseCase {
                 encoder.encode(dto.password()),
                 MemberType.DEFAULT
         );
-        memberRepository.save(member);
+        MemberEntity savedMember = memberRepository.save(member);
 
         return new MemberSignupResultDto(
-                member.getId(),
-                member.getUsername()
+                savedMember.getId(),
+                savedMember.getUsername()
         );
     }
 
@@ -62,9 +66,41 @@ public class AuthService implements IAuthUseCase {
         }
 
         String accessToken = jwtManager.generateAccessToken(member.getEmail(), Instant.now().plusSeconds(JWT_ACCESS_EXPIRATION_TIME));
+        String refreshToken = jwtManager.generateRefreshToken(member.getEmail(), Instant.now().plusSeconds(JWT_REFRESH_EXPIRATION_TIME));
+        refreshTokenRepository.save(member.getEmail(), refreshToken, Duration.ofSeconds(JWT_REFRESH_EXPIRATION_TIME));
 
         return new LoginResultDto(
-                accessToken
+                accessToken,
+                refreshToken
         );
+    }
+
+    @Override
+    public LoginResultDto refresh(String refreshToken) {
+
+        RefreshTokenResult tokenResult = jwtManager.parsingRefreshToken(refreshToken);
+        String savedRefreshToken = refreshTokenRepository.findByEmail(tokenResult.email()).orElseThrow(
+                () -> new BusinessException(ErrorCode.REFRESH_TOKEN_ERROR)
+        );
+
+        if (!savedRefreshToken.equals(refreshToken)) {
+            throw new BusinessException(ErrorCode.REFRESH_TOKEN_ERROR);
+        }
+
+        String newAccessToken = jwtManager.generateAccessToken(tokenResult.email(), Instant.now().plusSeconds(JWT_ACCESS_EXPIRATION_TIME));
+        String newRefreshToken = jwtManager.generateRefreshToken(tokenResult.email(), Instant.now().plusSeconds(JWT_REFRESH_EXPIRATION_TIME));
+        refreshTokenRepository.save(tokenResult.email(), newRefreshToken, Duration.ofSeconds(JWT_REFRESH_EXPIRATION_TIME));
+
+        return new LoginResultDto(
+                newAccessToken,
+                newRefreshToken
+        );
+    }
+
+    @Override
+    public void logout(String refreshToken) {
+
+        RefreshTokenResult tokenResult = jwtManager.parsingRefreshToken(refreshToken);
+        refreshTokenRepository.deleteByEmail(tokenResult.email());
     }
 }

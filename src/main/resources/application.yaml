@@ -34,5 +34,18 @@ spring:
       access : ${JWT_ACCESS_EXPIRATION_SECOND}
       refresh: ${JWT_REFRESH_EXPIRATION_SECOND}
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
 frontend:
   url: ${FRONTEND_URL}
+
+auth:
+  refresh-cookie:
+    name: refreshToken
+    http-only: true
+    secure: ${REFRESH_COOKIE_SECURE:true}
+    same-site: ${REFRESH_COOKIE_SAME_SITE:None}
+    path: /auth
