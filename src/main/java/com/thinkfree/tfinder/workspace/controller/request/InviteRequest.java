@@ -5,10 +5,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public record InviteRequest(
-        @NotBlank(message = ValidationMessage.NOT_BLANK_MESSAGE)
+        @NotBlank(message = ValidationMessage.NOT_BLANK)
         long workspaceId,
-        @NotBlank(message = ValidationMessage.NOT_BLANK_MESSAGE)
-        @Email(message = ValidationMessage.EMAIL_MESSAGE)
+        @NotBlank(message = ValidationMessage.NOT_BLANK)
+        @Email(message = ValidationMessage.INVALID_EMAIL)
         String toEmail
 ) {
 }

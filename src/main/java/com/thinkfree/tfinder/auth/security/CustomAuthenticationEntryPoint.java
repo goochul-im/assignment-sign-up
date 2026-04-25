@@ -27,7 +27,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         log.warn("인증되지 않은 사용자입니다");
 
-        Map<String, String> errorResponse = ErrorResponse.toSecurityErrorResponse(ErrorCode.AUTHORIZED_FAILED);
+        Map<String, String> errorResponse = ErrorResponse.toSecurityErrorResponse(ErrorCode.AUTHENTICATION_FAILED);
 
         String body = objectMapper.writeValueAsString(errorResponse);
 

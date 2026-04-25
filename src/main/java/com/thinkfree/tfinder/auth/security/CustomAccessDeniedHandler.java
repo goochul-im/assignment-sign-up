@@ -27,7 +27,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
         log.warn("권한 인가가 거부되었습니다.");
 
-        Map<String, String> errorResponse = ErrorResponse.toSecurityErrorResponse(ErrorCode.AUTHENTICATION_FAILED);
+        Map<String, String> errorResponse = ErrorResponse.toSecurityErrorResponse(ErrorCode.AUTHORIZATION_FAILED);
 
         String body = objectMapper.writeValueAsString(errorResponse);
 
