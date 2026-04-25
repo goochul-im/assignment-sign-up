@@ -1,16 +1,16 @@
 package com.thinkfree.tfinder.workspace.infrastructure.persistence.entity;
 
-import com.thinkfree.tfinder.workspace.domain.MemberType;
+import com.thinkfree.tfinder.workspace.domain.AuthProvider;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED) //PRIVATE가 안되는 이유? -> 프록시 객체는 super를 호출해야 하기 때문에
 @Entity
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED) //PRIVATE가 안되는 이유? -> 프록시 객체는 super를 호출해야 하기 때문에
 public class MemberEntity {
 
     @Id
@@ -24,13 +24,16 @@ public class MemberEntity {
     private String password;
     @Column(name = "member_type", nullable = false)
     @Enumerated(value = EnumType.STRING)
-    private MemberType memberType;
+    private AuthProvider authProvider;
+    @Column // 추후 소셜 로그인 구현 시 추가 예정
+    private String oauthId;
 
-    public MemberEntity(String username, String email, String password, MemberType memberType) {
+    public MemberEntity(String username, String email, String password, AuthProvider authProvider) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.memberType = memberType;
+        this.authProvider = authProvider;
+        oauthId = null;
     }
 
 }

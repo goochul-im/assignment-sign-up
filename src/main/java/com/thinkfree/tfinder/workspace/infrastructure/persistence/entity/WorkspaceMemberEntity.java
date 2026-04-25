@@ -2,16 +2,17 @@ package com.thinkfree.tfinder.workspace.infrastructure.persistence.entity;
 
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WorkspaceMemberEntity {
 
     @Id
