@@ -12,12 +12,14 @@ import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IWorks
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
+import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceDto;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,20 +31,50 @@ public class WorkspaceService implements IWorkspaceUseCase {
     private final IMailSender mailSender;
     private final IJwtManager jwtManager;
 
-    private final long inviteTokenExpirationTime = 2 * 24 * 60 * 60;
+    @Value("${spring.jwt.expiration.invite}")
+    private long inviteTokenExpirationTime;
 
     @Value("${frontend.url}")
     private String FRONTEND_URL;
 
     @Override
-    public void inviteMember(String toEmail, long inviterId, long workspaceId) {
+    public WorkspaceEntity create(CreateWorkspaceDto dto) throws BusinessException {
+        MemberEntity creator = getMemberOrThrowE001(memberRepository.findById(dto.memberId()));
 
-        MemberEntity inviter = memberRepository.findById(inviterId).orElseThrow(
-                () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
+        if (workspaceRepository.existsByWorkspaceName(dto.workspaceName()) || workspaceRepository.existsByWorkspaceUrl(dto.workspaceUrl())) {
+            throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
+        }
+
+        WorkspaceEntity workspace = new WorkspaceEntity(
+                dto.workspaceName(),
+                dto.workspaceUrl()
         );
-        WorkspaceEntity inviteWorkspace = workspaceRepository.findById(workspaceId).orElseThrow(
-                () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
+        workspaceRepository.save(workspace);
+
+        WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(
+                workspace,
+                creator,
+                WorkspaceMemberRole.OWNER,
+                Instant.now()
         );
+        workspaceMemberRepository.save(workspaceMember);
+
+        return workspace;
+    }
+
+    @Override
+    public void inviteMember(String toEmail, long inviterId, long workspaceId) throws BusinessException{
+
+        MemberEntity inviter = getMemberOrThrowE001(memberRepository.findById(inviterId));
+
+        WorkspaceEntity inviteWorkspace = getWorkspaceOrThrowE001(workspaceRepository.findById(workspaceId));
+
+        WorkspaceMemberEntity workspaceMember = getWorkspaceMemberOrThrowA002(inviteWorkspace, inviter);
+
+        WorkspaceMemberRole role = workspaceMember.getRole();
+        if (!(role == WorkspaceMemberRole.MANAGER || role == WorkspaceMemberRole.OWNER)) {
+            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
+        }
 
         String inviteToken = jwtManager.generateInviteToken(
                 inviter.getEmail(),
@@ -50,29 +82,25 @@ public class WorkspaceService implements IWorkspaceUseCase {
                 inviteWorkspace.getWorkspaceUrl(),
                 Instant.now().plusSeconds(inviteTokenExpirationTime));
 
-        String subject = "invite token"; // TODO: 이걸 상수로 뺄까? 아니면 환경변수로 뺄까?
+        String subject = "invite token";
         mailSender.asyncSend(
                 toEmail,
                 subject,
-                makeInviteMailMessage(inviter, inviteToken)
+                makeInviteMailMessage(inviteWorkspace, inviteToken)
         );
 
     }
 
     @Override
-    public void acceptMember(String token) {
+    public void acceptMember(String token) throws BusinessException{
 
         InviteTokenResult result = jwtManager.parsingInviteToken(token);
         String toMail = result.toEmail();
         if (memberRepository.existsByEmail(toMail)) {
             // 이미 회원일 경우
             String workspaceUrl = result.workspaceUrl();
-            MemberEntity member = memberRepository.findByEmail(toMail).orElseThrow(
-                    () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
-            );
-            WorkspaceEntity workspace = workspaceRepository.findByWorkspaceUrl(workspaceUrl).orElseThrow(
-                    () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
-            );
+            MemberEntity member = getMemberOrThrowE001(memberRepository.findByEmail(toMail));
+            WorkspaceEntity workspace = getWorkspaceOrThrowE001(workspaceRepository.findByWorkspaceUrl(workspaceUrl));
 
             if (workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)){
                 throw new BusinessException(ErrorCode.DUPLICATE_WORKSPACE_MEMBER);
@@ -93,14 +121,16 @@ public class WorkspaceService implements IWorkspaceUseCase {
 
     }
 
-    private String makeInviteMailMessage(MemberEntity member, String token) {
+    private String makeInviteMailMessage(WorkspaceEntity workspace, String token) {
         // 들어가야 할 정보
         // 클릭할 URL + 메시지 내용
         String inviteUrl = FRONTEND_URL + "?token=" + token;
 
         StringBuilder sb = new StringBuilder()
                 .append("<h2>tfinder 워크스페이스 초대</h2>")
-                .append("<p>tfinder에서 초대가 왔습니다.</p>")
+                .append("<p><b>")
+                .append(workspace.getWorkspaceName())
+                .append("<b> 에서 초대가 왔습니다.</p>")
                 .append("<p>아래 링크를 눌러 참가하세요.</p>")
                 .append("<p>")
                 .append("<a href=\"")
@@ -113,6 +143,24 @@ public class WorkspaceService implements IWorkspaceUseCase {
                 .append("</p>");
 
         return sb.toString();
+    }
+
+    private MemberEntity getMemberOrThrowE001(Optional<MemberEntity> memberRepository) {
+        return memberRepository.orElseThrow(
+                () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
+        );
+    }
+
+    private WorkspaceEntity getWorkspaceOrThrowE001(Optional<WorkspaceEntity> workspaceRepository) {
+        return workspaceRepository.orElseThrow(
+                () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
+        );
+    }
+
+    private WorkspaceMemberEntity getWorkspaceMemberOrThrowA002(WorkspaceEntity inviteWorkspace, MemberEntity inviter) {
+        return workspaceMemberRepository.findByWorkspaceAndMember(inviteWorkspace, inviter).orElseThrow(
+                () -> new BusinessException(ErrorCode.AUTHORIZATION_FAILED)
+        );
     }
 
 }

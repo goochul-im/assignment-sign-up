@@ -11,4 +11,8 @@ public interface IWorkspaceRepository extends JpaRepository<WorkspaceEntity, Lon
 
     Optional<WorkspaceEntity> findByWorkspaceUrl(String workspaceUrl);
 
+    boolean existsByWorkspaceName(String workspaceName);
+
+    boolean existsByWorkspaceUrl(String workspaceUrl);
+
 }
