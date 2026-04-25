@@ -33,6 +33,7 @@ spring:
     expiration:
       access : ${JWT_ACCESS_EXPIRATION_SECOND}
       refresh: ${JWT_REFRESH_EXPIRATION_SECOND}
+      invite: ${JWT_INVITE_EXPIRATION_SECOND}
 
   data:
     redis:
