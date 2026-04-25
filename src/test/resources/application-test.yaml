@@ -5,8 +5,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${GOOGLE_SMTP_USERNAME}
-    password: ${GOOGLE_SMTP_PASSWORD}
+    username: test@example.com
+    password: test-password
     properties:
       mail:
         smtp:
@@ -14,8 +14,24 @@ spring:
           starttls:
             enable: true
   datasource:
-    url: jdbc:tc:postgresql:///testdb
+    url: jdbc:tc:postgresql:16-alpine:///testdb
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
   jpa:
     hibernate:
       ddl-auto: create-drop
+  jwt:
+    key: bXktc2VjcmV0LWtleS1Mb3JlbS1pcHN1bS1kb2xvci1zaXQtYW1ldA
+    expiration:
+      access: 600
+      refresh: 604800
+
+frontend:
+  url: http://localhost:3000
+
+auth:
+  refresh-cookie:
+    name: refreshToken
+    http-only: true
+    secure: false
+    same-site: Lax
+    path: /auth
