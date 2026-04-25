@@ -21,9 +21,10 @@ public enum ErrorCode {
 
     INVITE_TOKEN_ERROR(HttpStatus.BAD_REQUEST,"I-001"),
     SIGNUP_FIRST(HttpStatus.SEE_OTHER, "I-002"),
+    DUPLICATE_WORKSPACE_MEMBER(HttpStatus.CONFLICT, "I-003"),
 
     ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "E-001"),
-    INVALID_ARGUMENT(HttpStatus.BAD_REQUEST, "R-001");
+    INVALID_ARGUMENT(HttpStatus.BAD_REQUEST, "R-001"), ;
 
     private final HttpStatus status;
     private final String errorCode;

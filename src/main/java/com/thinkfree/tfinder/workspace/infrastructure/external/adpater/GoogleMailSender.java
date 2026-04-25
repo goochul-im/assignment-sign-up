@@ -35,7 +35,7 @@ public class GoogleMailSender implements IMailSender {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             helper.setTo(toEmail);
             helper.setSubject(title);
-            helper.setText(message);
+            helper.setText(message, true);
             helper.setFrom(fromEMail);
 
             mailSender.send(mimeMessage);

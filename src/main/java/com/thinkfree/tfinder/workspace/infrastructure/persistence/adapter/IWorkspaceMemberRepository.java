@@ -1,5 +1,6 @@
 package com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter;
 
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,5 +17,7 @@ public interface IWorkspaceMemberRepository extends JpaRepository<WorkspaceMembe
      * @return 해당 워크스페이스에 속해있는 멤버 리스트.
      */
     List<WorkspaceMemberEntity> findAllByWorkspace(WorkspaceEntity workspace);
+
+    boolean existsByWorkspaceAndMember(WorkspaceEntity workspace, MemberEntity member);
 
 }

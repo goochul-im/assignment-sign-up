@@ -23,7 +23,7 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class WorkspaceService implements IWorkspaceUseCase {
 
-    private final IWorkspaceMemberRepository IWorkspaceMemberRepository;
+    private final IWorkspaceMemberRepository workspaceMemberRepository;
     private final IMemberRepository memberRepository;
     private final IWorkspaceRepository workspaceRepository;
     private final IMailSender mailSender;
@@ -74,6 +74,10 @@ public class WorkspaceService implements IWorkspaceUseCase {
                     () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
             );
 
+            if (workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)){
+                throw new BusinessException(ErrorCode.DUPLICATE_WORKSPACE_MEMBER);
+            }
+
             WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(
                     workspace,
                     member,
@@ -81,7 +85,7 @@ public class WorkspaceService implements IWorkspaceUseCase {
                     Instant.now()
             );
 
-            IWorkspaceMemberRepository.save(workspaceMember);
+            workspaceMemberRepository.save(workspaceMember);
         } else {
             // 회원이 아닐 경우
             throw new BusinessException(ErrorCode.SIGNUP_FIRST);
@@ -92,9 +96,22 @@ public class WorkspaceService implements IWorkspaceUseCase {
     private String makeInviteMailMessage(MemberEntity member, String token) {
         // 들어가야 할 정보
         // 클릭할 URL + 메시지 내용
+        String inviteUrl = FRONTEND_URL + "?token=" + token;
+
         StringBuilder sb = new StringBuilder()
-                .append("<p>tfinder에서 초대가 왔습니다. 다음 링크를 눌러 참가하세요</p>")
-                .append("<p><a href=" + FRONTEND_URL + ">참가하기</a></p>");
+                .append("<h2>tfinder 워크스페이스 초대</h2>")
+                .append("<p>tfinder에서 초대가 왔습니다.</p>")
+                .append("<p>아래 링크를 눌러 참가하세요.</p>")
+                .append("<p>")
+                .append("<a href=\"")
+                .append(inviteUrl)
+                .append("\">참가하기</a>")
+                .append("</p>")
+                .append("<p>링크가 열리지 않는다면 아래 주소를 복사해서 브라우저에 붙여넣어 주세요.</p>")
+                .append("<p>")
+                .append(inviteUrl)
+                .append("</p>");
+
         return sb.toString();
     }
 

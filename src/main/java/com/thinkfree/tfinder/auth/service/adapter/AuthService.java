@@ -43,6 +43,7 @@ public class AuthService implements IAuthUseCase {
                 encoder.encode(dto.password()),
                 MemberType.DEFAULT
         );
+        memberRepository.save(member);
 
         return new MemberSignupResultDto(
                 member.getId(),

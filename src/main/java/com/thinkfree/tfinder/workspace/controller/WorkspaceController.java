@@ -2,6 +2,7 @@ package com.thinkfree.tfinder.workspace.controller;
 
 import com.thinkfree.tfinder.auth.security.CustomUserDetails;
 import com.thinkfree.tfinder.auth.security.CustomUserInfo;
+import com.thinkfree.tfinder.workspace.controller.request.InviteAcceptRequest;
 import com.thinkfree.tfinder.workspace.controller.request.InviteRequest;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
 import lombok.RequiredArgsConstructor;
@@ -12,20 +13,20 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/invite")
+@RequestMapping("/workspace")
 public class WorkspaceController {
 
     private final IWorkspaceUseCase workspaceUseCase;
 
-    @GetMapping("/accept")
-    public ResponseEntity<?> inviteAccept(@RequestParam String token){
+    @PostMapping("/invite/accept")
+    public ResponseEntity<?> inviteAccept(@RequestBody InviteAcceptRequest request){
 
-        workspaceUseCase.acceptMember(token);
+        workspaceUseCase.acceptMember(request.inviteToken());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping()
+    @PostMapping("/invite")
     public ResponseEntity<?> inviteMember(
             @RequestBody InviteRequest request,
             @AuthenticationPrincipal CustomUserDetails currentUser

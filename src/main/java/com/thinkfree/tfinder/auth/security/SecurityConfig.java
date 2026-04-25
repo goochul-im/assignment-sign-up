@@ -43,7 +43,7 @@ public class SecurityConfig {
         RequestMatcher permitRequestMather =
                 new OrRequestMatcher(
                         matcher.matcher("/auth/**"),
-                        matcher.matcher("/invite/accept")
+                        matcher.matcher("/workspace/invite/accept")
                 );
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtManager, customUserDetailsService, permitRequestMather);
 
