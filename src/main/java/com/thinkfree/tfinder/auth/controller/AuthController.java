@@ -14,15 +14,12 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.WebUtils;
-
-import java.time.Duration;
 
 @RestController
 @RequiredArgsConstructor
@@ -91,7 +88,7 @@ public class AuthController {
                 .secure(refreshCookieProperties.isSecure())
                 .sameSite(refreshCookieProperties.getSameSite())
                 .path(refreshCookieProperties.getPath())
-                .maxAge(Duration.ofSeconds(refreshCookieProperties.getExpirationSeconds()))
+                .maxAge(refreshCookieProperties.getExpirationSeconds())
                 .build();
     }
 
@@ -101,7 +98,7 @@ public class AuthController {
                 .secure(refreshCookieProperties.isSecure())
                 .sameSite(refreshCookieProperties.getSameSite())
                 .path(refreshCookieProperties.getPath())
-                .maxAge(Duration.ZERO)
+                .maxAge(0)
                 .build();
     }
 
