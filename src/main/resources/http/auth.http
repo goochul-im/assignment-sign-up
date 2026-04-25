@@ -13,7 +13,7 @@ Content-Type: application/json
 
 ###
 GET localhost:8080/test
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NzcwMzU5NzEsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6Imdvb2NoMTIzQG5hdmVyLmNvbSJ9.EeQf8PgtenrPj6qfXF9pbwQ7X9pDyxVknHE8gmL6J-I
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NzcxMTI0MTksInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6Imdvb2NoMTIzQG5hdmVyLmNvbSJ9.PKC04gl1NctDZuKAYqRKTQjXFaeZmWYGp6N98tj-rm4
 
 ###
 POST http://localhost:8080/auth/signup
@@ -21,8 +21,8 @@ Content-Type: application/json
 
 {
   "email": "new@email.com",
-  "password": "1234",
-  "name": " 새로운 사용자"
+  "password": "12341234",
+  "username": "newemail"
 }
 
 ###
