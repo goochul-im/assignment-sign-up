@@ -10,7 +10,7 @@ import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.service.dto.RefreshTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
-import com.thinkfree.tfinder.workspace.domain.MemberType;
+import com.thinkfree.tfinder.workspace.domain.AuthProvider;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import lombok.RequiredArgsConstructor;
@@ -39,13 +39,13 @@ public class AuthService implements IAuthUseCase {
     @Override
     public MemberSignupResultDto signUp(SignupDto dto) {
 
-        if (memberRepository.existsByEmail(dto.email())) throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
+        if (memberRepository.existsByEmail(dto.email())) throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
 
         MemberEntity member = new MemberEntity(
                 dto.name(),
                 dto.email(),
                 encoder.encode(dto.password()),
-                MemberType.DEFAULT
+                AuthProvider.DEFAULT
         );
         MemberEntity savedMember = memberRepository.save(member);
 
@@ -56,7 +56,7 @@ public class AuthService implements IAuthUseCase {
     }
 
     @Override
-    public LoginResultDto login(LoginDto dto) {
+    public LoginResultDto login(LoginDto dto) throws BusinessException {
 
         MemberEntity member = memberRepository.findByEmail(dto.email()).orElseThrow(
                 () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
@@ -76,7 +76,7 @@ public class AuthService implements IAuthUseCase {
     }
 
     @Override
-    public LoginResultDto refresh(String refreshToken) {
+    public LoginResultDto refresh(String refreshToken) throws BusinessException {
 
         RefreshTokenResult tokenResult = jwtManager.parsingRefreshToken(refreshToken);
         String savedRefreshToken = refreshTokenRepository.findByEmail(tokenResult.email()).orElseThrow(
@@ -99,7 +99,6 @@ public class AuthService implements IAuthUseCase {
 
     @Override
     public void logout(String refreshToken) {
-
         RefreshTokenResult tokenResult = jwtManager.parsingRefreshToken(refreshToken);
         refreshTokenRepository.deleteByEmail(tokenResult.email());
     }
