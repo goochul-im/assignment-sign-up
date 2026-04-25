@@ -1,6 +1,5 @@
 package com.thinkfree.tfinder.workspace.infrastructure.persistence.entity;
 
-import com.thinkfree.tfinder.workspace.domain.AuthProvider;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,18 +21,12 @@ public class MemberEntity {
     private String email;
     @Column(nullable = true)
     private String password;
-    @Column(name = "member_type", nullable = false)
-    @Enumerated(value = EnumType.STRING)
-    private AuthProvider authProvider;
-    @Column // 추후 소셜 로그인 구현 시 추가 예정
-    private String oauthId;
+    // OAuthAccount 추가 필요
 
-    public MemberEntity(String username, String email, String password, AuthProvider authProvider) {
+    public MemberEntity(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.authProvider = authProvider;
-        oauthId = null;
     }
 
 }

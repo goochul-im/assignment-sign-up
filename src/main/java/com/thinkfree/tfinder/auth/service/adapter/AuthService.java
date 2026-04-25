@@ -10,7 +10,6 @@ import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.service.dto.RefreshTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
-import com.thinkfree.tfinder.workspace.domain.AuthProvider;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import lombok.RequiredArgsConstructor;
@@ -44,8 +43,7 @@ public class AuthService implements IAuthUseCase {
         MemberEntity member = new MemberEntity(
                 dto.name(),
                 dto.email(),
-                encoder.encode(dto.password()),
-                AuthProvider.DEFAULT
+                encoder.encode(dto.password())
         );
         MemberEntity savedMember = memberRepository.save(member);
 
