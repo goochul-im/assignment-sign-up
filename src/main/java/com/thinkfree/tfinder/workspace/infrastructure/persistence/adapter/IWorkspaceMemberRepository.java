@@ -7,17 +7,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IWorkspaceMemberRepository extends JpaRepository<WorkspaceMemberEntity, Long> {
 
-    // TODO: 페이징을 해야하나? 하나의 워크스페이스에 엄청나게 많은 멤버가 있으면?
     /**
+     * 워크스페이스에 속해있는 멤버를 가져옴
      * @param workspace 멤버들을 찾고 싶은 워크스페이스
-     * @return 해당 워크스페이스에 속해있는 멤버 리스트.
+     * @return 해당 워크스페이스에 속해있는 멤버 리스트. 없을 경우 empty list 반환
      */
     List<WorkspaceMemberEntity> findAllByWorkspace(WorkspaceEntity workspace);
 
     boolean existsByWorkspaceAndMember(WorkspaceEntity workspace, MemberEntity member);
+
+    Optional<WorkspaceMemberEntity> findByWorkspaceAndMember(WorkspaceEntity workspace, MemberEntity member);
 
 }

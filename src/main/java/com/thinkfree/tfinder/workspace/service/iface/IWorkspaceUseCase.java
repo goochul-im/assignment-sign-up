@@ -1,14 +1,29 @@
 package com.thinkfree.tfinder.workspace.service.iface;
 
 import com.thinkfree.tfinder.common.exception.BusinessException;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
+import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceDto;
 
 public interface IWorkspaceUseCase {
 
     /**
-     * 멤버를 초대할 때 사용됩니다
+     * 워크스페이스를 생성합니다.
+     * @param dto 워크스페이스 생성 요청 DTO
+     * @return 생성된 워크스페이스
+     * @throws BusinessException 이름이 중복되거나,
+     */
+    WorkspaceEntity create(CreateWorkspaceDto dto) throws BusinessException;
+
+    /**
+     * 멤버를 워크스페이스에 초대합니다.
      * @param toEmail 수신자
      * @param inviterId 초대한 멤버의 ID
      * @param workspaceId 초대한 워크스페이스 ID
+     * @throws BusinessException
+     * 가입되어있지 않은 멤버
+     * 존재하지 않는 워크스페이스
+     * 워크스페이스의 관리자나 소유자가 아님
+     * 워크스페이스에 속해있지 않음
      */
     void inviteMember(String toEmail, long inviterId, long workspaceId) throws BusinessException;
 

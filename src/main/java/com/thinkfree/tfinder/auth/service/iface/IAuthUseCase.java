@@ -5,7 +5,6 @@ import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
 import com.thinkfree.tfinder.auth.service.dto.MemberSignupResultDto;
 import com.thinkfree.tfinder.auth.service.dto.SignupDto;
 import com.thinkfree.tfinder.common.exception.BusinessException;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 
 public interface IAuthUseCase {
 
@@ -25,8 +24,18 @@ public interface IAuthUseCase {
      */
     LoginResultDto login(LoginDto dto) throws BusinessException;
 
+    /**
+     * 액세스 토큰과 리프레쉬 토큰을 리프레쉬할 때 사용
+     * @param refreshToken 리프레쉬 토큰 값
+     * @return 새로 발급된 액세스 토큰 + 리프레쉬 토큰
+     * @throws BusinessException 리프레쉬 토큰 불일치
+     */
     LoginResultDto refresh(String refreshToken) throws BusinessException;
 
-    void logout(String refreshToken) throws BusinessException;
+    /**
+     * 리프레쉬 토큰 무효화. 액세스 토큰은 프론트에서 삭제 처리
+     * @param refreshToken 리프레쉬 토큰 값
+     */
+    void logout(String refreshToken);
 
 }
