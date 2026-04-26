@@ -13,10 +13,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
-    private final CustomUserInfo member; // 이걸 굳이 래핑해서 쓸 이유가 있을까?
+    private final long memberId;
+    private final String email;
+    private final String password;
 
     public long getMemberId() {
-        return member.memberId();
+        return memberId;
     }
 
     @Override
@@ -26,12 +28,12 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public @Nullable String getPassword() {
-        return member.password();
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return member.email();
+        return email;
     }
 
     @Override

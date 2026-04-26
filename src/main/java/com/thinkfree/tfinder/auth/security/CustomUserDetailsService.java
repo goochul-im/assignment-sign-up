@@ -21,10 +21,10 @@ public class CustomUserDetailsService implements UserDetailsService {
                 () -> new UsernameNotFoundException("email [" + email + "] not found")
         );
 
-        return new CustomUserDetails(new CustomUserInfo(
+        return new CustomUserDetails(
                 member.getId(),
                 member.getEmail(),
                 member.getPassword()
-        ));
+        );
     }
 }

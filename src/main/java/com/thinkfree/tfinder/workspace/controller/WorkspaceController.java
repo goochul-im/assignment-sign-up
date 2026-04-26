@@ -1,7 +1,6 @@
 package com.thinkfree.tfinder.workspace.controller;
 
 import com.thinkfree.tfinder.auth.security.CustomUserDetails;
-import com.thinkfree.tfinder.auth.security.CustomUserInfo;
 import com.thinkfree.tfinder.workspace.controller.request.InviteAcceptRequest;
 import com.thinkfree.tfinder.workspace.controller.request.InviteRequest;
 import com.thinkfree.tfinder.workspace.controller.request.WorkspaceCreateRequest;
