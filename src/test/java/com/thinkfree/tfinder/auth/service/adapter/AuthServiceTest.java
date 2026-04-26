@@ -8,7 +8,6 @@ import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.auth.service.iface.IRefreshTokenRepository;
 import com.thinkfree.tfinder.common.service.dto.RefreshTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
-import com.thinkfree.tfinder.workspace.domain.MemberType;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,8 +64,7 @@ class AuthServiceTest {
                 1L,
                 username,
                 email,
-                encodePasswd,
-                MemberType.DEFAULT
+                encodePasswd
         );
 
         when(memberRepository.existsByEmail(any())).thenReturn(false);
@@ -114,8 +112,7 @@ class AuthServiceTest {
                 1L,
                 "name",
                 email,
-                "encodePasswd",
-                MemberType.DEFAULT
+                "encodePasswd"
         );
 
         when(memberRepository.findByEmail(any())).thenReturn(Optional.of(returnMember));
@@ -197,8 +194,7 @@ class AuthServiceTest {
                 1L,
                 "name",
                 email,
-                "encodePasswd",
-                MemberType.DEFAULT
+                "encodePasswd"
         );
 
         when(memberRepository.findByEmail(any())).thenReturn(Optional.of(returnMember));
