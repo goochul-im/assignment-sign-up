@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class WorkspaceController {
 
     private final IWorkspaceUseCase workspaceUseCase;
 
+    @SecurityRequirement(name = "Auth")
     @Operation(
             summary = "워크스페이스 생성",
             description = "워크스페이스를 생성합니다. "
@@ -47,7 +49,7 @@ public class WorkspaceController {
                             schema = @Schema(implementation = CreateWorkspaceResponse.class)
                     )
             ),
-            @ApiResponse(responseCode = "404", description = "E-001, 생성자가 DB에서 확인디지 않음"),
+            @ApiResponse(responseCode = "404", description = "E-001, 생성 요청자가 존재하지 않습니다."),
             @ApiResponse(responseCode = "409", description = "E-002, 워크스페이스 이름 또는 URL 중복"),
     })
     @PostMapping
@@ -88,6 +90,7 @@ public class WorkspaceController {
                 .build();
     }
 
+    @SecurityRequirement(name = "Auth")
     @Operation(
             summary = "워크스페이스 초대 요청",
             description = "워크스페이스 초대 요청을 보냅니다. 최대 50개의 이메일에 초대를 보낼수 있습니다."
