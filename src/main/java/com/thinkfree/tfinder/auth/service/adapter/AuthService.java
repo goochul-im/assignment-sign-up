@@ -38,7 +38,8 @@ public class AuthService implements IAuthUseCase {
     @Override
     public MemberSignupResultDto signUp(SignupDto dto) {
 
-        if (memberRepository.existsByEmail(dto.email())) throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
+        if (memberRepository.existsByEmail(dto.email()))
+            throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
 
         MemberEntity member = new MemberEntity(
                 dto.name(),
@@ -49,7 +50,7 @@ public class AuthService implements IAuthUseCase {
 
         return new MemberSignupResultDto(
                 savedMember.getId(),
-                savedMember.getUsername()
+                savedMember.getNickname()
         );
     }
 
@@ -57,10 +58,10 @@ public class AuthService implements IAuthUseCase {
     public LoginResultDto login(LoginDto dto) throws BusinessException {
 
         MemberEntity member = memberRepository.findByEmail(dto.email()).orElseThrow(
-                () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
+                () -> new BusinessException(ErrorCode.AUTHENTICATION_FAILED)
         );
         if (!encoder.matches(dto.password(), member.getPassword())) {
-            throw new BusinessException(ErrorCode.PASSWORD_UNMATCHED);
+            throw new BusinessException(ErrorCode.AUTHENTICATION_FAILED);
         }
 
         String accessToken = jwtManager.generateAccessToken(member.getEmail(), Instant.now().plusSeconds(JWT_ACCESS_EXPIRATION_TIME));

@@ -16,15 +16,15 @@ public class MemberEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    private String username;
+    private String nickname;
     @Column(nullable = false, unique = true)
     private String email;
-    @Column(nullable = true)
+    @Column()
     private String password;
     // OAuthAccount 추가 필요
 
-    public MemberEntity(String username, String email, String password) {
-        this.username = username;
+    public MemberEntity(String nickname, String email, String password) {
+        this.nickname = nickname;
         this.email = email;
         this.password = password;
     }

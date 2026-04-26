@@ -107,6 +107,8 @@ public class JwtManager implements IJwtManager {
             if (!claims.getSubject().equals(ACCESS_TOKEN_SUBJECT))
                 throw new JwtException("this token isn't for accessToken");
 
+        } catch (ExpiredJwtException e) {
+            throw new BusinessException("액세스 토큰이 만료되었습니다.", ACCESS_TOKEN_EXPIRED_ERROR);
         } catch (JwtException e) {
             throw new BusinessException(e.getMessage(), ACCESS_TOKEN_ERROR);
         }
@@ -133,6 +135,8 @@ public class JwtManager implements IJwtManager {
             if (!claims.getSubject().equals(REFRESH_TOKEN_SUBJECT))
                 throw new JwtException("this token isn't for refreshToken");
 
+        } catch (ExpiredJwtException e) {
+            throw new BusinessException("리프레쉬 토큰이 만료되었습니다.", REFRESH_TOKEN_EXPIRED_ERROR);
         } catch (JwtException e) {
             throw new BusinessException(e.getMessage(), REFRESH_TOKEN_ERROR);
         }

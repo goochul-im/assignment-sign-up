@@ -66,7 +66,7 @@ public class WorkspaceService implements IWorkspaceUseCase {
     @Override
     public void inviteMember(List<String> toEmailList, long inviterId, long workspaceId) throws BusinessException{
 
-        if (toEmailList.size() >= 50) {
+        if (toEmailList.size() > 50) {
             throw new BusinessException(ErrorCode.TOO_MANY_INVITE);
         }
 
@@ -110,7 +110,7 @@ public class WorkspaceService implements IWorkspaceUseCase {
             WorkspaceEntity workspace = getWorkspaceOrThrowE001(workspaceRepository.findByWorkspaceUrl(workspaceUrl));
 
             if (workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)){
-                throw new BusinessException(ErrorCode.DUPLICATE_WORKSPACE_MEMBER);
+                throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
             }
 
             WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(
