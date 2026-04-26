@@ -15,7 +15,6 @@ public class CustomUserDetails implements UserDetails {
 
     private final long memberId;
     private final String email;
-    private final String password;
 
     public long getMemberId() {
         return memberId;
@@ -27,8 +26,8 @@ public class CustomUserDetails implements UserDetails {
     }
 
     @Override
-    public @Nullable String getPassword() {
-        return password;
+    public String getPassword() {
+        return null;
     }
 
     @Override

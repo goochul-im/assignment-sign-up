@@ -57,7 +57,7 @@ public class WorkspaceController {
             ) {
 
         workspaceUseCase.inviteMember(
-                request.toEmail(),
+                request.toEmailList(),
                 currentUser.getMemberId(),
                 request.workspaceId()
         );

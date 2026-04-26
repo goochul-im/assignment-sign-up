@@ -40,7 +40,7 @@ public class GoogleMailSender implements IMailSender {
 
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            log.warn("메일을 보내는 중 에러 발생. toEmail : {}, message : {}", toEmail, e.getMessage());
+            log.warn("메일을 보내는 중 에러 발생. toEmailList : {}, message : {}", toEmail, e.getMessage());
 //            throw new BusinessException(ErrorCode.MAIL_SEND_ERROR);
         }
 

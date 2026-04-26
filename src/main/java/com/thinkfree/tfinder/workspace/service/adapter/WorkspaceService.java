@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -63,7 +64,11 @@ public class WorkspaceService implements IWorkspaceUseCase {
     }
 
     @Override
-    public void inviteMember(String toEmail, long inviterId, long workspaceId) throws BusinessException{
+    public void inviteMember(List<String> toEmailList, long inviterId, long workspaceId) throws BusinessException{
+
+        if (toEmailList.size() >= 50) {
+            throw new BusinessException(ErrorCode.TOO_MANY_INVITE);
+        }
 
         MemberEntity inviter = getMemberOrThrowE001(memberRepository.findById(inviterId));
 
@@ -76,18 +81,20 @@ public class WorkspaceService implements IWorkspaceUseCase {
             throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
         }
 
-        String inviteToken = jwtManager.generateInviteToken(
-                inviter.getEmail(),
-                toEmail,
-                inviteWorkspace.getWorkspaceUrl(),
-                Instant.now().plusSeconds(inviteTokenExpirationTime));
+        for (String toEmail : toEmailList) {
+            String inviteToken = jwtManager.generateInviteToken(
+                    inviter.getEmail(),
+                    toEmail,
+                    inviteWorkspace.getWorkspaceUrl(),
+                    Instant.now().plusSeconds(inviteTokenExpirationTime));
 
-        String subject = "invite token";
-        mailSender.asyncSend(
-                toEmail,
-                subject,
-                makeInviteMailMessage(inviteWorkspace, inviteToken)
-        );
+            String subject = "invite token";
+            mailSender.asyncSend(
+                    toEmail,
+                    subject,
+                    makeInviteMailMessage(inviteWorkspace, inviteToken)
+            );
+        }
 
     }
 

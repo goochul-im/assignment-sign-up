@@ -23,8 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         return new CustomUserDetails(
                 member.getId(),
-                member.getEmail(),
-                member.getPassword()
+                member.getEmail()
         );
     }
 }
