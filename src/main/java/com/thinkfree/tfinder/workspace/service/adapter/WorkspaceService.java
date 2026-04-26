@@ -57,8 +57,7 @@ public class WorkspaceService implements IWorkspaceUseCase {
         WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(
                 workspace,
                 creator,
-                WorkspaceMemberRole.OWNER,
-                Instant.now()
+                WorkspaceMemberRole.OWNER
         );
         workspaceMemberRepository.save(workspaceMember);
 
@@ -159,8 +158,7 @@ public class WorkspaceService implements IWorkspaceUseCase {
             WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(
                     workspace,
                     member,
-                    WorkspaceMemberRole.MEMBER,
-                    Instant.now()
+                    WorkspaceMemberRole.MEMBER
             );
 
             workspaceMemberRepository.save(workspaceMember);

@@ -28,14 +28,13 @@ public class WorkspaceMemberEntity {
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private WorkspaceMemberRole role;
-    @Column()
-    private Instant lastLoginTime; // DB 저장시 Timestamp로 저장됨, TZ가 있음.
 
-
-    public WorkspaceMemberEntity(WorkspaceEntity workspace, MemberEntity member, WorkspaceMemberRole role, Instant lastLoginTime) {
+    public WorkspaceMemberEntity(
+            WorkspaceEntity workspace,
+            MemberEntity member,
+            WorkspaceMemberRole role) {
         this.workspace = workspace;
         this.member = member;
         this.role = role;
-        this.lastLoginTime = lastLoginTime;
     }
 }

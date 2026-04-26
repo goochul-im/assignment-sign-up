@@ -63,8 +63,7 @@ class WorkspaceServiceTest {
         WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(
                 workspace,
                 member,
-                WorkspaceMemberRole.OWNER,
-                Instant.now()
+                WorkspaceMemberRole.OWNER
         );
 
         given(memberRepository.findById(memberId)).willReturn(Optional.of(member));
@@ -108,14 +107,12 @@ class WorkspaceServiceTest {
         WorkspaceMemberEntity requesterWorkspaceMember = new WorkspaceMemberEntity(
                 workspace,
                 requester,
-                WorkspaceMemberRole.OWNER,
-                Instant.now()
+                WorkspaceMemberRole.OWNER
         );
         WorkspaceMemberEntity memberWorkspaceMember = new WorkspaceMemberEntity(
                 workspace,
                 member,
-                WorkspaceMemberRole.MEMBER,
-                Instant.now()
+                WorkspaceMemberRole.MEMBER
         );
 
         given(memberRepository.findById(requesterId)).willReturn(Optional.of(requester));
@@ -195,8 +192,7 @@ class WorkspaceServiceTest {
         WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(
                 workspace,
                 member,
-                WorkspaceMemberRole.MEMBER,
-                Instant.now()
+                WorkspaceMemberRole.MEMBER
         );
 
 
