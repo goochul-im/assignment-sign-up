@@ -12,7 +12,9 @@ import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IWorks
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
+import com.thinkfree.tfinder.workspace.service.dto.MyWorkspacesResultDto;
 import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceDto;
+import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResultDto;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +42,7 @@ public class WorkspaceService implements IWorkspaceUseCase {
 
     @Override
     public WorkspaceEntity create(CreateWorkspaceDto dto) throws BusinessException {
-        MemberEntity creator = getMemberOrThrowE001(memberRepository.findById(dto.memberId()));
+        MemberEntity creator = getMemberOrThrowE001(memberRepository.findById(dto.requestMemberId()));
 
         if (workspaceRepository.existsByWorkspaceName(dto.workspaceName()) || workspaceRepository.existsByWorkspaceUrl(dto.workspaceUrl())) {
             throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
@@ -61,6 +63,46 @@ public class WorkspaceService implements IWorkspaceUseCase {
         workspaceMemberRepository.save(workspaceMember);
 
         return workspace;
+    }
+
+    @Override
+    public List<MyWorkspacesResultDto> findMyWorkspaces(long requesterId) throws BusinessException {
+        MemberEntity member = getMemberOrThrowE001(memberRepository.findById(requesterId));
+
+        return workspaceMemberRepository.findAllWorkspaceByMember(member)
+                .stream()
+                .map(workspaceMember -> {
+                    WorkspaceEntity workspace = workspaceMember.getWorkspace();
+                    return new MyWorkspacesResultDto(
+                            workspace.getId(),
+                            workspace.getWorkspaceName(),
+                            workspace.getWorkspaceUrl(),
+                            workspaceMember.getRole()
+                    );
+                })
+                .toList();
+    }
+
+    @Override
+    public List<WorkspaceMemberResultDto> findWorkspaceMembers(long requesterId, long workspaceId) throws BusinessException {
+        MemberEntity requester = getMemberOrThrowE001(memberRepository.findById(requesterId));
+        WorkspaceEntity workspace = getWorkspaceOrThrowE001(workspaceRepository.findById(workspaceId));
+
+        getWorkspaceMemberOrThrowA002(workspace, requester);
+
+        return workspaceMemberRepository.findAllMemberByWorkspace(workspace)
+                .stream()
+                .map(workspaceMember -> {
+                    MemberEntity member = workspaceMember.getMember();
+
+                    return new WorkspaceMemberResultDto(
+                            member.getId(),
+                            member.getNickname(),
+                            member.getEmail(),
+                            workspaceMember.getRole()
+                    );
+                })
+                .toList();
     }
 
     @Override
@@ -86,7 +128,8 @@ public class WorkspaceService implements IWorkspaceUseCase {
                     inviter.getEmail(),
                     toEmail,
                     inviteWorkspace.getWorkspaceUrl(),
-                    Instant.now().plusSeconds(inviteTokenExpirationTime));
+                    Instant.now().plusSeconds(inviteTokenExpirationTime)
+            );
 
             String subject = "invite token";
             mailSender.asyncSend(
