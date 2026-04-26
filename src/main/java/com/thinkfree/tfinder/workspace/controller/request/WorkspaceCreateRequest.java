@@ -15,4 +15,4 @@ public record WorkspaceCreateRequest(
         @NotBlank(message = ValidationMessage.NOT_BLANK)
         String workspaceUrl
 ) {
-}ㅈ
+}
