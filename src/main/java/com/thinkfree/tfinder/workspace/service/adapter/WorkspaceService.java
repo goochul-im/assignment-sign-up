@@ -15,6 +15,7 @@ import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.Workspa
 import com.thinkfree.tfinder.workspace.service.dto.MyWorkspacesResultDto;
 import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceDto;
 import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResultDto;
+import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceQuery;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +27,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class WorkspaceService implements IWorkspaceUseCase {
+public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
     private final IWorkspaceMemberRepository workspaceMemberRepository;
     private final IMemberRepository memberRepository;

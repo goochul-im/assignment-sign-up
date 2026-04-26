@@ -11,6 +11,7 @@ import com.thinkfree.tfinder.workspace.service.dto.MyWorkspacesResultDto;
 import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResultDto;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceDto;
+import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceQuery;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -42,6 +43,7 @@ import java.util.List;
 public class WorkspaceController {
 
     private final IWorkspaceUseCase workspaceUseCase;
+    private final IWorkspaceQuery workspaceQuery;
 
     @SecurityRequirement(name = "Auth")
     @Operation(
@@ -64,7 +66,7 @@ public class WorkspaceController {
             @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
 
-        List<MyWorkspacesResultDto> myWorkspaces = workspaceUseCase.findMyWorkspaces(currentUser.getMemberId());
+        List<MyWorkspacesResultDto> myWorkspaces = workspaceQuery.findMyWorkspaces(currentUser.getMemberId());
         MyWorkspaceResponse response = new MyWorkspaceResponse(
                 myWorkspaces.size(),
                 myWorkspaces
@@ -97,7 +99,7 @@ public class WorkspaceController {
             @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
 
-        List<WorkspaceMemberResultDto> members = workspaceUseCase.findWorkspaceMembers(
+        List<WorkspaceMemberResultDto> members = workspaceQuery.findWorkspaceMembers(
                 currentUser.getMemberId(),
                 workspaceId
         );
