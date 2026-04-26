@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
-@Entity
+@Entity(name = "workspace_member")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
