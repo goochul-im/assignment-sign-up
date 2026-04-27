@@ -156,7 +156,7 @@ public class AuthController {
                 .secure(refreshCookieProperties.isSecure())
                 .sameSite(refreshCookieProperties.getSameSite())
                 .path(refreshCookieProperties.getPath())
-                .maxAge(refreshCookieProperties.getExpirationSeconds())
+                .maxAge(refreshCookieProperties.getExpirationTime())
                 .build();
     }
 

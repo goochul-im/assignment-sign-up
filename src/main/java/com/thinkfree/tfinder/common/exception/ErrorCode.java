@@ -34,7 +34,9 @@ public enum ErrorCode {
     ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "E-001"),
     DUPLICATE_ERROR(HttpStatus.CONFLICT, "E-002"),
 
-    INVALID_ARGUMENT(HttpStatus.BAD_REQUEST, "R-001"), ;
+    INVALID_ARGUMENT(HttpStatus.BAD_REQUEST, "R-001"),
+    INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "R-002")
+    ;
 
     private final HttpStatus status;
     private final String errorCode;

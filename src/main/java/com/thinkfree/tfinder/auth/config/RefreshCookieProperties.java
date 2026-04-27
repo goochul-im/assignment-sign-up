@@ -28,8 +28,6 @@ public class RefreshCookieProperties {
     @Value("${auth.refresh-cookie.path}")
     private String path;
 
-    public long getExpirationSeconds() {
-        return jwtProperties.getRefreshExpirationSeconds();
-    }
-
+    @Value("${spring.jwt.expiration.refresh}")
+    private long expirationTime;
 }
