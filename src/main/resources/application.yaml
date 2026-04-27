@@ -34,6 +34,7 @@ spring:
       access : ${JWT_ACCESS_EXPIRATION_SECOND}
       refresh: ${JWT_REFRESH_EXPIRATION_SECOND}
       invite: ${JWT_INVITE_EXPIRATION_SECOND}
+      validate: ${JWT_VALIDATE_EMAIL_EXPIRATION_SECOND}
 
   data:
     redis:

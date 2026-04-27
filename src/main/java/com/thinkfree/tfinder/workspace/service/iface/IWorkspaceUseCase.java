@@ -1,8 +1,6 @@
 package com.thinkfree.tfinder.workspace.service.iface;
 
 import com.thinkfree.tfinder.common.exception.BusinessException;
-import com.thinkfree.tfinder.workspace.service.dto.MyWorkspacesResultDto;
-import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResultDto;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceDto;
 
@@ -32,9 +30,13 @@ public interface IWorkspaceUseCase {
     void inviteMember(List<String> toEmailList, long inviterId, long workspaceId) throws BusinessException;
 
     /**
-     * 초대를 수락할 때 사용됩니다. 내부적으로 토큰을 파싱해서 워크스페이스에 초대를 수락한 멤버를 추가해야합니다
+     * 초대를 수락할 때 사용됩니다. 내부적으로 토큰을 파싱해서 워크스페이스에 초대를 수락한 멤버를 추가해야합니다.
+     * 아직 회원이 아닐 경우 회원가입을 먼저 진행해달라는 예외를 보내주어야 합니다.
      * @param token 초대 토큰
+     * @throws BusinessException
+     * 이미 회원일 경우, 초대를 보낸 사람이 없거나 초대받은 워크스페이스가 없음
+     * 초대받은 사람이 아직 회원이 아님
      */
-    void acceptMember(String token) throws BusinessException;
+    void acceptInvite(String token) throws BusinessException;
 
 }

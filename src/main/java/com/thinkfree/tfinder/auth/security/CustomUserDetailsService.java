@@ -1,6 +1,6 @@
 package com.thinkfree.tfinder.auth.security;
 
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IMemberRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

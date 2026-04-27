@@ -5,10 +5,10 @@ import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
 import com.thinkfree.tfinder.auth.service.dto.MemberSignupResultDto;
 import com.thinkfree.tfinder.auth.service.dto.SignupDto;
 import com.thinkfree.tfinder.common.exception.BusinessException;
-import com.thinkfree.tfinder.auth.service.iface.IRefreshTokenRepository;
+import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshTokenRepository;
 import com.thinkfree.tfinder.common.service.dto.RefreshTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IMemberRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -137,7 +137,7 @@ class AuthServiceTest {
         String newAccessToken = "new accessToken";
         String newRefreshToken = "new refreshToken";
 
-        when(jwtManager.parsingRefreshToken(refreshToken)).thenReturn(new RefreshTokenResult(email));
+        when(jwtManager.getEmailFromRefreshToken(refreshToken)).thenReturn(email);
         when(refreshTokenRepository.findByEmail(email)).thenReturn(Optional.of(refreshToken));
         when(jwtManager.generateAccessToken(any(), any())).thenReturn(newAccessToken);
         when(jwtManager.generateRefreshToken(any(), any())).thenReturn(newRefreshToken);
@@ -157,7 +157,7 @@ class AuthServiceTest {
         String email = "test@email.com";
         String refreshToken = "request refreshToken";
 
-        when(jwtManager.parsingRefreshToken(refreshToken)).thenReturn(new RefreshTokenResult(email));
+        when(jwtManager.getEmailFromRefreshToken(refreshToken)).thenReturn(email);
         when(refreshTokenRepository.findByEmail(email)).thenReturn(Optional.of("saved refreshToken"));
 
         //when & then
@@ -172,7 +172,7 @@ class AuthServiceTest {
         String email = "test@email.com";
         String refreshToken = "refreshToken";
 
-        when(jwtManager.parsingRefreshToken(refreshToken)).thenReturn(new RefreshTokenResult(email));
+        when(jwtManager.getEmailFromRefreshToken(refreshToken)).thenReturn(email);
 
         //when
         authService.logout(refreshToken);

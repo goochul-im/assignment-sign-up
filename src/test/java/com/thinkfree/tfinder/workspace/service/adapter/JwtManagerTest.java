@@ -6,8 +6,6 @@ import com.thinkfree.tfinder.common.service.adpater.JwtManager;
 import com.thinkfree.tfinder.common.service.dto.AccessTokenResult;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.common.service.dto.RefreshTokenResult;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -80,10 +78,10 @@ class JwtManagerTest {
         String accessToken = jwtManager.generateAccessToken(email, date);
 
         //when
-        AccessTokenResult result = jwtManager.parsingAccessToken(accessToken);
+        String result = jwtManager.getEmailFromAccessToken(accessToken);
 
         //then
-        assertThat(result.email()).isEqualTo(email);
+        assertThat(result).isEqualTo(email);
     }
 
     @Test
@@ -95,7 +93,7 @@ class JwtManagerTest {
 
         //when
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> jwtManager.parsingAccessToken(accessToken));
+                () -> jwtManager.getEmailFromAccessToken(accessToken));
 
         //then
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.ACCESS_TOKEN_EXPIRED_ERROR);
@@ -111,7 +109,7 @@ class JwtManagerTest {
 
         //when
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> jwtManager.parsingAccessToken(invalidAccessToken));
+                () -> jwtManager.getEmailFromAccessToken(invalidAccessToken));
 
         //then
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.ACCESS_TOKEN_ERROR);
@@ -125,10 +123,10 @@ class JwtManagerTest {
         String refreshToken = jwtManager.generateRefreshToken(email, date);
 
         //when
-        RefreshTokenResult result = jwtManager.parsingRefreshToken(refreshToken);
+        String result = jwtManager.getEmailFromRefreshToken(refreshToken);
 
         //then
-        assertThat(result.email()).isEqualTo(email);
+        assertThat(result).isEqualTo(email);
     }
 
     @Test
@@ -140,7 +138,7 @@ class JwtManagerTest {
 
         //when
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> jwtManager.parsingRefreshToken(refreshToken));
+                () -> jwtManager.getEmailFromRefreshToken(refreshToken));
 
         //then
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.REFRESH_TOKEN_EXPIRED_ERROR);
@@ -156,7 +154,7 @@ class JwtManagerTest {
 
         //when
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> jwtManager.parsingRefreshToken(invalidRefreshToken));
+                () -> jwtManager.getEmailFromRefreshToken(invalidRefreshToken));
 
         //then
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.REFRESH_TOKEN_ERROR);

@@ -1,14 +1,15 @@
 package com.thinkfree.tfinder.workspace.service.adapter;
 
+import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.workspace.infrastructure.external.iface.IMailSender;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IMemberRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IWorkspaceRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IWorkspaceMemberRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -34,9 +36,13 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     private final IWorkspaceRepository workspaceRepository;
     private final IMailSender mailSender;
     private final IJwtManager jwtManager;
+    private final IEmailValidateRepository emailValidateRepository;
 
     @Value("${spring.jwt.expiration.invite}")
     private long inviteTokenExpirationTime;
+
+    @Value("${spring.jwt.expiration.validate}")
+    private long JWT_VALIDATE_EMAIL_EXPIRATION_SECONDS;
 
     @Value("${frontend.url}")
     private String FRONTEND_URL;
@@ -142,7 +148,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     }
 
     @Override
-    public void acceptMember(String token) throws BusinessException{
+    public void acceptInvite(String token) throws BusinessException{
 
         InviteTokenResult result = jwtManager.parsingInviteToken(token);
         String toMail = result.toEmail();
@@ -165,6 +171,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
             workspaceMemberRepository.save(workspaceMember);
         } else {
             // 회원이 아닐 경우
+            emailValidateRepository.save(result.toEmail(), Duration.ofSeconds(JWT_VALIDATE_EMAIL_EXPIRATION_SECONDS));
             throw new BusinessException(ErrorCode.SIGNUP_FIRST);
         }
 

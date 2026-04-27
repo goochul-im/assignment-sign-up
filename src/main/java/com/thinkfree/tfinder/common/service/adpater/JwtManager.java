@@ -6,7 +6,6 @@ import com.thinkfree.tfinder.common.service.dto.RefreshTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -28,12 +27,13 @@ public class JwtManager implements IJwtManager {
     private final String FROM_EMAIL = "from_email";
     private final String TO_EMAIL = "to_email";
     private final String WORKSPACE_URL = "workspace_url";
-    private final String INVITE_TOKEN_SUBJECT = "workspace_invite_token";
-
     private final String MEMBER_EMAIL = "member_email";
+    private final String VALIDATE_EMAIL = "validate_email";
+
+    private final String INVITE_TOKEN_SUBJECT = "workspace_invite_token";
     private final String ACCESS_TOKEN_SUBJECT = "access_token";
     private final String REFRESH_TOKEN_SUBJECT = "refresh_token";
-
+    private final String EMAIL_VALIDATE_TOKEN_SUBJECT = "email_validate_token";
 
     public JwtManager(@Value("${spring.jwt.key}") String secretKey) {
         this.secretKey = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
@@ -61,6 +61,13 @@ public class JwtManager implements IJwtManager {
         HashMap<String, String > claims = new HashMap<>();
         claims.put(MEMBER_EMAIL, memberEmail);
         return produceJwt(REFRESH_TOKEN_SUBJECT, expirationDate, claims);
+    }
+
+    @Override
+    public String generateValidateEmailToken(String email, Instant expirationDate) {
+        HashMap<String, String > claims = new HashMap<>();
+        claims.put(VALIDATE_EMAIL, email);
+        return produceJwt(EMAIL_VALIDATE_TOKEN_SUBJECT, expirationDate, claims);
     }
 
     @Override
@@ -94,7 +101,7 @@ public class JwtManager implements IJwtManager {
     }
 
     @Override
-    public AccessTokenResult parsingAccessToken(String token) {
+    public String getEmailFromAccessToken(String token) {
         Claims claims;
 
         try {
@@ -106,7 +113,7 @@ public class JwtManager implements IJwtManager {
                     .getPayload();
 
             if (!claims.getSubject().equals(ACCESS_TOKEN_SUBJECT))
-                throw new JwtException("this token isn't for accessToken");
+                throw new JwtException("이 토큰은 액세스 토큰이 아닙니다");
 
         } catch (ExpiredJwtException e) {
             throw new BusinessException("액세스 토큰이 만료되었습니다.", ACCESS_TOKEN_EXPIRED_ERROR);
@@ -114,15 +121,11 @@ public class JwtManager implements IJwtManager {
             throw new BusinessException(e.getMessage(), ACCESS_TOKEN_ERROR);
         }
 
-        String memberEmail = (String) claims.get(MEMBER_EMAIL);
-
-        return new AccessTokenResult(
-                memberEmail
-        );
+        return (String) claims.get(MEMBER_EMAIL);
     }
 
     @Override
-    public RefreshTokenResult parsingRefreshToken(String token) {
+    public String getEmailFromRefreshToken(String token) {
         Claims claims;
 
         try {
@@ -134,7 +137,7 @@ public class JwtManager implements IJwtManager {
                     .getPayload();
 
             if (!claims.getSubject().equals(REFRESH_TOKEN_SUBJECT))
-                throw new JwtException("this token isn't for refreshToken");
+                throw new JwtException("이 토큰은 리프레쉬 토큰이 아닙니다");
 
         } catch (ExpiredJwtException e) {
             throw new BusinessException("리프레쉬 토큰이 만료되었습니다.", REFRESH_TOKEN_EXPIRED_ERROR);
@@ -142,11 +145,31 @@ public class JwtManager implements IJwtManager {
             throw new BusinessException(e.getMessage(), REFRESH_TOKEN_ERROR);
         }
 
-        String memberEmail = (String) claims.get(MEMBER_EMAIL);
+        return (String) claims.get(MEMBER_EMAIL);
+    }
 
-        return new RefreshTokenResult(
-                memberEmail
-        );
+    @Override
+    public String getEmailFromValidateEmailToken(String token) {
+        Claims claims;
+
+        try {
+
+            claims = Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            if (!claims.getSubject().equals(EMAIL_VALIDATE_TOKEN_SUBJECT))
+                throw new JwtException("이 토큰은 이메일 인증 토큰이 아닙니다");
+
+        } catch (ExpiredJwtException e) {
+            throw new BusinessException("이메일 인증 토큰이 만료되었습니다.", VALIDATE_EMAIL_TOKEN_EXPIRED_ERROR);
+        } catch (JwtException e) {
+            throw new BusinessException(e.getMessage(), VALIDATE_EMAIL_TOKEN_ERROR);
+        }
+
+        return (String) claims.get(VALIDATE_EMAIL);
     }
 
     private String produceJwt(String subject, Instant expirationDate, Map<String, ?> claims) {

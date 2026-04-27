@@ -14,9 +14,7 @@ import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceDto;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceQuery;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -163,7 +161,7 @@ public class WorkspaceController {
     @PostMapping("/invite/accept")
     public ResponseEntity<?> inviteAccept(@RequestBody InviteAcceptRequest request){
 
-        workspaceUseCase.acceptMember(request.inviteToken());
+        workspaceUseCase.acceptInvite(request.inviteToken());
 
         return ResponseEntity.noContent()
                 .build();

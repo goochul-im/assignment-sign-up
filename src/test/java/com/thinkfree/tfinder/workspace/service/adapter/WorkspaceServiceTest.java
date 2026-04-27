@@ -5,9 +5,9 @@ import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.workspace.infrastructure.external.iface.IMailSender;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IMemberRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IWorkspaceRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter.IWorkspaceMemberRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
@@ -19,7 +19,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -202,7 +201,7 @@ class WorkspaceServiceTest {
         given(workspaceRepository.findByWorkspaceUrl(any())).willReturn(java.util.Optional.of(workspace));
 
         //when
-        workspaceService.acceptMember(token);
+        workspaceService.acceptInvite(token);
 
         //then
         then(jwtManager).should(times(1)).parsingInviteToken(token);
@@ -228,7 +227,7 @@ class WorkspaceServiceTest {
         given(memberRepository.existsByEmail(toEmail)).willReturn(false);
 
         //when & then
-        assertThrows(BusinessException.class, () -> workspaceService.acceptMember(token));
+        assertThrows(BusinessException.class, () -> workspaceService.acceptInvite(token));
 
     }
 

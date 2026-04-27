@@ -1,6 +1,6 @@
 package com.thinkfree.tfinder.auth.infrastructure.persistence.adapter;
 
-import com.thinkfree.tfinder.auth.service.iface.IRefreshTokenRepository;
+import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -12,7 +12,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RedisRefreshTokenRepository implements IRefreshTokenRepository {
 
-    private static final String KEY_PREFIX = "refresh:";
+    private final String KEY_PREFIX = "refresh:";
 
     private final StringRedisTemplate redisTemplate;
 

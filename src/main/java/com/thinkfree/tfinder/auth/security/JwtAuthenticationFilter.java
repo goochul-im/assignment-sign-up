@@ -10,12 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.pattern.PathPatternRouteMatcher;
 
 import java.io.IOException;
 
@@ -27,7 +23,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final RequestMatcher skipRequestPattern;
 
     private final String AUTHORIZATION_HEADER = "Authorization";
-    private final String BEARER_PREFIX = "Bearer ";
+    private final String BEARER_PREFIX = "Bearer "; // RFC 6750
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -36,9 +32,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
 
-            AccessTokenResult tokenResult = jwtManager.parsingAccessToken(token);
+            String email = jwtManager.getEmailFromAccessToken(token);
 
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(tokenResult.email());
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
 
             if (userDetails != null) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, null);

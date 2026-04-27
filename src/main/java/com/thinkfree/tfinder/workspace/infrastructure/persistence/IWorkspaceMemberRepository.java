@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.workspace.infrastructure.persistence.adapter;
+package com.thinkfree.tfinder.workspace.infrastructure.persistence;
 
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;

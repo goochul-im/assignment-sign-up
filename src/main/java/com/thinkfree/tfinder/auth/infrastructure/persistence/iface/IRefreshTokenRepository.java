@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.auth.service.iface;
+package com.thinkfree.tfinder.auth.infrastructure.persistence.iface;
 
 import java.time.Duration;
 import java.util.Optional;

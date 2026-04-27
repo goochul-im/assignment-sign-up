@@ -1,8 +1,6 @@
 package com.thinkfree.tfinder.common.service.iface;
 
-import com.thinkfree.tfinder.common.service.dto.AccessTokenResult;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
-import com.thinkfree.tfinder.common.service.dto.RefreshTokenResult;
 
 import java.time.Instant;
 
@@ -14,10 +12,14 @@ public interface IJwtManager {
 
     String generateRefreshToken(String memberEmail, Instant expirationDate);
 
+    String generateValidateEmailToken(String email, Instant expirationDate);
+
     InviteTokenResult parsingInviteToken(String token);
 
-    AccessTokenResult parsingAccessToken(String token);
+    String getEmailFromAccessToken(String token);
 
-    RefreshTokenResult parsingRefreshToken(String token);
+    String getEmailFromRefreshToken(String token);
+
+    String getEmailFromValidateEmailToken(String token);
 
 }

@@ -1,6 +1,7 @@
 package com.thinkfree.tfinder.auth.controller;
 
 import com.thinkfree.tfinder.auth.config.RefreshCookieProperties;
+import com.thinkfree.tfinder.auth.controller.request.EmailValidateReqeust;
 import com.thinkfree.tfinder.auth.controller.request.LoginRequest;
 import com.thinkfree.tfinder.auth.controller.request.SignupRequest;
 import com.thinkfree.tfinder.auth.controller.response.AccessTokenResponse;
@@ -117,6 +118,7 @@ public class AuthController {
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "로그아웃 성공"),
             @ApiResponse(responseCode = "409", description = "E-002, 중복 이메일"),
+            @ApiResponse(responseCode = "401", description = "A-008, 이메일이 인증되지 않았거나, 인증이 만료되었습니다.")
     })
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest request) {
@@ -128,6 +130,23 @@ public class AuthController {
         ));
 
         return ResponseEntity.noContent()
+                .build();
+    }
+
+    @Operation(
+            summary = "이메일 인증",
+            description = "이메일 인증을 요청합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "202", description = "이메일 인증 요청 성공"),
+            @ApiResponse(responseCode = "409", description = "E-002, 이미 가입된 이메일"),
+    })
+    @PostMapping("/email/validate")
+    public ResponseEntity<?> validateEmail(@Valid @RequestBody EmailValidateReqeust request){
+
+        authUseCase.validateEmail(request.email());
+
+        return ResponseEntity.accepted()
                 .build();
     }
 

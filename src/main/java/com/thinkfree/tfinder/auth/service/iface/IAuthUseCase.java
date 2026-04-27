@@ -9,6 +9,13 @@ import com.thinkfree.tfinder.common.exception.BusinessException;
 public interface IAuthUseCase {
 
     /**
+     * 이메일 인증 요청
+     * @param email 인증을 요청할 이메일
+     * @throws BusinessException 이미 가입된 이메일
+     */
+    void validateEmail(String email) throws BusinessException;
+
+    /**
      * 사용자 회원가입 유즈케이스
      * @param dto 회원가입 요청 정보
      * @return 생성된 멤버 정보, 가입 이후 다른 정보를 바로 요청하거나 화면에 보여줘야 할 때 수정 가능
