@@ -25,6 +25,7 @@ spring:
       access: 600
       refresh: 604800
       invite: 172800
+      validate: 600
 
 frontend:
   url: http://localhost:3000
