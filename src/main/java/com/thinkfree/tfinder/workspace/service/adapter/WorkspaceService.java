@@ -1,6 +1,8 @@
 package com.thinkfree.tfinder.workspace.service.adapter;
 
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
+import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
+import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
@@ -37,12 +39,8 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     private final IMailSender mailSender;
     private final IJwtManager jwtManager;
     private final IEmailValidateRepository emailValidateRepository;
-
-    @Value("${spring.jwt.expiration.invite}")
-    private long inviteTokenExpirationTime;
-
-    @Value("${spring.jwt.expiration.validate}")
-    private long JWT_VALIDATE_EMAIL_EXPIRATION_SECONDS;
+    private final IPendingInviteRepository pendingInviteRepository;
+    private final JwtProperties jwtProperties;
 
     @Value("${frontend.url}")
     private String FRONTEND_URL;
@@ -134,7 +132,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
                     inviter.getEmail(),
                     toEmail,
                     inviteWorkspace.getWorkspaceUrl(),
-                    Instant.now().plusSeconds(inviteTokenExpirationTime)
+                    Instant.now().plusSeconds(jwtProperties.getInviteExpirationSeconds())
             );
 
             String subject = "invite token";
@@ -171,7 +169,9 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
             workspaceMemberRepository.save(workspaceMember);
         } else {
             // 회원이 아닐 경우
-            emailValidateRepository.save(result.toEmail(), Duration.ofSeconds(JWT_VALIDATE_EMAIL_EXPIRATION_SECONDS));
+            Duration expiration = Duration.ofSeconds(jwtProperties.getValidateEmailExpirationSeconds());
+            emailValidateRepository.save(result.toEmail(), expiration);
+            pendingInviteRepository.save(result.toEmail(), result.workspaceUrl(), expiration);
             throw new BusinessException(ErrorCode.SIGNUP_FIRST);
         }
 

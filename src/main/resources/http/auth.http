@@ -13,16 +13,16 @@ Content-Type: application/json
 
 ### 액세스 토큰 검증
 GET localhost:8080/test
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NzcxMTI0MTksInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6Imdvb2NoMTIzQG5hdmVyLmNvbSJ9.PKC04gl1NctDZuKAYqRKTQjXFaeZmWYGp6N98tj-rm4
+Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJleHAiOjE3NzcxNTAyNzIsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6Imdvb2NoMTIzQG5hdmVyLmNvbSJ9.VB8L-4zH5OxkrK3I8XG2qoe2lyRMg8URovbtacsuZpYpmkV8DCXmG-N0P3ciC53k
 
 ### 새 유저 회원가입
 POST http://localhost:8080/auth/signup
 Content-Type: application/json
 
 {
-  "email": "new@email.com",
+  "email": "gooch123@naver.com",
   "password": "12341234",
-  "username": "newemail"
+  "username": "gooch123"
 }
 
 ### 새 유저 로그인
@@ -36,3 +36,6 @@ Content-Type: application/json
 
 ### 리프레쉬 토큰 인증
 POST localhost:8080/auth/refresh
+
+### 로그아웃
+POST localhost:8080/auth/logout

@@ -156,7 +156,7 @@ public class WorkspaceController {
             @ApiResponse(responseCode = "404", description = "E-001, 초대 받은 이메일이나 초대받은 워크스페이스가 존재하지 않음"),
             @ApiResponse(responseCode = "409", description = "E-002, 이미 속해있는 워크스페이스임"),
             @ApiResponse(responseCode = "401", description = "I-001, 초대 토큰이 만료되었거나 오류가 있습니다."),
-            @ApiResponse(responseCode = "401", description = "I-002, 사용자가 아직 가입하지 않았기 때문에 가입을 먼저 안내해야함."),
+            @ApiResponse(responseCode = "303", description = "I-002, 사용자가 아직 가입하지 않았기 때문에 가입을 먼저 안내해야함."),
     })
     @PostMapping("/invite/accept")
     public ResponseEntity<?> inviteAccept(@RequestBody InviteAcceptRequest request){

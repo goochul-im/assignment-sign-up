@@ -1,12 +1,17 @@
 package com.thinkfree.tfinder.auth.config;
 
+import com.thinkfree.tfinder.common.config.JwtProperties;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Getter
 @Component
+@RequiredArgsConstructor
 public class RefreshCookieProperties {
+
+    private final JwtProperties jwtProperties;
 
     @Value("${auth.refresh-cookie.name}")
     private String name;
@@ -23,7 +28,8 @@ public class RefreshCookieProperties {
     @Value("${auth.refresh-cookie.path}")
     private String path;
 
-    @Value("${spring.jwt.expiration.refresh}")
-    private long expirationSeconds;
+    public long getExpirationSeconds() {
+        return jwtProperties.getRefreshExpirationSeconds();
+    }
 
 }

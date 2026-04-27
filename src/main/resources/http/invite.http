@@ -5,12 +5,13 @@ GET https://examples.http-client.intellij.net/get
 ### 워크스페이스 초대
 POST http://localhost:8080/workspace/invite
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NzcxNDIzMTIsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6Imdvb2NoMTIzQG5hdmVyLmNvbSJ9.eHlLEgr93NT21fa42ZkTVpPD70Q4re7laUqG82_rRNk
+Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJleHAiOjE3NzcxNTQzNTgsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6Imdvb2NoMTIzQG5hdmVyLmNvbSJ9.qByai4GgKk8qHE2gpDyCLVb98hKnTLx_QnrRj3j2f25PWLXJyHhF410wgxQMgfve
 
 {
   "workspaceId" : 1,
   "toEmail": "gooch123@naver.com"
 }
+
 
 ### 초대 수락
 POST http://localhost:8080/workspace/invite/accept

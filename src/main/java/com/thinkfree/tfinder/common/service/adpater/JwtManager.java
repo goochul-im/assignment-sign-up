@@ -1,5 +1,6 @@
 package com.thinkfree.tfinder.common.service.adpater;
 
+import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.service.dto.AccessTokenResult;
 import com.thinkfree.tfinder.common.service.dto.RefreshTokenResult;
@@ -7,7 +8,6 @@ import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -35,8 +35,8 @@ public class JwtManager implements IJwtManager {
     private final String REFRESH_TOKEN_SUBJECT = "refresh_token";
     private final String EMAIL_VALIDATE_TOKEN_SUBJECT = "email_validate_token";
 
-    public JwtManager(@Value("${spring.jwt.key}") String secretKey) {
-        this.secretKey = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+    public JwtManager(JwtProperties jwtProperties) {
+        this.secretKey = Keys.hmacShaKeyFor(jwtProperties.getKey().getBytes(StandardCharsets.UTF_8));
     }
 
     @Override

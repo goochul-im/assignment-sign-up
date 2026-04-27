@@ -2,6 +2,7 @@ package com.thinkfree.tfinder.workspace.service.adapter;
 
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
+import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.service.adpater.JwtManager;
 import com.thinkfree.tfinder.common.service.dto.AccessTokenResult;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
@@ -20,7 +21,13 @@ class JwtManagerTest {
 
     @BeforeAll
     static void before() {
-        jwtManager = new JwtManager("my-secret-key-Lorem-ipsum-dolor-sit-amet-sollicitudin-vel-dapibus-magna-condimentum. ");
+        jwtManager = new JwtManager(new JwtProperties(
+                "my-secret-key-Lorem-ipsum-dolor-sit-amet-sollicitudin-vel-dapibus-magna-condimentum. ",
+                600,
+                604800,
+                172800,
+                600
+        ));
     }
 
     @Test

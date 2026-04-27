@@ -13,10 +13,18 @@ public interface IAuthUseCase {
      * @param email 인증을 요청할 이메일
      * @throws BusinessException 이미 가입된 이메일
      */
-    void validateEmail(String email) throws BusinessException;
+    void emailValidateRequest(String email) throws BusinessException;
 
     /**
-     * 사용자 회원가입 유즈케이스
+     * 이메일 인증
+     *
+     * @param token 이메일 인증을 위한 토큰
+     * @throws BusinessException
+     */
+    void emailValidate(String token) throws BusinessException;
+
+    /**
+     * 사용자가 회원가입을 요청할 때, 만약 워크스페이스 초대 대기 상태라면 회원가입 후 자동으로 참가됩니다.
      * @param dto 회원가입 요청 정보
      * @return 생성된 멤버 정보, 가입 이후 다른 정보를 바로 요청하거나 화면에 보여줘야 할 때 수정 가능
      * @throws BusinessException 이메일 중복

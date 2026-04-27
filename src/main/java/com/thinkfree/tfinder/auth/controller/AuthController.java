@@ -116,7 +116,7 @@ public class AuthController {
             description = "회원가입을 진행합니다."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "로그아웃 성공"),
+            @ApiResponse(responseCode = "204", description = "회원가입 성공"),
             @ApiResponse(responseCode = "409", description = "E-002, 중복 이메일"),
             @ApiResponse(responseCode = "401", description = "A-008, 이메일이 인증되지 않았거나, 인증이 만료되었습니다.")
     })
@@ -144,7 +144,7 @@ public class AuthController {
     @PostMapping("/email/validate")
     public ResponseEntity<?> validateEmail(@Valid @RequestBody EmailValidateReqeust request){
 
-        authUseCase.validateEmail(request.email());
+        authUseCase.emailValidateRequest(request.email());
 
         return ResponseEntity.accepted()
                 .build();

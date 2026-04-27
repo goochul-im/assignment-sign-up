@@ -12,18 +12,18 @@ import java.time.Duration;
 public class RedisEmailValidateRepository implements IEmailValidateRepository {
 
     private final String KEY_PREFIX = "email:validation:";
-    private final String VALIDATED = "true";
 
     private final StringRedisTemplate redisTemplate;
 
     @Override
     public void save(String email, Duration expiration) {
-        redisTemplate.opsForValue().set(getKey(email), VALIDATED, expiration);
+        redisTemplate.opsForValue().set(getKey(email), "", expiration);
     }
 
     @Override
     public boolean isValidate(String email) {
-        return Boolean.TRUE.equals(redisTemplate.hasKey(getKey(email)));
+        Boolean result = redisTemplate.hasKey(getKey(email));
+        return result != null && result;
     }
 
     @Override
