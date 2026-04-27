@@ -118,7 +118,7 @@ public class AuthController {
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "회원가입 성공"),
             @ApiResponse(responseCode = "409", description = "E-002, 중복 이메일"),
-            @ApiResponse(responseCode = "401", description = "A-008, 이메일이 인증되지 않았거나, 인증이 만료되었습니다.")
+            @ApiResponse(responseCode = "401", description = "A-010, 이메일이 인증되지 않았거나, 인증이 만료되었습니다.")
     })
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest request) {
