@@ -5,11 +5,11 @@ GET https://examples.http-client.intellij.net/get
 ### 워크스페이스 초대
 POST http://localhost:8080/workspace/invite
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJleHAiOjE3NzcxNTQzNTgsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6Imdvb2NoMTIzQG5hdmVyLmNvbSJ9.qByai4GgKk8qHE2gpDyCLVb98hKnTLx_QnrRj3j2f25PWLXJyHhF410wgxQMgfve
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3NzczMjM4ODYsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6InRlc3RAZW1haWwuY29tIn0.Y7v9sUji6m5QCuDE8A5IxgXrAbvvoxJ4HmsJhJA5ZBd6XRQzdLHK7pRmQRnmcCN59r_-sZvxsG53dGEqybdXVw
 
 {
   "workspaceId" : 1,
-  "toEmail": "gooch123@naver.com"
+  "toEmailList": ["gooch123@naver.com"]
 }
 
 

@@ -135,7 +135,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
                     Instant.now().plusSeconds(jwtProperties.getInviteExpirationSeconds())
             );
 
-            String subject = "invite token";
+            String subject = "tfinder 워크스페이스 초대";
             mailSender.asyncSend(
                     toEmail,
                     subject,
@@ -188,6 +188,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
                 .append(workspace.getWorkspaceName())
                 .append("<b> 에서 초대가 왔습니다.</p>")
                 .append("<p>아래 링크를 눌러 참가하세요.</p>")
+                .append("<p>만약 서비스에 아직 가입하지 않았다면 아래 초대 링크를 누른 후 10분 이내에 가입을 마쳐주세요.</p>")
                 .append("<p>")
                 .append("<a href=\"")
                 .append(inviteUrl)

@@ -139,6 +139,7 @@ public class AuthService implements IAuthUseCase {
                 () -> new BusinessException(ErrorCode.REFRESH_TOKEN_ERROR)
         );
 
+        // 현재 저장된 리프레쉬 토큰이랑 같은지 확인
         if (!savedRefreshToken.equals(refreshToken)) {
             throw new BusinessException(ErrorCode.REFRESH_TOKEN_ERROR);
         }
