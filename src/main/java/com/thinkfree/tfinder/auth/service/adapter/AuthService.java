@@ -21,6 +21,7 @@ import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberE
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService implements IAuthUseCase {
@@ -81,7 +83,6 @@ public class AuthService implements IAuthUseCase {
     }
 
     @Override
-    @Transactional
     public MemberSignupResultDto signUp(SignupDto dto) {
 
         String signupEmail = dto.email();
@@ -99,7 +100,7 @@ public class AuthService implements IAuthUseCase {
         );
         MemberEntity savedMember = memberRepository.save(member);
 
-        joinPendingInvites(signupEmail, savedMember);
+        joinPendingInvites(savedMember);
 
         // 이메일 인증정보, 워크스페이스 대기 정보 삭제
         emailValidateRepository.delete(signupEmail);
@@ -160,22 +161,31 @@ public class AuthService implements IAuthUseCase {
         refreshTokenRepository.deleteByEmail(email);
     }
 
-    private void joinPendingInvites(String email, MemberEntity member) {
+    /**
+     *
+     * @param member 회원가입을 마치고, 초대를 수락한 이메일
+     */
+    private void joinPendingInvites(MemberEntity member) {
+        String email = member.getEmail();
         Set<String> pendingWorkspaceUrls = pendingInviteRepository.findWorkspaceUrlsByEmail(email);
         // redis에서 가져오는 걸 실패할떄는 어떻게 하지??
-        // 아... 이거 쿼리가 너무 많이 나갈수 있겠는데... In으로 바꿔야할듯?
+        // 아... 이거 쿼리가 너무 많이 나갈수 있겠는데... 나중에 bulk insert로 바꿔야 하나?
 
         for (String workspaceUrl : pendingWorkspaceUrls) {
-            WorkspaceEntity workspace = workspaceRepository.findByWorkspaceUrl(workspaceUrl).orElseThrow(
-                    () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
-            );
+            try {
+                WorkspaceEntity workspace = workspaceRepository.findByWorkspaceUrl(workspaceUrl).orElseThrow(
+                        () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
+                );
 
-            if (!workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)) {
-                workspaceMemberRepository.save(new WorkspaceMemberEntity(
-                        workspace,
-                        member,
-                        WorkspaceMemberRole.MEMBER
-                ));
+                if (!workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)) {
+                    workspaceMemberRepository.save(new WorkspaceMemberEntity(
+                            workspace,
+                            member,
+                            WorkspaceMemberRole.MEMBER
+                    ));
+                }
+            } catch (Exception e) {
+                log.error("참여 대기중인 워크스페이스에 참여 중 에러 발생, member = {}, workspaceUrl = {}", member.getEmail(), workspaceUrl);
             }
         }
     }

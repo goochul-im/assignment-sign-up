@@ -149,11 +149,11 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     public void acceptInvite(String token) throws BusinessException{
 
         InviteTokenResult result = jwtManager.parsingInviteToken(token);
-        String toMail = result.toEmail();
-        if (memberRepository.existsByEmail(toMail)) {
+        String toEmail = result.toEmail();
+        String workspaceUrl = result.workspaceUrl();
+        if (memberRepository.existsByEmail(toEmail)) {
             // 이미 회원일 경우
-            String workspaceUrl = result.workspaceUrl();
-            MemberEntity member = getMemberOrThrowE001(memberRepository.findByEmail(toMail));
+            MemberEntity member = getMemberOrThrowE001(memberRepository.findByEmail(toEmail));
             WorkspaceEntity workspace = getWorkspaceOrThrowE001(workspaceRepository.findByWorkspaceUrl(workspaceUrl));
 
             if (workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)){
@@ -170,8 +170,8 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         } else {
             // 회원이 아닐 경우
             Duration expiration = Duration.ofSeconds(jwtProperties.getValidateEmailExpirationSeconds());
-            emailValidateRepository.save(result.toEmail(), expiration);
-            pendingInviteRepository.save(result.toEmail(), result.workspaceUrl(), expiration);
+            emailValidateRepository.save(toEmail, expiration);
+            pendingInviteRepository.save(toEmail, workspaceUrl, expiration);
             throw new BusinessException(ErrorCode.SIGNUP_FIRST);
         }
 

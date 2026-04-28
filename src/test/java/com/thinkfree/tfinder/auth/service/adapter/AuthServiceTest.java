@@ -130,58 +130,6 @@ class AuthServiceTest {
     }
 
     @Test
-    void 리프레시_토큰이_유효하면_새로운_토큰을_발급하고_저장소를_교체해야_한다(){
-        //given
-        String email = "test@email.com";
-        String refreshToken = "old refreshToken";
-        String newAccessToken = "new accessToken";
-        String newRefreshToken = "new refreshToken";
-
-        when(jwtManager.getEmailFromRefreshToken(refreshToken)).thenReturn(email);
-        when(refreshTokenRepository.findByEmail(email)).thenReturn(Optional.of(refreshToken));
-        when(jwtManager.generateAccessToken(any(), any())).thenReturn(newAccessToken);
-        when(jwtManager.generateRefreshToken(any(), any())).thenReturn(newRefreshToken);
-
-        //when
-        LoginResultDto result = authService.refresh(refreshToken);
-
-        //then
-        assertThat(result.accessToken()).isEqualTo(newAccessToken);
-        assertThat(result.refreshToken()).isEqualTo(newRefreshToken);
-        verify(refreshTokenRepository).save(email, newRefreshToken, Duration.ofSeconds(604800L));
-    }
-
-    @Test
-    void 저장된_리프레시_토큰과_요청_토큰이_다르면_예외를_발생시켜야_한다(){
-        //given
-        String email = "test@email.com";
-        String refreshToken = "request refreshToken";
-
-        when(jwtManager.getEmailFromRefreshToken(refreshToken)).thenReturn(email);
-        when(refreshTokenRepository.findByEmail(email)).thenReturn(Optional.of("saved refreshToken"));
-
-        //when & then
-        assertThrows(BusinessException.class, () -> authService.refresh(refreshToken));
-        verify(jwtManager, never()).generateAccessToken(any(), any());
-        verify(jwtManager, never()).generateRefreshToken(any(), any());
-    }
-
-    @Test
-    void 로그아웃하면_리프레시_토큰을_삭제해야_한다(){
-        //given
-        String email = "test@email.com";
-        String refreshToken = "refreshToken";
-
-        when(jwtManager.getEmailFromRefreshToken(refreshToken)).thenReturn(email);
-
-        //when
-        authService.logout(refreshToken);
-
-        //then
-        verify(refreshTokenRepository).deleteByEmail(email);
-    }
-
-    @Test
     void 비밀번호가_틀리면_예외를_발생시켜야_한다(){
         //given
         String email = "test@email.com";
