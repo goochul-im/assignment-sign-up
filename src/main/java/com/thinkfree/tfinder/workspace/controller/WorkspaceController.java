@@ -69,9 +69,8 @@ public class WorkspaceController {
                 myWorkspaces.size(),
                 myWorkspaces
         );
-        return ResponseEntity.ok(
-                response
-        );
+        return ResponseEntity.ok()
+                .body(response);
     }
 
     @SecurityRequirement(name = "Auth")
@@ -106,9 +105,8 @@ public class WorkspaceController {
                 members
         );
 
-        return ResponseEntity.ok(
-                response
-        );
+        return ResponseEntity.ok()
+                .body(response);
     }
 
     @SecurityRequirement(name = "Auth")
