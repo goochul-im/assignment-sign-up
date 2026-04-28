@@ -25,10 +25,10 @@ public class DummyDataConstructor {
     void init() {
         MemberEntity member = new MemberEntity("더미 유저", "test@email.com", passwordEncoder.encode("12341234"));
         MemberEntity member2 = new MemberEntity("더미 유저2", "goochul175465@gmail.com", passwordEncoder.encode("12341234"));
-        WorkspaceEntity workspace1 = new WorkspaceEntity("dummy workspace1", "dummy url1");
-        WorkspaceEntity workspace2 = new WorkspaceEntity("dummy workspace2", "dummy url2");
-        WorkspaceEntity workspace3 = new WorkspaceEntity("dummy workspace3", "dummy url3");
-        WorkspaceEntity workspace4 = new WorkspaceEntity("dummy workspace4", "dummy url4");
+        WorkspaceEntity workspace1 = new WorkspaceEntity("tfinder workspace", "tfinder url");
+        WorkspaceEntity workspace2 = new WorkspaceEntity("티파인더 workspace", "tfinder2 url");
+        WorkspaceEntity workspace3 = new WorkspaceEntity("뉴파인더 workspace", "newfinder url");
+        WorkspaceEntity workspace4 = new WorkspaceEntity("더파인더 workspace", "thefinder url");
 
         memberRepository.save(member);
         memberRepository.save(member2);

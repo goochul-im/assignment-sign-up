@@ -13,6 +13,7 @@ public record WorkspaceCreateRequest(
         String workspaceName,
         @Schema(description = "생성할 워크스페이스 Url", example = "w-tfinder")
         @NotBlank(message = ValidationMessage.NOT_BLANK)
+        @Pattern(regexp = "^[a-zA-Z0-9-]+$", message = "영어, 숫자, 하이픈(-) 이외에는 허용되지 않습니다.")
         String workspaceUrl
 ) {
 }
