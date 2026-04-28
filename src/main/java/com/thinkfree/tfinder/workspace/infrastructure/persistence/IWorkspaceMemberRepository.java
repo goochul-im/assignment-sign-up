@@ -22,6 +22,8 @@ public interface IWorkspaceMemberRepository extends JpaRepository<WorkspaceMembe
 
     boolean existsByWorkspaceAndMember(WorkspaceEntity workspace, MemberEntity member);
 
+    boolean existsByWorkspaceAndMember_Email(WorkspaceEntity workspace, String memberEmail);
+
     Optional<WorkspaceMemberEntity> findByWorkspaceAndMember(WorkspaceEntity workspace, MemberEntity member);
 
     /**

@@ -128,6 +128,10 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         }
 
         for (String toEmail : toEmailList) {
+            // 중복 처리 먼저
+            // 이렇개 넘겨버리기보다는 나중에 중복 이메일 모아서 프론트에 보내주는게?
+            if (workspaceMemberRepository.existsByWorkspaceAndMember_Email(inviteWorkspace, toEmail)) continue;
+
             String inviteToken = jwtManager.generateInviteToken(
                     inviter.getEmail(),
                     toEmail,
