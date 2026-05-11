@@ -34,8 +34,8 @@ public class RedisPendingInviteRepository implements IPendingInviteRepository {
     }
 
     @Override
-    public void delete(String email) {
-        redisTemplate.delete(getKey(email));
+    public boolean delete(String email) {
+        return redisTemplate.delete(getKey(email));
     }
 
     private String getKey(String email) {

@@ -27,6 +27,7 @@ import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -50,8 +51,9 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     private String FRONTEND_URL;
 
     @Override
+    @Transactional
     public WorkspaceEntity create(CreateWorkspaceDto dto) throws BusinessException {
-        MemberEntity creator = getMemberOrThrow(memberRepository.findById(dto.requestMemberId()));
+        MemberEntity creator = getMemberOrThrow(dto.requestMemberId());
 
         if (workspaceRepository.existsByWorkspaceName(dto.workspaceName()) || workspaceRepository.existsByWorkspaceUrl(dto.workspaceUrl())) {
             throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
@@ -74,8 +76,9 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     }
 
     @Override
-    public List<MyWorkspacesResultDto> findMyWorkspaces(long requesterId) throws BusinessException {
-        MemberEntity member = getMemberOrThrow(memberRepository.findById(requesterId));
+    @Transactional(readOnly = true)
+    public List<MyWorkspacesResultDto> findMyWorkspaces(long memberId) throws BusinessException {
+        MemberEntity member = getMemberOrThrow(memberId);
 
         return workspaceMemberRepository.findAllWorkspaceByMember(member)
                 .stream()
@@ -92,9 +95,10 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<WorkspaceMemberResultDto> findWorkspaceMembers(long requesterId, long workspaceId) throws BusinessException {
-        MemberEntity requester = getMemberOrThrow(memberRepository.findById(requesterId));
-        WorkspaceEntity workspace = getWorkspaceOrThrow(workspaceRepository.findById(workspaceId));
+        MemberEntity requester = getMemberOrThrow(requesterId);
+        WorkspaceEntity workspace = getWorkspaceOrThrow(workspaceId);
 
         getWorkspaceMemberOrThrow(workspace, requester);
 
@@ -114,15 +118,16 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void inviteMember(List<String> toEmailList, long inviterId, long workspaceId) throws BusinessException{
 
         if (toEmailList.size() > 50) {
             throw new BusinessException(ErrorCode.TOO_MANY_INVITE);
         }
 
-        MemberEntity inviter = getMemberOrThrow(memberRepository.findById(inviterId));
+        MemberEntity inviter = getMemberOrThrow(inviterId);
 
-        WorkspaceEntity inviteWorkspace = getWorkspaceOrThrow(workspaceRepository.findById(workspaceId));
+        WorkspaceEntity inviteWorkspace = getWorkspaceOrThrow(workspaceId);
 
         WorkspaceMemberEntity workspaceMember = getWorkspaceMemberOrThrow(inviteWorkspace, inviter);
 
@@ -152,6 +157,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     }
 
     @Override
+    @Transactional
     public void acceptInvite(String token) throws BusinessException{
 
         InviteTokenResult result = jwtManager.parsingInviteToken(token);
@@ -159,8 +165,8 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         String workspaceUrl = result.workspaceUrl();
         if (memberRepository.existsByEmail(toEmail)) {
             // 이미 회원일 경우
-            MemberEntity member = getMemberOrThrow(memberRepository.findByEmail(toEmail));
-            WorkspaceEntity workspace = getWorkspaceOrThrow(workspaceRepository.findByWorkspaceUrl(workspaceUrl));
+            MemberEntity member = getMemberOrThrow(toEmail);
+            WorkspaceEntity workspace = getWorkspaceOrThrow(workspaceUrl);
 
             if (workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)){
                 throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
@@ -201,14 +207,26 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         return message;
     }
 
-    private MemberEntity getMemberOrThrow(Optional<MemberEntity> memberRepository) {
-        return memberRepository.orElseThrow(
+    private MemberEntity getMemberOrThrow(long memberId) {
+        return memberRepository.findById(memberId).orElseThrow(
                 () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
         );
     }
 
-    private WorkspaceEntity getWorkspaceOrThrow(Optional<WorkspaceEntity> workspaceRepository) {
-        return workspaceRepository.orElseThrow(
+    private MemberEntity getMemberOrThrow(String email) {
+        return memberRepository.findByEmail(email).orElseThrow(
+                () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
+        );
+    }
+
+    private WorkspaceEntity getWorkspaceOrThrow(long workspaceId) {
+        return workspaceRepository.findById(workspaceId).orElseThrow(
+                () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
+        );
+    }
+
+    private WorkspaceEntity getWorkspaceOrThrow(String workspaceUrl) {
+        return workspaceRepository.findByWorkspaceUrl(workspaceUrl).orElseThrow(
                 () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
         );
     }

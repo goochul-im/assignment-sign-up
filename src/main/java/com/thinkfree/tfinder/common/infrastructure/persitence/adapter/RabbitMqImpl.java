@@ -39,6 +39,10 @@ public class RabbitMqImpl implements IMessageQueue {
         return true;
     }
 
+    /**
+     * 메시지 큐 방식으로 바꾸기는 했지만, 한번에 소비되는 메시지 수를 제한하지 않으면 무슨 소용인가?
+     * 한번에 큐에 들어갈수 있는 속도를 바꿔야 한다. prefetch?
+     */
     @RabbitListener(queues = RabbitMqConfig.QUEUE_NAME)
     public void consume(InviteMessageDto message) {
         log.info("메시지 수신, message ID = {}", message.getId());

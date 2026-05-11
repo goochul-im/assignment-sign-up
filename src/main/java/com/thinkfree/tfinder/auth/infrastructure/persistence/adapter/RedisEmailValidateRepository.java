@@ -22,13 +22,12 @@ public class RedisEmailValidateRepository implements IEmailValidateRepository {
 
     @Override
     public boolean isValidate(String email) {
-        Boolean result = redisTemplate.hasKey(getKey(email));
-        return result != null && result;
+        return redisTemplate.hasKey(getKey(email)); // 어차피 트랜잭션이랑 pipeline에 묶일 일 없음
     }
 
     @Override
-    public void delete(String email) {
-        redisTemplate.delete(getKey(email));
+    public boolean delete(String email) {
+        return redisTemplate.delete(getKey(email));
     }
 
     private String getKey(String email) {

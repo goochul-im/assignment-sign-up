@@ -24,7 +24,6 @@ public enum ErrorCode {
     VALIDATE_EMAIL_TOKEN_EXPIRED_ERROR(HttpStatus.UNAUTHORIZED, "A-009"),
     NO_VALIDATE_EMAIL(HttpStatus.UNAUTHORIZED, "A-010"),
 
-
     INVITE_TOKEN_ERROR(HttpStatus.BAD_REQUEST,"I-001"),
     SIGNUP_FIRST(HttpStatus.SEE_OTHER, "I-002"),
 //    DUPLICATE_WORKSPACE_MEMBER(HttpStatus.CONFLICT, "I-003"),
@@ -35,7 +34,9 @@ public enum ErrorCode {
     DUPLICATE_ERROR(HttpStatus.CONFLICT, "E-002"),
 
     INVALID_ARGUMENT(HttpStatus.BAD_REQUEST, "R-001"),
-    INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "R-002")
+    INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "R-002"),
+
+    EXTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "X-999")
     ;
 
     private final HttpStatus status;

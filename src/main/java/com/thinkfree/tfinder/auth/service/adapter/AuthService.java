@@ -13,7 +13,7 @@ import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
-import com.thinkfree.tfinder.workspace.infrastructure.external.iface.IMailSender;
+import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
@@ -69,7 +69,6 @@ public class AuthService implements IAuthUseCase {
             );
         } catch (Exception e) {
             emailValidateRepository.delete(email);
-            throw e;
         }
 
     }
@@ -83,6 +82,7 @@ public class AuthService implements IAuthUseCase {
     }
 
     @Override
+    @Transactional
     public MemberSignupResultDto signUp(SignupDto dto) {
 
         String signupEmail = dto.email();
@@ -100,11 +100,16 @@ public class AuthService implements IAuthUseCase {
         );
         MemberEntity savedMember = memberRepository.save(member);
 
-        joinPendingInvites(savedMember);
+        joinPendingInvites(savedMember); // 아웃박스 패턴으로 뺄 수 있을듯
 
         // 이메일 인증정보, 워크스페이스 대기 정보 삭제
-        emailValidateRepository.delete(signupEmail);
-        pendingInviteRepository.delete(signupEmail);
+        try {
+            // 여기서 에러가 나도 회원가입은 성공해야하지 않을까?
+            emailValidateRepository.delete(signupEmail);
+            pendingInviteRepository.delete(signupEmail);
+        } catch (Exception e) {
+            log.warn("");
+        }
 
         return new MemberSignupResultDto(
                 savedMember.getId(),

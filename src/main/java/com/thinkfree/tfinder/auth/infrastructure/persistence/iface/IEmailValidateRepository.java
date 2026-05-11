@@ -22,6 +22,6 @@ public interface IEmailValidateRepository {
      * 이메일 인증 정보를 삭제합니다.
      * @param email 인증 정보를 삭제할 이메일
      */
-    void delete(String email);
+    boolean delete(String email);
 
 }
