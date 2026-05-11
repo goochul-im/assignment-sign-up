@@ -1,14 +1,11 @@
 package com.thinkfree.tfinder.workspace.infrastructure.external.adpater;
 
 import com.thinkfree.tfinder.annotation.IntegrationTest;
-import com.thinkfree.tfinder.workspace.infrastructure.external.iface.IMailSender;
-import org.assertj.core.api.Assertions;
+import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.MailSendException;
-import org.springframework.resilience.annotation.Retryable;
-import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
 

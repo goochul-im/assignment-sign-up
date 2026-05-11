@@ -7,7 +7,7 @@ import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
-import com.thinkfree.tfinder.workspace.infrastructure.external.iface.IMailSender;
+import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;

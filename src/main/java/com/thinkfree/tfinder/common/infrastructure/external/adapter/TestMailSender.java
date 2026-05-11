@@ -1,12 +1,10 @@
-package com.thinkfree.tfinder.workspace.infrastructure.external.adpater;
+package com.thinkfree.tfinder.common.infrastructure.external.adapter;
 
-import com.thinkfree.tfinder.workspace.infrastructure.external.iface.IMailSender;
+import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.retry.RetryException;
 import org.springframework.core.retry.RetryPolicy;
 import org.springframework.core.retry.RetryTemplate;
 import org.springframework.mail.MailSendException;
-import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;

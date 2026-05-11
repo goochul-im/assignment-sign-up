@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.workspace.infrastructure.external.iface;
+package com.thinkfree.tfinder.common.infrastructure.external.iface;
 
 public interface IMailSender {
 
