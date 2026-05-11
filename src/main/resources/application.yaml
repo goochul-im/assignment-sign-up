@@ -50,6 +50,11 @@ spring:
     username: ${RABBIT_USERNAME:guest}
     password: ${RABBIT_PASSWORD:guest}
     port: 5672
+    listener:
+      simple:
+        prefetch: 1
+        concurrency: 25
+        max-concurrency: 25
 
 
 
