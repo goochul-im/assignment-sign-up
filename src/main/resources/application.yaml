@@ -1,4 +1,8 @@
 spring:
+  config:
+    activate:
+      on-profile: ${ACTIVE_PROFILE}
+
   application:
     name: sign-up
 
@@ -41,6 +45,14 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
 
+  rabbitmq:
+    host: ${RABBIT_MQ:localhost}
+    username: ${RABBIT_USERNAME:guest}
+    password: ${RABBIT_PASSWORD:guest}
+    port: 5672
+
+
+
 frontend:
   url: ${FRONTEND_URL}
 
@@ -51,3 +63,5 @@ auth:
     secure: ${REFRESH_COOKIE_SECURE:true}
     same-site: ${REFRESH_COOKIE_SAME_SITE:None}
     path: /auth
+
+
