@@ -1,14 +1,20 @@
 package com.thinkfree.tfinder.auth.service.adapter;
 
+import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
+import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
 import com.thinkfree.tfinder.auth.service.dto.LoginDto;
 import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
 import com.thinkfree.tfinder.auth.service.dto.MemberSignupResultDto;
 import com.thinkfree.tfinder.auth.service.dto.SignupDto;
+import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshTokenRepository;
 import com.thinkfree.tfinder.common.service.dto.RefreshTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
+import com.thinkfree.tfinder.workspace.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +30,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,15 +44,22 @@ class AuthServiceTest {
     private IJwtManager jwtManager;
     @Mock
     private IRefreshTokenRepository refreshTokenRepository;
+    @Mock
+    IEmailValidateRepository emailValidateRepository;
+    @Mock
+    IPendingInviteRepository pendingInviteRepository;
+    @Mock
+    IWorkspaceRepository workspaceRepository;
+    @Mock
+    IWorkspaceMemberRepository workspaceMemberRepository;
+    @Mock
+    IMailSender mailSender;
+    @Mock
+    JwtProperties jwtProperties;
+
 
     @InjectMocks
     private AuthService authService;
-
-    @BeforeEach
-    void setUp() {
-        ReflectionTestUtils.setField(authService, "JWT_ACCESS_EXPIRATION_TIME", 600L);
-        ReflectionTestUtils.setField(authService, "JWT_REFRESH_EXPIRATION_TIME", 604800L);
-    }
 
     @Test
     void 회원가입이_정상적으로_완료되어야_한다(){
@@ -67,9 +81,10 @@ class AuthServiceTest {
                 encodePasswd
         );
 
-        when(memberRepository.existsByEmail(any())).thenReturn(false);
-        when(encoder.encode(passwd)).thenReturn(encodePasswd);
-        when(memberRepository.save(any())).thenReturn(returnMember);
+        given(memberRepository.existsByEmail(any())).willReturn(false);
+        given(encoder.encode(passwd)).willReturn(encodePasswd);
+        given(memberRepository.save(any())).willReturn(returnMember);
+        given(emailValidateRepository.isValidate(email)).willReturn(true);
 
         //when
         MemberSignupResultDto result = authService.signUp(dto);
@@ -91,7 +106,7 @@ class AuthServiceTest {
                 passwd
         );
 
-        when(memberRepository.existsByEmail(any())).thenReturn(true);
+        given(memberRepository.existsByEmail(any())).willReturn(true);
 
         //when
         assertThrows(BusinessException.class, () -> authService.signUp(dto));
@@ -104,6 +119,7 @@ class AuthServiceTest {
         String passwd = "testPasswd";
         String accessToken = "fake accessToken";
         String refreshToken = "fake refreshToken";
+        long refreshExpiredSeconds = 3000L;
         LoginDto dto = new LoginDto(
                 email,
                 passwd
@@ -115,10 +131,11 @@ class AuthServiceTest {
                 "encodePasswd"
         );
 
-        when(memberRepository.findByEmail(any())).thenReturn(Optional.of(returnMember));
-        when(encoder.matches(any(), any())).thenReturn(true);
-        when(jwtManager.generateAccessToken(any(), any())).thenReturn(accessToken);
-        when(jwtManager.generateRefreshToken(any(), any())).thenReturn(refreshToken);
+        given(memberRepository.findByEmail(any())).willReturn(Optional.of(returnMember));
+        given(encoder.matches(any(), any())).willReturn(true);
+        given(jwtManager.generateAccessToken(any(), any())).willReturn(accessToken);
+        given(jwtManager.generateRefreshToken(any(), any())).willReturn(refreshToken);
+        given(jwtProperties.getRefreshExpirationSeconds()).willReturn(refreshExpiredSeconds);
 
         //when
         LoginResultDto result = authService.login(dto);
@@ -126,7 +143,7 @@ class AuthServiceTest {
         //then
         assertThat(result.accessToken()).isEqualTo(accessToken);
         assertThat(result.refreshToken()).isEqualTo(refreshToken);
-        verify(refreshTokenRepository).save(email, refreshToken, Duration.ofSeconds(604800L));
+        verify(refreshTokenRepository).save(email, refreshToken, Duration.ofSeconds(refreshExpiredSeconds));
     }
 
     @Test
@@ -145,8 +162,8 @@ class AuthServiceTest {
                 "encodePasswd"
         );
 
-        when(memberRepository.findByEmail(any())).thenReturn(Optional.of(returnMember));
-        when(encoder.matches(any(), any())).thenReturn(false);
+        given(memberRepository.findByEmail(any())).willReturn(Optional.of(returnMember));
+        given(encoder.matches(any(), any())).willReturn(false);
 
         //when & then
         assertThrows(BusinessException.class, () -> authService.login(dto));

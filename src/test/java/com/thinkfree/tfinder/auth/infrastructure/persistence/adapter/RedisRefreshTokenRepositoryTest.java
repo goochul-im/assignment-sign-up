@@ -1,5 +1,6 @@
 package com.thinkfree.tfinder.auth.infrastructure.persistence.adapter;
 
+import com.thinkfree.tfinder.annotation.IntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
+@IntegrationTest
 class RedisRefreshTokenRepositoryTest {
 
     @Container

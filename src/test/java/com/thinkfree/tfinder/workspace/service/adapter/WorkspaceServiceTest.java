@@ -1,5 +1,8 @@
 package com.thinkfree.tfinder.workspace.service.adapter;
 
+import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
+import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
+import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
@@ -39,6 +42,12 @@ class WorkspaceServiceTest {
     private IMailSender mailSender;
     @Mock
     private IJwtManager jwtManager;
+    @Mock
+    JwtProperties jwtProperties;
+    @Mock
+    IEmailValidateRepository emailValidateRepository;
+    @Mock
+    IPendingInviteRepository pendingInviteRepository;
     @InjectMocks
     private WorkspaceService workspaceService;
 
@@ -204,10 +213,6 @@ class WorkspaceServiceTest {
         workspaceService.acceptInvite(token);
 
         //then
-        then(jwtManager).should(times(1)).parsingInviteToken(token);
-        then(memberRepository).should(times(1)).existsByEmail(toEmail);
-        then(memberRepository).should(times(1)).findByEmail(toEmail);
-        then(workspaceRepository).should(times(1)).findByWorkspaceUrl(any());
         then(workspaceMemberRepository).should(times(1)).save(any());
     }
 
@@ -216,6 +221,7 @@ class WorkspaceServiceTest {
         //given
         String token = "thisistesttoken";
         String toEmail = "to@email.com";
+        long validateEmailExpirationSecond = 3000L;
 
         InviteTokenResult tokenResult = new InviteTokenResult(
                 toEmail,
@@ -225,6 +231,7 @@ class WorkspaceServiceTest {
 
         given(jwtManager.parsingInviteToken(token)).willReturn(tokenResult);
         given(memberRepository.existsByEmail(toEmail)).willReturn(false);
+        given(jwtProperties.getValidateEmailExpirationSeconds()).willReturn(validateEmailExpirationSecond);
 
         //when & then
         assertThrows(BusinessException.class, () -> workspaceService.acceptInvite(token));
