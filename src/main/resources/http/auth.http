@@ -7,8 +7,8 @@ POST localhost:8080/auth/login
 Content-Type: application/json
 
 {
-  "email": "gooch123@naver.com",
-  "password": "1234"
+  "email": "test@email.com",
+  "password": "12341234"
 }
 
 ### 액세스 토큰 검증

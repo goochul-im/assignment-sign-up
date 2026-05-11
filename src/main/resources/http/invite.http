@@ -5,7 +5,7 @@ GET https://examples.http-client.intellij.net/get
 ### 워크스페이스 초대
 POST http://localhost:8080/workspace/invite
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3NzczMjM4ODYsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6InRlc3RAZW1haWwuY29tIn0.Y7v9sUji6m5QCuDE8A5IxgXrAbvvoxJ4HmsJhJA5ZBd6XRQzdLHK7pRmQRnmcCN59r_-sZvxsG53dGEqybdXVw
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3Nzg1MTM3NjUsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6InRlc3RAZW1haWwuY29tIn0.sHPuzNJmiGy1ZI8TxSZrp3j3DsOk8328iZPRYB6inj-8FWt1JFDB0hu748FxaHTaF2FuNh8gw8XexRZ3WC5ZmA
 
 {
   "workspaceId" : 1,
