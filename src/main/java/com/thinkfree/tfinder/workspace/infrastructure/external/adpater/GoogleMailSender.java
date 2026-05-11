@@ -8,14 +8,24 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.retry.RetryPolicy;
+import org.springframework.core.retry.RetryTemplate;
+import org.springframework.mail.MailAuthenticationException;
+import org.springframework.mail.MailException;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+import java.time.Duration;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Profile({"local","prod"})
 public class GoogleMailSender implements IMailSender {
 
     private final JavaMailSender mailSender;
@@ -39,6 +49,8 @@ public class GoogleMailSender implements IMailSender {
             helper.setFrom(fromEMail);
 
             mailSender.send(mimeMessage);
+        } catch (MailAuthenticationException e) {
+            log.error("SMTP 서버 인증 정보에 에러가 발생했습니다.");
         } catch (MessagingException e) {
             log.warn("메일을 보내는 중 에러 발생. toEmailList : {}, message : {}", toEmail, e.getMessage());
 //            throw new BusinessException(ErrorCode.MAIL_SEND_ERROR);

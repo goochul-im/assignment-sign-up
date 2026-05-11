@@ -47,7 +47,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
     @Override
     public WorkspaceEntity create(CreateWorkspaceDto dto) throws BusinessException {
-        MemberEntity creator = getMemberOrThrowE001(memberRepository.findById(dto.requestMemberId()));
+        MemberEntity creator = getMemberOrThrow(memberRepository.findById(dto.requestMemberId()));
 
         if (workspaceRepository.existsByWorkspaceName(dto.workspaceName()) || workspaceRepository.existsByWorkspaceUrl(dto.workspaceUrl())) {
             throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
@@ -71,7 +71,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
     @Override
     public List<MyWorkspacesResultDto> findMyWorkspaces(long requesterId) throws BusinessException {
-        MemberEntity member = getMemberOrThrowE001(memberRepository.findById(requesterId));
+        MemberEntity member = getMemberOrThrow(memberRepository.findById(requesterId));
 
         return workspaceMemberRepository.findAllWorkspaceByMember(member)
                 .stream()
@@ -89,10 +89,10 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
     @Override
     public List<WorkspaceMemberResultDto> findWorkspaceMembers(long requesterId, long workspaceId) throws BusinessException {
-        MemberEntity requester = getMemberOrThrowE001(memberRepository.findById(requesterId));
-        WorkspaceEntity workspace = getWorkspaceOrThrowE001(workspaceRepository.findById(workspaceId));
+        MemberEntity requester = getMemberOrThrow(memberRepository.findById(requesterId));
+        WorkspaceEntity workspace = getWorkspaceOrThrow(workspaceRepository.findById(workspaceId));
 
-        getWorkspaceMemberOrThrowA002(workspace, requester);
+        getWorkspaceMemberOrThrow(workspace, requester);
 
         return workspaceMemberRepository.findAllMemberByWorkspace(workspace)
                 .stream()
@@ -116,11 +116,11 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
             throw new BusinessException(ErrorCode.TOO_MANY_INVITE);
         }
 
-        MemberEntity inviter = getMemberOrThrowE001(memberRepository.findById(inviterId));
+        MemberEntity inviter = getMemberOrThrow(memberRepository.findById(inviterId));
 
-        WorkspaceEntity inviteWorkspace = getWorkspaceOrThrowE001(workspaceRepository.findById(workspaceId));
+        WorkspaceEntity inviteWorkspace = getWorkspaceOrThrow(workspaceRepository.findById(workspaceId));
 
-        WorkspaceMemberEntity workspaceMember = getWorkspaceMemberOrThrowA002(inviteWorkspace, inviter);
+        WorkspaceMemberEntity workspaceMember = getWorkspaceMemberOrThrow(inviteWorkspace, inviter);
 
         WorkspaceMemberRole role = workspaceMember.getRole();
         if (!(role == WorkspaceMemberRole.MANAGER || role == WorkspaceMemberRole.OWNER)) {
@@ -153,8 +153,8 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         String workspaceUrl = result.workspaceUrl();
         if (memberRepository.existsByEmail(toEmail)) {
             // 이미 회원일 경우
-            MemberEntity member = getMemberOrThrowE001(memberRepository.findByEmail(toEmail));
-            WorkspaceEntity workspace = getWorkspaceOrThrowE001(workspaceRepository.findByWorkspaceUrl(workspaceUrl));
+            MemberEntity member = getMemberOrThrow(memberRepository.findByEmail(toEmail));
+            WorkspaceEntity workspace = getWorkspaceOrThrow(workspaceRepository.findByWorkspaceUrl(workspaceUrl));
 
             if (workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)){
                 throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
@@ -182,39 +182,32 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         // 클릭할 URL + 메시지 내용
         String inviteUrl = FRONTEND_URL + "?token=" + token;
 
-        StringBuilder sb = new StringBuilder()
-                .append("<h2>tfinder 워크스페이스 초대</h2>")
-                .append("<p><b>")
-                .append(workspace.getWorkspaceName())
-                .append("<b> 에서 초대가 왔습니다.</p>")
-                .append("<p>아래 링크를 눌러 참가하세요.</p>")
-                .append("<p>만약 서비스에 아직 가입하지 않았다면 아래 초대 링크를 누른 후 10분 이내에 가입을 마쳐주세요.</p>")
-                .append("<p>")
-                .append("<a href=\"")
-                .append(inviteUrl)
-                .append("\">참가하기</a>")
-                .append("</p>")
-                .append("<p>링크가 열리지 않는다면 아래 주소를 복사해서 브라우저에 붙여넣어 주세요.</p>")
-                .append("<p>")
-                .append(inviteUrl)
-                .append("</p>");
+        String message = """
+                <h2>tfinder 워크스페이스 초대</h2>
+                <p><b>%s</b>에서 초대가 왔습니다</p>
+                <p>아래 링크를 눌러 참가하세요.</p>
+                <p>만약 서비스에 아직 가입하지 않았다면 아래 초대 링크를 누른 후 10분 이내에 가입을 마쳐주세요.</p>
+                <p><a href="%s">참가하기</a></p>
+                <p>링크가 열리지 않는다면 아래 주소를 복사해서 브라우저에 붙여넣어 주세요.</p>
+                <p>%s</p>
+                """.formatted(workspace.getWorkspaceName(), inviteUrl, inviteUrl);
 
-        return sb.toString();
+        return message;
     }
 
-    private MemberEntity getMemberOrThrowE001(Optional<MemberEntity> memberRepository) {
+    private MemberEntity getMemberOrThrow(Optional<MemberEntity> memberRepository) {
         return memberRepository.orElseThrow(
                 () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
         );
     }
 
-    private WorkspaceEntity getWorkspaceOrThrowE001(Optional<WorkspaceEntity> workspaceRepository) {
+    private WorkspaceEntity getWorkspaceOrThrow(Optional<WorkspaceEntity> workspaceRepository) {
         return workspaceRepository.orElseThrow(
                 () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
         );
     }
 
-    private WorkspaceMemberEntity getWorkspaceMemberOrThrowA002(WorkspaceEntity inviteWorkspace, MemberEntity inviter) {
+    private WorkspaceMemberEntity getWorkspaceMemberOrThrow(WorkspaceEntity inviteWorkspace, MemberEntity inviter) {
         return workspaceMemberRepository.findByWorkspaceAndMember(inviteWorkspace, inviter).orElseThrow(
                 () -> new BusinessException(ErrorCode.AUTHORIZATION_FAILED)
         );
