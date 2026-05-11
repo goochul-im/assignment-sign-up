@@ -5,10 +5,14 @@ import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInvit
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
+import com.thinkfree.tfinder.common.infrastructure.persitence.dto.InviteMessageDto;
+import com.thinkfree.tfinder.common.infrastructure.persitence.dto.MessageDto;
+import com.thinkfree.tfinder.common.infrastructure.persitence.iface.IMessageQueue;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
+import com.thinkfree.tfinder.workspace.domain.MessageKey;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
-import com.thinkfree.tfinder.workspace.infrastructure.external.iface.IMailSender;
+import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
@@ -36,10 +40,10 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     private final IWorkspaceMemberRepository workspaceMemberRepository;
     private final IMemberRepository memberRepository;
     private final IWorkspaceRepository workspaceRepository;
-    private final IMailSender mailSender;
     private final IJwtManager jwtManager;
     private final IEmailValidateRepository emailValidateRepository;
     private final IPendingInviteRepository pendingInviteRepository;
+    private final IMessageQueue messageQueue;
     private final JwtProperties jwtProperties;
 
     @Value("${frontend.url}")
@@ -136,11 +140,13 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
             );
 
             String subject = "tfinder 워크스페이스 초대";
-            mailSender.asyncSend(
+
+            messageQueue.publish(MessageKey.INVITE, new InviteMessageDto(
+                    Instant.now().toString(),
                     toEmail,
-                    subject,
-                    makeInviteMailMessage(inviteWorkspace, inviteToken)
-            );
+                    subject
+                    , makeInviteMailMessage(inviteWorkspace, inviteToken)
+            ));
         }
 
     }
