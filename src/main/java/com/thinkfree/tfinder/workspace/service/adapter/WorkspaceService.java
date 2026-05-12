@@ -6,19 +6,18 @@ import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.infrastructure.persitence.dto.InviteMessageDto;
-import com.thinkfree.tfinder.common.infrastructure.persitence.dto.MessageDto;
 import com.thinkfree.tfinder.common.infrastructure.persitence.iface.IMessageQueue;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.domain.MessageKey;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
-import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
+import com.thinkfree.tfinder.workspace.service.dto.InviteResultDto;
 import com.thinkfree.tfinder.workspace.service.dto.MyWorkspacesResultDto;
 import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceDto;
 import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResultDto;
@@ -31,8 +30,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -63,7 +64,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
                 dto.workspaceName(),
                 dto.workspaceUrl()
         );
-        workspaceRepository.save(workspace);
+        workspace = workspaceRepository.save(workspace);
 
         WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(
                 workspace,
@@ -80,7 +81,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     public List<MyWorkspacesResultDto> findMyWorkspaces(long memberId) throws BusinessException {
         MemberEntity member = getMemberOrThrow(memberId);
 
-        return workspaceMemberRepository.findAllWorkspaceByMember(member)
+        return workspaceMemberRepository.findAllByMember(member)
                 .stream()
                 .map(workspaceMember -> {
                     WorkspaceEntity workspace = workspaceMember.getWorkspace();
@@ -100,7 +101,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         MemberEntity requester = getMemberOrThrow(requesterId);
         WorkspaceEntity workspace = getWorkspaceOrThrow(workspaceId);
 
-        getWorkspaceMemberOrThrow(workspace, requester);
+        getWorkspaceMemberOrThrow(workspace, requester); // requester와 workspace의 연관관계가 없으면 바로 예외 던져짐
 
         return workspaceMemberRepository.findAllMemberByWorkspace(workspace)
                 .stream()
@@ -119,16 +120,14 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
     @Override
     @Transactional(readOnly = true)
-    public void inviteMember(List<String> toEmailList, long inviterId, long workspaceId) throws BusinessException{
+    public InviteResultDto inviteMember(List<String> toEmailList, long inviterId, long workspaceId) throws BusinessException{
 
         if (toEmailList.size() > 50) {
             throw new BusinessException(ErrorCode.TOO_MANY_INVITE);
         }
 
         MemberEntity inviter = getMemberOrThrow(inviterId);
-
         WorkspaceEntity inviteWorkspace = getWorkspaceOrThrow(workspaceId);
-
         WorkspaceMemberEntity workspaceMember = getWorkspaceMemberOrThrow(inviteWorkspace, inviter);
 
         WorkspaceMemberRole role = workspaceMember.getRole();
@@ -136,7 +135,15 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
             throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
         }
 
-        for (String toEmail : toEmailList) {
+        Set<String> joinedEmails = memberRepository.findJoinedEmails(inviteWorkspace, toEmailList);
+        Set<String> emailsSet = new HashSet<>(toEmailList);
+        emailsSet.removeAll(joinedEmails); // 이미 가입한 이메일을 제거
+
+        ArrayList<String> failed = new ArrayList<>();
+        ArrayList<String> success = new ArrayList<>();
+        for (String toEmail : emailsSet) {
+            // 이미 워크스페이스에 가입한 경우에는 이메일을 또 보낼 필요 없다
+
             String inviteToken = jwtManager.generateInviteToken(
                     inviter.getEmail(),
                     toEmail,
@@ -146,14 +153,26 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
             String subject = "tfinder 워크스페이스 초대";
 
-            messageQueue.publish(MessageKey.INVITE, new InviteMessageDto(
+            boolean publish = messageQueue.publish(MessageKey.INVITE, new InviteMessageDto(
                     Instant.now().toString(),
                     toEmail,
                     subject
                     , makeInviteMailMessage(inviteWorkspace, inviteToken)
             ));
+
+            if (publish) {
+                success.add(toEmail);
+            } else {
+                failed.add(toEmail);
+            }
+
         }
 
+        return new InviteResultDto(
+                success,
+                failed,
+                new ArrayList<>(joinedEmails)
+        );
     }
 
     @Override
@@ -231,8 +250,8 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         );
     }
 
-    private WorkspaceMemberEntity getWorkspaceMemberOrThrow(WorkspaceEntity inviteWorkspace, MemberEntity inviter) {
-        return workspaceMemberRepository.findByWorkspaceAndMember(inviteWorkspace, inviter).orElseThrow(
+    private WorkspaceMemberEntity getWorkspaceMemberOrThrow(WorkspaceEntity workspace, MemberEntity member) {
+        return workspaceMemberRepository.findByWorkspaceAndMember(workspace, member).orElseThrow(
                 () -> new BusinessException(ErrorCode.AUTHORIZATION_FAILED)
         );
     }

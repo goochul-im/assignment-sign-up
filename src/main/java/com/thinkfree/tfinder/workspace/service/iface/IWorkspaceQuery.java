@@ -10,11 +10,11 @@ public interface IWorkspaceQuery {
 
     /**
      * 멤버가 속한 모든 워크스페이스를 조회합니다.
-     * @param requesterId 조회 요청 멤버 ID
+     * @param memberId 조회 요청 멤버 ID
      * @return 멤버가 속한 워크스페이스 목록
      * @throws BusinessException 요청자가 존재하지 않음
      */
-    List<MyWorkspacesResultDto> findMyWorkspaces(long requesterId) throws BusinessException;
+    List<MyWorkspacesResultDto> findMyWorkspaces(long memberId) throws BusinessException;
 
     /**
      * 워크스페이스에 속한 모든 멤버를 조회합니다.

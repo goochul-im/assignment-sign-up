@@ -5,8 +5,10 @@ import com.thinkfree.tfinder.workspace.controller.request.InviteAcceptRequest;
 import com.thinkfree.tfinder.workspace.controller.request.InviteRequest;
 import com.thinkfree.tfinder.workspace.controller.request.WorkspaceCreateRequest;
 import com.thinkfree.tfinder.workspace.controller.response.CreateWorkspaceResponse;
+import com.thinkfree.tfinder.workspace.controller.response.InviteResponse;
 import com.thinkfree.tfinder.workspace.controller.response.MyWorkspaceResponse;
 import com.thinkfree.tfinder.workspace.controller.response.WorkspaceMembersResponse;
+import com.thinkfree.tfinder.workspace.service.dto.InviteResultDto;
 import com.thinkfree.tfinder.workspace.service.dto.MyWorkspacesResultDto;
 import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResultDto;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
@@ -171,24 +173,30 @@ public class WorkspaceController {
             description = "워크스페이스 초대 요청을 보냅니다. 최대 50개의 이메일에 초대를 보낼수 있습니다."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "202", description = "SMTP에 초대 메일 발송 요청 완료"),
+            @ApiResponse(responseCode = "202", description = "SMTP에 초대 메일 발송 요청 완료",
+                content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = InviteResponse.class)
+                )
+            ),
             @ApiResponse(responseCode = "404", description = "E-001, 초대자가 존재하지 않거나 초대할 워크스페이스가 존재하지 않음"),
             @ApiResponse(responseCode = "409", description = "A-002, 해당 워크스페이스에 초대자가 속해있지 않거나, 권한이 없음"),
     })
     @PostMapping("/invite")
-    public ResponseEntity<?> inviteMember(
+    public ResponseEntity<?> inviteMembers(
             @RequestBody InviteRequest request,
             @AuthenticationPrincipal CustomUserDetails currentUser
             ) {
 
-        workspaceUseCase.inviteMember(
+        InviteResultDto result = workspaceUseCase.inviteMember(
                 request.toEmailList(),
                 currentUser.getMemberId(),
                 request.workspaceId()
         );
 
         return ResponseEntity.accepted()
-                .build();
+                .body(new InviteResponse(result))
+                ;
     }
 
 }
