@@ -23,6 +23,7 @@ import static com.thinkfree.tfinder.common.exception.ErrorCode.*;
 public class JwtManager implements IJwtManager {
 
     private final SecretKey secretKey; // 서명을 위한 시크릿 키
+    private final JwtProperties jwtProperties;
 
     private final String FROM_EMAIL = "from_email";
     private final String TO_EMAIL = "to_email";
@@ -36,37 +37,42 @@ public class JwtManager implements IJwtManager {
     private final String EMAIL_VALIDATE_TOKEN_SUBJECT = "email_validate_token";
 
     public JwtManager(JwtProperties jwtProperties) {
+        this.jwtProperties = jwtProperties;
         this.secretKey = Keys.hmacShaKeyFor(jwtProperties.getKey().getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
-    public String generateInviteToken(String fromEmail, String toEmail, String workspaceUrl, Instant expirationDate) {
+    public String generateInviteToken(String fromEmail, String toEmail, String workspaceUrl) {
         Map<String, String> claims = new HashMap<>();
         claims.put(FROM_EMAIL, fromEmail);
         claims.put(WORKSPACE_URL, workspaceUrl);
         claims.put(TO_EMAIL, toEmail);
 
+        Instant expirationDate = Instant.now().plusSeconds(jwtProperties.getInviteExpirationSeconds());
         return produceJwt(INVITE_TOKEN_SUBJECT, expirationDate, claims);
     }
 
     @Override
-    public String generateAccessToken(String memberEmail, Instant expirationDate) {
-        HashMap<String, String > claims = new HashMap<>();
+    public String generateAccessToken(String memberEmail) {
+        HashMap<String, String> claims = new HashMap<>();
         claims.put(MEMBER_EMAIL, memberEmail);
+        Instant expirationDate = Instant.now().plusSeconds(jwtProperties.getAccessExpirationSeconds());
         return produceJwt(ACCESS_TOKEN_SUBJECT, expirationDate, claims);
     }
 
     @Override
-    public String generateRefreshToken(String memberEmail, Instant expirationDate) {
-        HashMap<String, String > claims = new HashMap<>();
+    public String generateRefreshToken(String memberEmail) {
+        HashMap<String, String> claims = new HashMap<>();
         claims.put(MEMBER_EMAIL, memberEmail);
+        Instant expirationDate = Instant.now().plusSeconds(jwtProperties.getRefreshExpirationSeconds());
         return produceJwt(REFRESH_TOKEN_SUBJECT, expirationDate, claims);
     }
 
     @Override
-    public String generateValidateEmailToken(String email, Instant expirationDate) {
-        HashMap<String, String > claims = new HashMap<>();
+    public String generateValidateEmailToken(String email) {
+        HashMap<String, String> claims = new HashMap<>();
         claims.put(VALIDATE_EMAIL, email);
+        Instant expirationDate = Instant.now().plusSeconds(jwtProperties.getValidateEmailExpirationSeconds());
         return produceJwt(EMAIL_VALIDATE_TOKEN_SUBJECT, expirationDate, claims);
     }
 

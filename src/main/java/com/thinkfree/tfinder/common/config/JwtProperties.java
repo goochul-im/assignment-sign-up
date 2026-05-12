@@ -1,18 +1,20 @@
 package com.thinkfree.tfinder.common.config;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Getter
+@NoArgsConstructor
 @Component
 public class JwtProperties {
 
-    private final String key;
-    private final long accessExpirationSeconds;
-    private final long refreshExpirationSeconds;
-    private final long inviteExpirationSeconds;
-    private final long validateEmailExpirationSeconds;
+    private String key;
+    private long accessExpirationSeconds;
+    private long refreshExpirationSeconds;
+    private long inviteExpirationSeconds;
+    private long validateEmailExpirationSeconds;
 
     public JwtProperties(
             @Value("${spring.jwt.key}") String key,

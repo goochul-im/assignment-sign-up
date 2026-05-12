@@ -130,8 +130,8 @@ class AuthServiceTest {
 
         given(memberRepository.findByEmail(any())).willReturn(Optional.of(returnMember));
         given(encoder.matches(any(), any())).willReturn(true);
-        given(jwtManager.generateAccessToken(any(), any())).willReturn(accessToken);
-        given(jwtManager.generateRefreshToken(any(), any())).willReturn(refreshToken);
+        given(jwtManager.generateAccessToken(any())).willReturn(accessToken);
+        given(jwtManager.generateRefreshToken(any())).willReturn(refreshToken);
         given(jwtProperties.getRefreshExpirationSeconds()).willReturn(refreshExpiredSeconds);
 
         //when

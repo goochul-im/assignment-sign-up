@@ -147,8 +147,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
             String inviteToken = jwtManager.generateInviteToken(
                     inviter.getEmail(),
                     toEmail,
-                    inviteWorkspace.getWorkspaceUrl(),
-                    Instant.now().plusSeconds(jwtProperties.getInviteExpirationSeconds())
+                    inviteWorkspace.getWorkspaceUrl()
             );
 
             String subject = "tfinder 워크스페이스 초대";

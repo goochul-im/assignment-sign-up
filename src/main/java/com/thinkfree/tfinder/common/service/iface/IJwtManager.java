@@ -6,13 +6,13 @@ import java.time.Instant;
 
 public interface IJwtManager {
 
-    String generateInviteToken(String fromEmail, String toEmail, String workspaceUrl, Instant expirationDate);
+    String generateInviteToken(String fromEmail, String toEmail, String workspaceUrl);
 
-    String generateAccessToken(String memberEmail, Instant expirationDate);
+    String generateAccessToken(String memberEmail);
 
-    String generateRefreshToken(String memberEmail, Instant expirationDate);
+    String generateRefreshToken(String memberEmail);
 
-    String generateValidateEmailToken(String email, Instant expirationDate);
+    String generateValidateEmailToken(String email);
 
     InviteTokenResult parsingInviteToken(String token);
 

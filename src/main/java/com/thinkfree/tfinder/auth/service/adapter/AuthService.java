@@ -3,21 +3,15 @@ package com.thinkfree.tfinder.auth.service.adapter;
 import com.thinkfree.tfinder.auth.service.dto.*;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
-import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshTokenRepository;
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
-import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.workspace.event.JoinPendingEvent;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -40,9 +33,6 @@ public class AuthService implements IAuthUseCase {
     private final IJwtManager jwtManager;
     private final IRefreshTokenRepository refreshTokenRepository;
     private final IEmailValidateRepository emailValidateRepository;
-    private final IPendingInviteRepository pendingInviteRepository;
-    private final IWorkspaceRepository workspaceRepository;
-    private final IWorkspaceMemberRepository workspaceMemberRepository;
     private final IMailSender mailSender;
     private final ApplicationEventPublisher eventPublisher;
     private final JwtProperties jwtProperties;
@@ -55,7 +45,7 @@ public class AuthService implements IAuthUseCase {
         if (memberRepository.existsByEmail(email))
             throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
 
-        String token = jwtManager.generateValidateEmailToken(email, Instant.now().plusSeconds(jwtProperties.getValidateEmailExpirationSeconds()));
+        String token = jwtManager.generateValidateEmailToken(email);
 
         try {
             // 한 사람에 대한 이메일 인증 요청이 여러번 가도 되는가?
@@ -125,8 +115,8 @@ public class AuthService implements IAuthUseCase {
             throw new BusinessException(ErrorCode.AUTHENTICATION_FAILED);
         }
 
-        String accessToken = jwtManager.generateAccessToken(member.getEmail(), Instant.now().plusSeconds(jwtProperties.getAccessExpirationSeconds()));
-        String refreshToken = jwtManager.generateRefreshToken(member.getEmail(), Instant.now().plusSeconds(jwtProperties.getRefreshExpirationSeconds()));
+        String accessToken = jwtManager.generateAccessToken(member.getEmail());
+        String refreshToken = jwtManager.generateRefreshToken(member.getEmail());
         refreshTokenRepository.save(member.getEmail(), refreshToken, Duration.ofSeconds(jwtProperties.getRefreshExpirationSeconds()));
 
         return new LoginResultDto(
@@ -148,8 +138,8 @@ public class AuthService implements IAuthUseCase {
             throw new BusinessException(ErrorCode.REFRESH_TOKEN_ERROR);
         }
 
-        String newAccessToken = jwtManager.generateAccessToken(email, Instant.now().plusSeconds(jwtProperties.getAccessExpirationSeconds()));
-        String newRefreshToken = jwtManager.generateRefreshToken(email, Instant.now().plusSeconds(jwtProperties.getRefreshExpirationSeconds()));
+        String newAccessToken = jwtManager.generateAccessToken(email);
+        String newRefreshToken = jwtManager.generateRefreshToken(email);
         refreshTokenRepository.save(email, newRefreshToken, Duration.ofSeconds(jwtProperties.getRefreshExpirationSeconds()));
 
         return new LoginResultDto(
@@ -162,14 +152,6 @@ public class AuthService implements IAuthUseCase {
     public void logout(String refreshToken) {
         String email = jwtManager.getEmailFromRefreshToken(refreshToken);
         refreshTokenRepository.deleteByEmail(email);
-    }
-
-    /**
-     *
-     * @param member 회원가입을 마치고, 초대를 수락한 이메일
-     */
-    private void joinPendingInvites(MemberEntity member) {
-
     }
 
     private String makeValidateMailMessage(String token) {
