@@ -1,0 +1,66 @@
+package com.thinkfree.tfinder.common.infrastructure.messagequeue.handler;
+
+import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
+import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
+import com.thinkfree.tfinder.common.exception.BusinessException;
+import com.thinkfree.tfinder.common.exception.ErrorCode;
+import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.JoinWorkSpaceMessageDto;
+import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.MessageDto;
+import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import java.util.Set;
+
+@Component
+@Slf4j
+@RequiredArgsConstructor
+public class JoinWorkspaceHandler {
+
+    private final IPendingInviteRepository pendingInviteRepository;
+    private final IWorkspaceRepository workspaceRepository;
+    private final IWorkspaceMemberRepository workspaceMemberRepository;
+    private final IEmailValidateRepository emailValidateRepository;
+
+    public void handler(JoinWorkSpaceMessageDto message) {
+        MemberEntity member = message.getMember();
+
+        String email = member.getEmail();
+        Set<String> pendingWorkspaceUrls = pendingInviteRepository.findWorkspaceUrlsByEmail(email);
+        // redis에서 가져오는 걸 실패할떄는 어떻게 하지??
+        // 아... 이거 쿼리가 너무 많이 나갈수 있겠는데... 나중에 bulk insert로 바꿔야 하나?
+
+        for (String workspaceUrl : pendingWorkspaceUrls) {
+            try {
+                WorkspaceEntity workspace = workspaceRepository.findByWorkspaceUrl(workspaceUrl).orElseThrow(
+                        () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
+                );
+
+                if (!workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)) {
+                    workspaceMemberRepository.save(new WorkspaceMemberEntity(
+                            workspace,
+                            member,
+                            WorkspaceMemberRole.MEMBER
+                    ));
+                }
+            } catch (Exception e) {
+                log.warn("참여 대기중인 워크스페이스에 참여 중 에러 발생, member = {}, workspaceUrl = {}", member.getEmail(), workspaceUrl);
+            }
+        }
+
+        String signupEmail = member.getEmail();
+        try {
+            emailValidateRepository.delete(signupEmail);
+            pendingInviteRepository.delete(signupEmail);
+        } catch (Exception e) {
+            log.warn("인증 정보 삭제중 에러 발생");
+        }
+    }
+
+}

@@ -9,6 +9,7 @@ import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.InviteMessageDto;
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.JoinWorkSpaceMessageDto;
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.MessageDto;
+import com.thinkfree.tfinder.common.infrastructure.messagequeue.handler.JoinWorkspaceHandler;
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.iface.IMessageQueue;
 import com.thinkfree.tfinder.workspace.domain.MessageKey;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
@@ -33,10 +34,8 @@ public class RabbitMqImpl implements IMessageQueue {
 
     private final RabbitTemplate rabbitTemplate;
     private final IMailSender iMailSender;
-    private final IPendingInviteRepository pendingInviteRepository;
-    private final IWorkspaceRepository workspaceRepository;
-    private final IWorkspaceMemberRepository workspaceMemberRepository;
-    private final IEmailValidateRepository emailValidateRepository;
+    private final JoinWorkspaceHandler joinWorkspaceHandler;
+
 
     @Override
     public boolean publish(MessageKey key, MessageDto message) {
@@ -72,39 +71,7 @@ public class RabbitMqImpl implements IMessageQueue {
     @RabbitListener(queues = RabbitMqConfig.JOIN_QUEUE_NAME)
     public void joinMessageConsume(JoinWorkSpaceMessageDto message) {
         log.info("join 메시지 수신, message ID = {}", message.getId());
-        MemberEntity member = message.getMember();
-
-        String email = member.getEmail();
-        Set<String> pendingWorkspaceUrls = pendingInviteRepository.findWorkspaceUrlsByEmail(email);
-        // redis에서 가져오는 걸 실패할떄는 어떻게 하지??
-        // 아... 이거 쿼리가 너무 많이 나갈수 있겠는데... 나중에 bulk insert로 바꿔야 하나?
-
-        for (String workspaceUrl : pendingWorkspaceUrls) {
-            try {
-                WorkspaceEntity workspace = workspaceRepository.findByWorkspaceUrl(workspaceUrl).orElseThrow(
-                        () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
-                );
-
-                if (!workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)) {
-                    workspaceMemberRepository.save(new WorkspaceMemberEntity(
-                            workspace,
-                            member,
-                            WorkspaceMemberRole.MEMBER
-                    ));
-                }
-            } catch (Exception e) {
-                log.warn("참여 대기중인 워크스페이스에 참여 중 에러 발생, member = {}, workspaceUrl = {}", member.getEmail(), workspaceUrl);
-            }
-        }
-
-        String signupEmail = member.getEmail();
-        try {
-            emailValidateRepository.delete(signupEmail);
-            pendingInviteRepository.delete(signupEmail);
-        } catch (Exception e) {
-            log.warn("인증 정보 삭제중 에러 발생");
-        }
-
+        joinWorkspaceHandler.handler(message);
     }
 
 
