@@ -122,11 +122,7 @@ class IWorkspaceMemberRepositoryTest {
         );
         workspace = workspaceRepository.save(workspace);
         for (int i = 0; i < repeat; i++) {
-            MemberEntity member = new MemberEntity(
-                    "testNickname",
-                    "testEmail" + i,
-                    "testPassword"
-            );
+            MemberEntity member = getMember("test" + i);
 
             member = memberRepository.save(member);
             WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(workspace, member, WorkspaceMemberRole.MEMBER);
@@ -143,6 +139,13 @@ class IWorkspaceMemberRepositoryTest {
         assertThat(workspace1).usingRecursiveComparison().isEqualTo(workspace2);
     }
 
+    private MemberEntity getMember(String email) {
+        return new MemberEntity(
+                "testNickname",
+                email,
+                "testPassword"
+        );
+    }
 
 
 }

@@ -59,9 +59,12 @@ public interface IWorkspaceMemberRepository extends JpaRepository<WorkspaceMembe
     @Query("""
         select case when (count(*) > 0) then true else false end
         from workspace_member wm
-        join member m on wm.id = m.id
+        join member m on wm.member.id = m.id
         where m.email = :email
         """)
     boolean existsByWorkspaceAndMemberEmail(WorkspaceEntity workspace, String email);
+
+
+
 
 }
