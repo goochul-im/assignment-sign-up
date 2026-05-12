@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.common.infrastructure.persitence.dto;
+package com.thinkfree.tfinder.common.infrastructure.messagequeue.dto;
 
 import lombok.Getter;
 

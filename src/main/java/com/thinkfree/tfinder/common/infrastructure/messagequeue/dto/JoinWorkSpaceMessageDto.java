@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.common.infrastructure.persitence.dto;
+package com.thinkfree.tfinder.common.infrastructure.messagequeue.dto;
 
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import lombok.Getter;

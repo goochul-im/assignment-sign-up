@@ -1,6 +1,6 @@
-package com.thinkfree.tfinder.common.infrastructure.persitence.iface;
+package com.thinkfree.tfinder.common.infrastructure.messagequeue.iface;
 
-import com.thinkfree.tfinder.common.infrastructure.persitence.dto.MessageDto;
+import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.MessageDto;
 import com.thinkfree.tfinder.workspace.domain.MessageKey;
 
 public interface IMessageQueue {

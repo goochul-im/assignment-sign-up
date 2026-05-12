@@ -5,8 +5,8 @@ import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInvit
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
-import com.thinkfree.tfinder.common.infrastructure.persitence.dto.InviteMessageDto;
-import com.thinkfree.tfinder.common.infrastructure.persitence.iface.IMessageQueue;
+import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.InviteMessageDto;
+import com.thinkfree.tfinder.common.infrastructure.messagequeue.iface.IMessageQueue;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.domain.MessageKey;

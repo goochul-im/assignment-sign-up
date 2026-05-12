@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.common.infrastructure.persitence.adapter;
+package com.thinkfree.tfinder.common.infrastructure.messagequeue.adapter;
 
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
@@ -6,13 +6,12 @@ import com.thinkfree.tfinder.common.config.RabbitMqConfig;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
-import com.thinkfree.tfinder.common.infrastructure.persitence.dto.InviteMessageDto;
-import com.thinkfree.tfinder.common.infrastructure.persitence.dto.JoinWorkSpaceMessageDto;
-import com.thinkfree.tfinder.common.infrastructure.persitence.dto.MessageDto;
-import com.thinkfree.tfinder.common.infrastructure.persitence.iface.IMessageQueue;
+import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.InviteMessageDto;
+import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.JoinWorkSpaceMessageDto;
+import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.MessageDto;
+import com.thinkfree.tfinder.common.infrastructure.messagequeue.iface.IMessageQueue;
 import com.thinkfree.tfinder.workspace.domain.MessageKey;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;

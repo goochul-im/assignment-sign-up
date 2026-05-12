@@ -1,7 +1,7 @@
 package com.thinkfree.tfinder.common.infrastructure.event;
 
-import com.thinkfree.tfinder.common.infrastructure.persitence.dto.JoinWorkSpaceMessageDto;
-import com.thinkfree.tfinder.common.infrastructure.persitence.iface.IMessageQueue;
+import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.JoinWorkSpaceMessageDto;
+import com.thinkfree.tfinder.common.infrastructure.messagequeue.iface.IMessageQueue;
 import com.thinkfree.tfinder.workspace.domain.MessageKey;
 import com.thinkfree.tfinder.workspace.event.JoinPendingEvent;
 import lombok.RequiredArgsConstructor;
