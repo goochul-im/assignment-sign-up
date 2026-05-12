@@ -55,7 +55,12 @@ spring:
         prefetch: 1
         concurrency: 25
         max-concurrency: 25
-
+        retry:
+          enabled: true
+          initial-interval: 2s
+          max-interval: 10s
+          max-retries: 5
+          multiplier: 2
 
 
 frontend:

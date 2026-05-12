@@ -11,6 +11,7 @@ import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
+import com.thinkfree.tfinder.workspace.event.JoinPendingEvent;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
@@ -20,6 +21,7 @@ import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.Workspa
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +44,7 @@ public class AuthService implements IAuthUseCase {
     private final IWorkspaceRepository workspaceRepository;
     private final IWorkspaceMemberRepository workspaceMemberRepository;
     private final IMailSender mailSender;
+    private final ApplicationEventPublisher eventPublisher;
     private final JwtProperties jwtProperties;
 
     @Value("${frontend.url}")
@@ -104,16 +107,7 @@ public class AuthService implements IAuthUseCase {
         );
         MemberEntity savedMember = memberRepository.save(member);
 
-        joinPendingInvites(savedMember); // 아웃박스 패턴으로 뺄 수 있을듯
-
-        // 이메일 인증정보, 워크스페이스 대기 정보 삭제
-        try {
-            // 여기서 에러가 나도 회원가입은 성공해야하지 않을까?
-            emailValidateRepository.delete(signupEmail);
-            pendingInviteRepository.delete(signupEmail);
-        } catch (Exception e) {
-            log.warn("인증 정보 삭제중 에러 발생");
-        }
+        eventPublisher.publishEvent(new JoinPendingEvent(savedMember));
 
         return new MemberSignupResultDto(
                 savedMember.getId(),
@@ -175,28 +169,7 @@ public class AuthService implements IAuthUseCase {
      * @param member 회원가입을 마치고, 초대를 수락한 이메일
      */
     private void joinPendingInvites(MemberEntity member) {
-        String email = member.getEmail();
-        Set<String> pendingWorkspaceUrls = pendingInviteRepository.findWorkspaceUrlsByEmail(email);
-        // redis에서 가져오는 걸 실패할떄는 어떻게 하지??
-        // 아... 이거 쿼리가 너무 많이 나갈수 있겠는데... 나중에 bulk insert로 바꿔야 하나?
 
-        for (String workspaceUrl : pendingWorkspaceUrls) {
-            try {
-                WorkspaceEntity workspace = workspaceRepository.findByWorkspaceUrl(workspaceUrl).orElseThrow(
-                        () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
-                );
-
-                if (!workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)) {
-                    workspaceMemberRepository.save(new WorkspaceMemberEntity(
-                            workspace,
-                            member,
-                            WorkspaceMemberRole.MEMBER
-                    ));
-                }
-            } catch (Exception e) {
-                log.error("참여 대기중인 워크스페이스에 참여 중 에러 발생, member = {}, workspaceUrl = {}", member.getEmail(), workspaceUrl);
-            }
-        }
     }
 
     private String makeValidateMailMessage(String token) {
