@@ -16,12 +16,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.time.Instant;
 
 @Slf4j
 @Service
@@ -52,7 +52,7 @@ public class AuthService implements IAuthUseCase {
             // SMTP 요청이 실패했는지 성공했는지 가져오질 못하니, 실패할 경우를 알 수 없다
             // 네트워크나 SMTP 서버 요청으로 인해 장애가 나서 인증정보만 대기중이고 메일이 가지 않았을 때
             // 중복 방지 로직으로 인해 인증 요청이 더이상 가지 못하면 회원이 가입을 할수가 없다.
-            emailValidateRepository.save(
+            emailValidateRepository.saveAsPending(
                     email,
                     getEmailExpiration()
             );
@@ -74,7 +74,7 @@ public class AuthService implements IAuthUseCase {
         if (!emailValidateRepository.isRequested(email))
             throw new BusinessException(ErrorCode.NO_VALIDATE_EMAIL);
 
-        emailValidateRepository.saveAsValidated(email, getEmailExpiration()); // validate 상태 저장
+        emailValidateRepository.saveAsValidated(email, getEmailExpiration()); // validate 상태 저장, 중복 인증으로 인한 유효 기간 연장 없음
         return email;
     }
 
@@ -97,6 +97,7 @@ public class AuthService implements IAuthUseCase {
         );
         MemberEntity savedMember = memberRepository.save(member);
 
+        // 트랜잭션 커밋 이후 이벤트가 발행되고, 트랜잭션이벤트 리스너가 이를 받아 메시지를 발행합니다.
         eventPublisher.publishEvent(new JoinPendingEvent(savedMember));
 
         return new MemberSignupResultDto(
@@ -126,6 +127,12 @@ public class AuthService implements IAuthUseCase {
     }
 
     @Override
+    @Retryable(
+            includes = BusinessException.class,
+            maxRetries = 5,
+            delay = 200,
+            timeout = 5000
+    )
     public LoginResultDto refresh(String refreshToken) throws BusinessException {
 
         String email = jwtManager.getEmailFromRefreshToken(refreshToken);
@@ -140,7 +147,10 @@ public class AuthService implements IAuthUseCase {
 
         String newAccessToken = jwtManager.generateAccessToken(email);
         String newRefreshToken = jwtManager.generateRefreshToken(email);
-        refreshTokenRepository.save(email, newRefreshToken, Duration.ofSeconds(jwtProperties.getRefreshExpirationSeconds()));
+        if (!refreshTokenRepository.save(email, newRefreshToken, Duration.ofSeconds(jwtProperties.getRefreshExpirationSeconds()))) {
+            log.warn("리프레시 토큰이 저장되지 않았습니다!");
+            throw new BusinessException(ErrorCode.EXTERNAL_ERROR);
+        }
 
         return new LoginResultDto(
                 newAccessToken,
@@ -151,7 +161,9 @@ public class AuthService implements IAuthUseCase {
     @Override
     public void logout(String refreshToken) {
         String email = jwtManager.getEmailFromRefreshToken(refreshToken);
-        refreshTokenRepository.deleteByEmail(email);
+        if (!refreshTokenRepository.deleteByEmail(email)){
+            log.warn("리프레시 토큰이 삭제되지 않았습니다! 이미 삭제 처리가 되었거나, redis에 문제가 있을 수 있습니다.");
+        }
     }
 
     private String makeValidateMailMessage(String token) {

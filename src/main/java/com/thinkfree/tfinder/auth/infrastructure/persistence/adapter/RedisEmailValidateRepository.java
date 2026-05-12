@@ -17,18 +17,13 @@ public class RedisEmailValidateRepository implements IEmailValidateRepository {
     private final StringRedisTemplate redisTemplate;
 
     @Override
-    public void save(String email, Duration expiration) {
+    public void saveAsPending(String email, Duration expiration) {
         redisTemplate.opsForValue().set(getKey(email), EmailValidateStatus.PENDING.getStatus(), expiration);
     }
 
     @Override
     public void saveAsValidated(String email, Duration expiration) {
         redisTemplate.opsForValue().set(getKey(email), EmailValidateStatus.VALIDATE.getStatus(), expiration);
-    }
-
-    @Override
-    public String getByEmail(String email) {
-        return redisTemplate.opsForValue().get(getKey(email));
     }
 
     @Override
@@ -50,5 +45,9 @@ public class RedisEmailValidateRepository implements IEmailValidateRepository {
 
     private String getKey(String email) {
         return KEY_PREFIX + email;
+    }
+
+    private String getByEmail(String email) {
+        return redisTemplate.opsForValue().get(getKey(email));
     }
 }
