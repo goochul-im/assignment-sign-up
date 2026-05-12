@@ -44,7 +44,7 @@ public class RabbitMqImpl implements IMessageQueue {
      * 비동기 전송 대신에 동기식 전송으로 바꾸자.
      */
     @RabbitListener(queues = RabbitMqConfig.QUEUE_NAME)
-    public void consume(InviteMessageDto message) {
+    public void inviteMessageConsume(InviteMessageDto message) {
         log.info("메시지 수신, message ID = {}", message.getId());
         iMailSender.send(message.getToEmail(), message.getTitle(), message.getMessage());
     }
