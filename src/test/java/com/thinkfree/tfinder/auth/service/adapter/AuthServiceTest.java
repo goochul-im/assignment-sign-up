@@ -81,7 +81,7 @@ class AuthServiceTest {
         given(memberRepository.existsByEmail(any())).willReturn(false);
         given(encoder.encode(passwd)).willReturn(encodePasswd);
         given(memberRepository.save(any())).willReturn(returnMember);
-        given(emailValidateRepository.isValidate(email)).willReturn(true);
+        given(emailValidateRepository.isValidated(email)).willReturn(true);
 
         //when
         MemberSignupResultDto result = authService.signUp(dto);

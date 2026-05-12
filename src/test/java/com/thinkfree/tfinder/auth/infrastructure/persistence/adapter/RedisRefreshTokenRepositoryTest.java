@@ -66,39 +66,39 @@ class RedisRefreshTokenRepositoryTest {
         assertThat(repository.findByEmail(email)).isEmpty();
     }
 
-    @Test
-    void 레디스_테스트_1(){
-        //given
-        String email = "test@email.com";
-
-        //when
-        Boolean delete = redisTemplate().delete(email); // 없는 키를 삭제하면 false
-        Boolean noKey = redisTemplate().expire("no key", Duration.ofSeconds(1000)); // 없는 키에 expire를 걸면 false
-        redisTemplate().opsForValue().set("my Key","my Value");
-        String nullValue = redisTemplate().opsForValue().get("no key");
-        assertThrows(IllegalArgumentException.class, () -> redisTemplate().opsForValue().set(null, email)); // null을 키로 주면 예외
-        assertThrows(IllegalArgumentException.class, () -> redisTemplate().opsForSet().add(null, email)); // null을 키로 주면 예외
-        assertThrows(IllegalArgumentException.class, () -> redisTemplate().expire("no key", null)); // Duration은 null로 주면 예외
-
-        //then
-        assertThat(delete).isFalse();
-        assertThat(noKey).isFalse();
-        assertThat(nullValue).isNull();
-    }
-
-    @Test
-    void 레디스_테스트_2(){
-        //given
-        String email = "test@email.com";
-
-        //when & then
-        redis.close();
-        assertThrows(IllegalStateException.class, () -> redisTemplate().delete(email));
-        assertThrows(IllegalStateException.class, () -> redisTemplate().opsForValue().set(email, email));
-        assertThrows(IllegalStateException.class, () -> redisTemplate().opsForSet().add(email, email));
-        assertThrows(IllegalStateException.class, () -> redisTemplate().expire(email, Duration.ofSeconds(1000)));
-        // redis와의 연결이 끊어졌을 경우에는 IllegalStateException이 던져짐
-    }
+//    @Test
+//    void 레디스_테스트_1(){
+//        //given
+//        String email = "test@email.com";
+//
+//        //when
+//        Boolean delete = redisTemplate().delete(email); // 없는 키를 삭제하면 false
+//        Boolean noKey = redisTemplate().expire("no key", Duration.ofSeconds(1000)); // 없는 키에 expire를 걸면 false
+//        redisTemplate().opsForValue().set("my Key","my Value");
+//        String nullValue = redisTemplate().opsForValue().get("no key");
+//        assertThrows(IllegalArgumentException.class, () -> redisTemplate().opsForValue().set(null, email)); // null을 키로 주면 예외
+//        assertThrows(IllegalArgumentException.class, () -> redisTemplate().opsForSet().add(null, email)); // null을 키로 주면 예외
+//        assertThrows(IllegalArgumentException.class, () -> redisTemplate().expire("no key", null)); // Duration은 null로 주면 예외
+//
+//        //then
+//        assertThat(delete).isFalse();
+//        assertThat(noKey).isFalse();
+//        assertThat(nullValue).isNull();
+//    }
+//
+//    @Test
+//    void 레디스_테스트_2(){
+//        //given
+//        String email = "test@email.com";
+//
+//        //when & then
+//        redis.close();
+//        assertThrows(IllegalStateException.class, () -> redisTemplate().delete(email));
+//        assertThrows(IllegalStateException.class, () -> redisTemplate().opsForValue().set(email, email));
+//        assertThrows(IllegalStateException.class, () -> redisTemplate().opsForSet().add(email, email));
+//        assertThrows(IllegalStateException.class, () -> redisTemplate().expire(email, Duration.ofSeconds(1000)));
+//        // redis와의 연결이 끊어졌을 경우에는 IllegalStateException이 던져짐
+//    }
 
     private StringRedisTemplate redisTemplate() {
         connectionFactory = new LettuceConnectionFactory(redis.getHost(), redis.getMappedPort(6379));

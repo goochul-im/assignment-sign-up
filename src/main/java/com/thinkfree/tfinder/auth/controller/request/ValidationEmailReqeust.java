@@ -5,7 +5,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public record EmailValidateReqeust(
+/**
+ * 서버로부터 인증 메일을 발송해달라고 요청하는 DTO입니다
+ */
+public record ValidationEmailReqeust(
         @Schema(description = "인증을 요청하는 이메일", example = "example@email.com")
         @NotBlank(message = ValidationMessage.NOT_BLANK)
         @Email(message = ValidationMessage.INVALID_EMAIL)

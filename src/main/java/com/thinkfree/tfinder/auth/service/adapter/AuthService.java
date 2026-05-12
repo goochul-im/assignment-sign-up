@@ -1,9 +1,6 @@
 package com.thinkfree.tfinder.auth.service.adapter;
 
-import com.thinkfree.tfinder.auth.service.dto.LoginDto;
-import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
-import com.thinkfree.tfinder.auth.service.dto.MemberSignupResultDto;
-import com.thinkfree.tfinder.auth.service.dto.SignupDto;
+import com.thinkfree.tfinder.auth.service.dto.*;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
@@ -51,16 +48,20 @@ public class AuthService implements IAuthUseCase {
     private String FRONTEND_URL;
 
     @Override
-    public void emailValidateRequest(String email) {
+    public void requestEmailValidation(String email) {
         if (memberRepository.existsByEmail(email))
             throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
 
         String token = jwtManager.generateValidateEmailToken(email, Instant.now().plusSeconds(jwtProperties.getValidateEmailExpirationSeconds()));
 
         try {
+            // 한 사람에 대한 이메일 인증 요청이 여러번 가도 되는가?
+            // SMTP 요청이 실패했는지 성공했는지 가져오질 못하니, 실패할 경우를 알 수 없다
+            // 네트워크나 SMTP 서버 요청으로 인해 장애가 나서 인증정보만 대기중이고 메일이 가지 않았을 때
+            // 중복 방지 로직으로 인해 인증 요청이 더이상 가지 못하면 회원이 가입을 할수가 없다.
             emailValidateRepository.save(
                     email,
-                    Duration.ofSeconds(jwtProperties.getValidateEmailExpirationSeconds())
+                    getEmailExpiration()
             );
             mailSender.asyncSend(
                     email,
@@ -74,11 +75,14 @@ public class AuthService implements IAuthUseCase {
     }
 
     @Override
-    public void emailValidate(String token) throws BusinessException {
+    public String emailValidate(String token) throws BusinessException {
         String email = jwtManager.getEmailFromValidateEmailToken(token);
 
-        if (!emailValidateRepository.isValidate(email))
+        if (!emailValidateRepository.isRequested(email))
             throw new BusinessException(ErrorCode.NO_VALIDATE_EMAIL);
+
+        emailValidateRepository.saveAsValidated(email, getEmailExpiration()); // validate 상태 저장
+        return email;
     }
 
     @Override
@@ -89,7 +93,7 @@ public class AuthService implements IAuthUseCase {
         if (memberRepository.existsByEmail(signupEmail))
             throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
 
-        if (!emailValidateRepository.isValidate(signupEmail)) {
+        if (!emailValidateRepository.isValidated(signupEmail)) {
             throw new BusinessException(ErrorCode.NO_VALIDATE_EMAIL);
         }
 
@@ -108,7 +112,7 @@ public class AuthService implements IAuthUseCase {
             emailValidateRepository.delete(signupEmail);
             pendingInviteRepository.delete(signupEmail);
         } catch (Exception e) {
-            log.warn("");
+            log.warn("인증 정보 삭제중 에러 발생");
         }
 
         return new MemberSignupResultDto(
@@ -198,23 +202,20 @@ public class AuthService implements IAuthUseCase {
     private String makeValidateMailMessage(String token) {
         // 들어가야 할 정보
         // 클릭할 URL + 메시지 내용
-        String validateToken = FRONTEND_URL + "?token=" + token;
+        String validateUrl = FRONTEND_URL + "?token=" + token;
 
-        StringBuilder sb = new StringBuilder()
-                .append("<h2>tfinder 이메일 인증</h2>")
-                .append("<p><b>")
-                .append("<p>아래 링크를 눌러 이메일을 인증하세요</p>")
-                .append("<p>서비스의 회원이 아니라면, 아래 링크를 누르고 10분 이내로 가입해주세요</p>")
-                .append("<p>")
-                .append("<a href=\"")
-                .append(validateToken)
-                .append("\">참가하기</a>")
-                .append("</p>")
-                .append("<p>링크가 열리지 않는다면 아래 주소를 복사해서 브라우저에 붙여넣어 주세요.</p>")
-                .append("<p>")
-                .append(validateToken)
-                .append("</p>");
+        String message = """
+                <h2>tfinder 이메일 인증</h2>
+                <p><b>아래 링크를 눌러 이메일을 인증하고, 가입을 완료해주세요.</b></p>
+                <p><a href="%s">참가하기</a></p>
+                <p>링크가 열리지 않는다면 아래 주소를 복사해서 브라우저에 붙여넣어 주세요.</p>
+                <p>%s</p>
+                """.formatted(validateUrl, validateUrl);
 
-        return sb.toString();
+        return message;
+    }
+
+    private Duration getEmailExpiration() {
+        return Duration.ofSeconds(jwtProperties.getValidateEmailExpirationSeconds());
     }
 }

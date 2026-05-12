@@ -1,10 +1,12 @@
 package com.thinkfree.tfinder.auth.controller;
 
 import com.thinkfree.tfinder.auth.config.RefreshCookieProperties;
-import com.thinkfree.tfinder.auth.controller.request.EmailValidateReqeust;
+import com.thinkfree.tfinder.auth.controller.request.EmailValidateRequest;
+import com.thinkfree.tfinder.auth.controller.request.ValidationEmailReqeust;
 import com.thinkfree.tfinder.auth.controller.request.LoginRequest;
 import com.thinkfree.tfinder.auth.controller.request.SignupRequest;
 import com.thinkfree.tfinder.auth.controller.response.AccessTokenResponse;
+import com.thinkfree.tfinder.auth.controller.response.ValidateEmailResponse;
 import com.thinkfree.tfinder.auth.service.dto.LoginDto;
 import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
 import com.thinkfree.tfinder.auth.service.dto.SignupDto;
@@ -134,20 +136,44 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "이메일 인증",
-            description = "이메일 인증을 요청합니다."
+            summary = "이메일 인증 메일 요청",
+            description = "이메일 인증 메일을 요청합니다."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "202", description = "이메일 인증 요청 성공"),
+            @ApiResponse(responseCode = "202", description = "이메일 인증 메일 요청 성공"),
             @ApiResponse(responseCode = "409", description = "E-002, 이미 가입된 이메일"),
     })
-    @PostMapping("/email/validate")
-    public ResponseEntity<?> validateEmail(@Valid @RequestBody EmailValidateReqeust request){
+    @PostMapping("/email/request")
+    public ResponseEntity<?> requestValidateEmail(@Valid @RequestBody ValidationEmailReqeust request){
 
-        authUseCase.emailValidateRequest(request.email());
+        authUseCase.requestEmailValidation(request.email());
 
         return ResponseEntity.accepted()
                 .build();
+    }
+
+    @Operation(
+            summary = "이메일 인증요청",
+            description = "서버에서 대기중인 이메일 인증 정보를 인증합니다. 인증 token을 전달해주세요"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "202", description = "이메일 인증 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ValidateEmailResponse.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "A-010, 인증 요청이 되지 않았거나, 인증 정보가 만료된 이메일"),
+    })
+    @PostMapping("/email/validate")
+    public ResponseEntity<?> validateEmail(@Valid @RequestBody EmailValidateRequest request){
+
+        String validateEmail = authUseCase.emailValidate(request.token());
+        ValidateEmailResponse response = new ValidateEmailResponse(validateEmail);
+
+        return ResponseEntity.accepted()
+                .body(response)
+                ;
     }
 
     private ResponseCookie createRefreshCookie(String refreshToken) {

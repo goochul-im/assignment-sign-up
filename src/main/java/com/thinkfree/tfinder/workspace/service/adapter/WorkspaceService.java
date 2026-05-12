@@ -201,7 +201,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         } else {
             // 회원이 아닐 경우
             Duration expiration = Duration.ofSeconds(jwtProperties.getValidateEmailExpirationSeconds());
-            emailValidateRepository.save(toEmail, expiration);
+            emailValidateRepository.saveAsValidated(toEmail, expiration);
             pendingInviteRepository.save(toEmail, workspaceUrl, expiration);
             throw new BusinessException(ErrorCode.SIGNUP_FIRST);
         }

@@ -13,7 +13,7 @@ public interface IAuthUseCase {
      * @param email 인증을 요청할 이메일
      * @throws BusinessException 이미 가입된 이메일
      */
-    void emailValidateRequest(String email) throws BusinessException;
+    void requestEmailValidation(String email) throws BusinessException;
 
     /**
      * 이메일 인증
@@ -21,7 +21,7 @@ public interface IAuthUseCase {
      * @param token 이메일 인증을 위한 토큰
      * @throws BusinessException
      */
-    void emailValidate(String token) throws BusinessException;
+    String emailValidate(String token) throws BusinessException;
 
     /**
      * 사용자가 회원가입을 요청할 때, 만약 워크스페이스 초대 대기 상태라면 회원가입 후 자동으로 참가됩니다.
