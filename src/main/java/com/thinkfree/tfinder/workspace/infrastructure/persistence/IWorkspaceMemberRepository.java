@@ -25,9 +25,9 @@ public interface IWorkspaceMemberRepository extends JpaRepository<WorkspaceMembe
     Optional<WorkspaceMemberEntity> findByWorkspaceAndMember(WorkspaceEntity workspace, MemberEntity member);
 
     /**
-     * 이 멤버가 속한 워크스페이스를 반환
+     * 이 멤버가 속한 워크스페이스에 대한 워크스페이스 멤버 반환
      * @param member 워크스페이스들을 찾을 멤버
-     * @return 해당 멤버가 속해있는 워크스페이스 리스트, 없을 경우 empty list 반환
+     * @return 해당 멤버가 속해있는 워크스페이스에 대한 워크스페이스 멤버 리스트, 없을 경우 empty list 반환
      */
     @Query("""
             select workspaceMember
@@ -35,7 +35,7 @@ public interface IWorkspaceMemberRepository extends JpaRepository<WorkspaceMembe
             join fetch workspaceMember.workspace
             where workspaceMember.member = :member
             """)
-    List<WorkspaceMemberEntity> findAllWorkspaceByMember(MemberEntity member);
+    List<WorkspaceMemberEntity> findAllByMember(MemberEntity member);
 
     /**
      * 워크스페이스에 속한 멤버를 반환
@@ -49,5 +49,19 @@ public interface IWorkspaceMemberRepository extends JpaRepository<WorkspaceMembe
             where workspaceMember.workspace = :workspace
             """)
     List<WorkspaceMemberEntity> findAllMemberByWorkspace(WorkspaceEntity workspace);
+
+    /**
+     * 워크스페이스에 해당 이메일로 가입된 멤버가 있는지 확인
+     * @param workspace 멤버를 찾을 워크스페이스
+     * @param email 존재하는지 확인할 이메일
+     * @return 해당 이메일을 가진 멤버가 존재하면 true, 아닐 경우 false
+     */
+    @Query("""
+        select case when (count(*) > 0) then true else false end
+        from workspace_member wm
+        join member m on wm.id = m.id
+        where m.email = :email
+        """)
+    boolean existsByWorkspaceAndMemberEmail(WorkspaceEntity workspace, String email);
 
 }
