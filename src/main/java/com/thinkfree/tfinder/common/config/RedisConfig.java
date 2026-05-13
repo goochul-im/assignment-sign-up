@@ -38,9 +38,11 @@ public class RedisConfig {
         return new LettuceConnectionFactory(redisConfig, clientConfig);
     }
 
-//    @Bean("stringRedisTemplate")
-//    public StringRedisTemplate redisTemplate(LettuceConnectionFactory redisConnectionFactory) {
-//        return new StringRedisTemplate(redisConnectionFactory);
-//    }
+    @Bean
+    public StringRedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        StringRedisTemplate template = new StringRedisTemplate(redisConnectionFactory);
+        template.setEnableTransactionSupport(true);
+        return template;
+    }
 
 }

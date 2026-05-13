@@ -46,6 +46,7 @@ public class AuthService implements IAuthUseCase {
             throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
 
         String token = jwtManager.generateValidateEmailToken(email);
+        log.info("email validate request token = {}",token);
 
         try {
             // 한 사람에 대한 이메일 인증 요청이 여러번 가도 되는가?
@@ -83,6 +84,7 @@ public class AuthService implements IAuthUseCase {
     public MemberSignupResultDto signUp(SignupDto dto) {
 
         String signupEmail = dto.email();
+
         if (memberRepository.existsByEmail(signupEmail))
             throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
 
@@ -97,7 +99,7 @@ public class AuthService implements IAuthUseCase {
         );
         MemberEntity savedMember = memberRepository.save(member);
 
-        // 트랜잭션 커밋 이후 이벤트가 발행되고, 트랜잭션이벤트 리스너가 이를 받아 메시지를 발행합니다.
+        // 트랜잭션 커밋 이후 이벤트가 발행되고, 트랜잭션이벤트 리스너가 이를 받아 메시지를 발행합니다.~
         eventPublisher.publishEvent(new JoinPendingEvent(savedMember));
 
         return new MemberSignupResultDto(

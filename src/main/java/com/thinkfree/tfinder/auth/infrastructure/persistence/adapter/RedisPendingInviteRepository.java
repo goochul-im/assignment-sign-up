@@ -21,7 +21,7 @@ public class RedisPendingInviteRepository implements IPendingInviteRepository {
         String key = getKey(email);
         redisTemplate.opsForSet().add(key, workspaceUrl); //set이라서 중복 저장이 안됨
         redisTemplate.expire(key, expiration);
-        // 이 방식은.. 초대별 TTL이 안된다.
+//         이 방식은.. 초대별 TTL이 안된다.
         // 초대별로 바꾸려면 어떻게 해야하지..?
     }
 

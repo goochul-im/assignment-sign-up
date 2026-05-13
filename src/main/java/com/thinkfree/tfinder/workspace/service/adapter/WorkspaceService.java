@@ -24,6 +24,7 @@ import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResultDto;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceQuery;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Set;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
@@ -149,6 +151,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
                     toEmail,
                     inviteWorkspace.getWorkspaceUrl()
             );
+            log.info("invite Token = {}",inviteToken);
 
             String subject = "tfinder 워크스페이스 초대";
 
@@ -200,8 +203,8 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         } else {
             // 회원이 아닐 경우
             Duration expiration = Duration.ofSeconds(jwtProperties.getValidateEmailExpirationSeconds());
-            emailValidateRepository.saveAsValidated(toEmail, expiration);
-            pendingInviteRepository.save(toEmail, workspaceUrl, expiration);
+            emailValidateRepository.saveAsValidated(toEmail, expiration);    // emailValidate와 pendingInvite는 하나의 트랜잭션으로 묶여서
+            pendingInviteRepository.save(toEmail, workspaceUrl, expiration); // 쓰기 지연을 통해 에러가 발생하면 모두 저장되지 않음
             throw new BusinessException(ErrorCode.SIGNUP_FIRST);
         }
 

@@ -5,11 +5,11 @@ GET https://examples.http-client.intellij.net/get
 ### 워크스페이스 초대
 POST http://localhost:8080/workspace/invite
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3Nzg1MTM3NjUsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6InRlc3RAZW1haWwuY29tIn0.sHPuzNJmiGy1ZI8TxSZrp3j3DsOk8328iZPRYB6inj-8FWt1JFDB0hu748FxaHTaF2FuNh8gw8XexRZ3WC5ZmA
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3Nzg2Nzg3OTUsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6InRlc3RAZW1haWwuY29tIn0.X5nJdLdiltaLWgJSIKQB1pPAk7saWCx57QalcCRXjMmJvIHdf2-hG0cMjAOq97pPMOvbpLmwoxvfctFVXIbp5g
 
 {
   "workspaceId" : 1,
-  "toEmailList": ["gooch123@naver.com"]
+  "toEmailList": ["gooc@naver.com"]
 }
 
 
@@ -18,5 +18,5 @@ POST http://localhost:8080/workspace/invite/accept
 Content-Type: application/json
 
 {
-  "inviteToken": "eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NzcyODU4NzgsInN1YiI6IndvcmtzcGFjZV9pbnZpdGVfdG9rZW4iLCJ0b19lbWFpbCI6Imdvb2NoMTIzQG5hdmVyLmNvbSIsImZyb21fZW1haWwiOiJnb29jaDEyM0BuYXZlci5jb20iLCJ3b3Jrc3BhY2VfdXJsIjoiZHVtbXkgdXJsIn0.ptjCTDe1T74rNrFWPifMh98yhuJso9YJFYK7RCeJWRU"
+  "inviteToken": "eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3Nzg4MjMzNTcsInN1YiI6IndvcmtzcGFjZV9pbnZpdGVfdG9rZW4iLCJ0b19lbWFpbCI6Imdvb2NAbmF2ZXIuY29tIiwiZnJvbV9lbWFpbCI6InRlc3RAZW1haWwuY29tIiwid29ya3NwYWNlX3VybCI6ImR1bW15IHVybDEifQ.XTAid1WssbDF9FTz6BaGZl4c01oJR5dXwQo-WrW1XKM6HUihtjhnt_Jvq-dE_1jVru-4jxyEtb5_2Xz6Wyb33g"
 }

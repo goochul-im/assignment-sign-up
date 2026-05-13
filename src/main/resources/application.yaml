@@ -62,7 +62,6 @@ spring:
           max-retries: 5
           multiplier: 2
 
-
 frontend:
   url: ${FRONTEND_URL}
 
