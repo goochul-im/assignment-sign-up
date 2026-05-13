@@ -13,7 +13,7 @@ Content-Type: application/json
 
 ### 액세스 토큰 검증
 GET localhost:8080/test
-Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJleHAiOjE3NzcxNTAyNzIsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6Imdvb2NoMTIzQG5hdmVyLmNvbSJ9.VB8L-4zH5OxkrK3I8XG2qoe2lyRMg8URovbtacsuZpYpmkV8DCXmG-N0P3ciC53k
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3Nzg2NjcwNjYsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6InRlc3RAZW1haWwuY29tIn0.epNPvA6ewvwBiWv_496Mh6i3gk9N7oTEXEnDSa8_CfoH2H7n73d7lSzOUUqOXz5CA3Z8q8w8frgYBoj9-q63UQ
 
 ### 새 유저 회원가입
 POST http://localhost:8080/auth/signup
@@ -30,7 +30,7 @@ POST localhost:8080/auth/login
 Content-Type: application/json
 
 {
-  "email": "test@email.com",
+  "email": "gooch123@naver.com",
   "password": "12341234"
 }
 
@@ -39,3 +39,11 @@ POST localhost:8080/auth/refresh
 
 ### 로그아웃
 POST localhost:8080/auth/logout
+
+### 이메일 인증 요청
+POST localhost:8080/auth/email/request
+Content-Type: application/json
+
+{
+  "email": "gooch123@naver.com"
+}

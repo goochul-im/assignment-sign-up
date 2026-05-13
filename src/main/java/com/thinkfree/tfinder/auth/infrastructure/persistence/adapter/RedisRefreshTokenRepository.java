@@ -1,8 +1,6 @@
 package com.thinkfree.tfinder.auth.infrastructure.persistence.adapter;
 
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshTokenRepository;
-import com.thinkfree.tfinder.common.exception.BusinessException;
-import com.thinkfree.tfinder.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
