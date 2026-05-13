@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.common.infrastructure.external.adapter;
+package com.thinkfree.tfinder.testacomponent;
 
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import org.springframework.context.annotation.Profile;
