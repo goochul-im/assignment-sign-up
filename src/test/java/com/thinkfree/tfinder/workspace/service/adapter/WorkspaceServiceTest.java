@@ -25,6 +25,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -72,7 +74,7 @@ class WorkspaceServiceTest {
         given(workspaceMemberRepository.findAllByMember(member)).willReturn(List.of(workspaceMember));
 
         //when
-        List<MyWorkspacesResultDto> result = workspaceService.findMyWorkspaces(memberId);
+        List<MyWorkspacesResultDto> result = workspaceService.getMyWorkspaces(memberId);
 
         //then
         assertThat(result).hasSize(1);
@@ -94,7 +96,7 @@ class WorkspaceServiceTest {
         given(workspaceMemberRepository.findAllByMember(member)).willReturn(List.of());
 
         //when
-        List<MyWorkspacesResultDto> result = workspaceService.findMyWorkspaces(memberId);
+        List<MyWorkspacesResultDto> result = workspaceService.getMyWorkspaces(memberId);
 
         //then
         assertThat(result).hasSize(0);
@@ -110,7 +112,8 @@ class WorkspaceServiceTest {
         MemberEntity member = getMember(2L);
         WorkspaceEntity workspace = getWorkspace(workspaceId);
         WorkspaceMemberEntity requesterWorkspaceMember = getWorkspaceMember(workspace, requester);
-        WorkspaceMemberEntity memberWorkspaceMember = new WorkspaceMemberEntity(
+        WorkspaceMemberEntity anotherWorkspaceMember = new WorkspaceMemberEntity(
+                2L,
                 workspace,
                 member,
                 WorkspaceMemberRole.MEMBER
@@ -120,11 +123,13 @@ class WorkspaceServiceTest {
         given(workspaceRepository.findById(workspaceId)).willReturn(Optional.of(workspace));
         given(workspaceMemberRepository.findByWorkspaceAndMember(workspace, requester))
                 .willReturn(Optional.of(requesterWorkspaceMember));
-        given(workspaceMemberRepository.findAllMemberByWorkspace(workspace))
-                .willReturn(List.of(requesterWorkspaceMember, memberWorkspaceMember));
+        given(workspaceMemberRepository.findWorkspaceMemberPage(any(), any()))
+                .willReturn(new PageImpl<>(
+                        List.of(requesterWorkspaceMember, anotherWorkspaceMember)
+                ));
 
         //when
-        List<WorkspaceMemberResultDto> result = workspaceService.findWorkspaceMembers(requesterId, workspaceId);
+        List<WorkspaceMemberResultDto> result = workspaceService.getWorkspaceMembersPage(requesterId, workspaceId, 0, 10).getContent();
 
         //then
         assertThat(result).hasSize(2);
@@ -148,8 +153,8 @@ class WorkspaceServiceTest {
                 .willReturn(Optional.empty());
 
         //when & then
-        BusinessException exception = assertThrows(BusinessException.class, () -> workspaceService.findWorkspaceMembers(requesterId, workspaceId));
-        then(workspaceMemberRepository).should(never()).findAllMemberByWorkspace(any());
+        BusinessException exception = assertThrows(BusinessException.class, () -> workspaceService.getWorkspaceMembersPage(requesterId, workspaceId, 0, 10));
+        then(workspaceMemberRepository).should(never()).findWorkspaceMemberPage(any(), any());
 
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.AUTHORIZATION_FAILED);
     }
@@ -361,6 +366,7 @@ class WorkspaceServiceTest {
 
     private WorkspaceMemberEntity getWorkspaceMember(WorkspaceEntity workspace, MemberEntity member) {
         return new WorkspaceMemberEntity(
+                1L,
                 workspace,
                 member,
                 WorkspaceMemberRole.OWNER

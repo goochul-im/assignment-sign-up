@@ -7,7 +7,7 @@ import com.thinkfree.tfinder.workspace.controller.request.WorkspaceCreateRequest
 import com.thinkfree.tfinder.workspace.controller.response.CreateWorkspaceResponse;
 import com.thinkfree.tfinder.workspace.controller.response.InviteResponse;
 import com.thinkfree.tfinder.workspace.controller.response.MyWorkspaceResponse;
-import com.thinkfree.tfinder.workspace.controller.response.WorkspaceMembersResponse;
+import com.thinkfree.tfinder.workspace.controller.response.WorkspaceMembersPageResponse;
 import com.thinkfree.tfinder.workspace.service.dto.InviteResultDto;
 import com.thinkfree.tfinder.workspace.service.dto.MyWorkspacesResultDto;
 import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResultDto;
@@ -16,6 +16,8 @@ import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceDto;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceQuery;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -24,14 +26,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
@@ -66,9 +64,8 @@ public class WorkspaceController {
             @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
 
-        List<MyWorkspacesResultDto> myWorkspaces = workspaceQuery.findMyWorkspaces(currentUser.getMemberId());
+        List<MyWorkspacesResultDto> myWorkspaces = workspaceQuery.getMyWorkspaces(currentUser.getMemberId()); // TODO: 얘는 왜 굳이 Response로 감싸야 하는가?
         MyWorkspaceResponse response = new MyWorkspaceResponse(
-                myWorkspaces.size(),
                 myWorkspaces
         );
         return ResponseEntity.ok()
@@ -78,7 +75,12 @@ public class WorkspaceController {
     @SecurityRequirement(name = "Auth")
     @Operation(
             summary = "워크스페이스 멤버 목록 조회",
-            description = "인증된 멤버가 속한 워크스페이스의 모든 멤버와 역할을 조회합니다."
+            description = "인증된 멤버가 속한 워크스페이스의 모든 멤버와 역할을 조회합니다.",
+            parameters = {
+                    @Parameter(name = "page", description = "조회할 페이지 번호", in = ParameterIn.QUERY, example = "1"),
+                    @Parameter(name = "pageSize", description = "조회할 페이지 사이즈", in = ParameterIn.QUERY, example = "1"),
+                    @Parameter(name = "workspaceId", description = "조회할 워크스페이스 ID", in = ParameterIn.PATH ,required = true, example = "1")
+            }
     )
     @ApiResponses({
             @ApiResponse(
@@ -86,7 +88,7 @@ public class WorkspaceController {
                     description = "워크스페이스 멤버 목록 조회 성공",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = WorkspaceMembersResponse.class)
+                            schema = @Schema(implementation = WorkspaceMembersPageResponse.class)
                     )
             ),
             @ApiResponse(responseCode = "403", description = "A-002, 해당 워크스페이스에 속해있지 않음"),
@@ -95,16 +97,19 @@ public class WorkspaceController {
     @GetMapping("/{workspaceId}/members")
     public ResponseEntity<?> findWorkspaceMembers(
             @PathVariable long workspaceId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize,
             @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
 
-        List<WorkspaceMemberResultDto> members = workspaceQuery.findWorkspaceMembers(
+        Page<WorkspaceMemberResultDto> resultPage = workspaceQuery.getWorkspaceMembersPage( //TODO : 이거 DTO 그대로 컨트롤러 밖으로 반환해도 괜찮을까?
                 currentUser.getMemberId(),
-                workspaceId
+                workspaceId,
+                page - 1,
+                pageSize
         );
-        WorkspaceMembersResponse response = new WorkspaceMembersResponse(
-                members.size(),
-                members
+        WorkspaceMembersPageResponse response = new WorkspaceMembersPageResponse(
+                resultPage
         );
 
         return ResponseEntity.ok()
@@ -143,7 +148,8 @@ public class WorkspaceController {
         return ResponseEntity
                 .created(URI.create(workspace.getWorkspaceUrl()))
                 .body(new CreateWorkspaceResponse(
-                        workspace.getId()
+                        workspace.getId(),
+                        workspace.getWorkspaceUrl()
                 ));
     }
 
@@ -195,8 +201,7 @@ public class WorkspaceController {
         );
 
         return ResponseEntity.accepted()
-                .body(new InviteResponse(result))
-                ;
+                .body(new InviteResponse(result));
     }
 
 }

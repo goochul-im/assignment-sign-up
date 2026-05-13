@@ -26,6 +26,8 @@ import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,7 +82,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MyWorkspacesResultDto> findMyWorkspaces(long memberId) throws BusinessException {
+    public List<MyWorkspacesResultDto> getMyWorkspaces(long memberId) throws BusinessException {
         MemberEntity member = getMemberOrThrow(memberId);
 
         return workspaceMemberRepository.findAllByMember(member)
@@ -99,30 +101,25 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
     @Override
     @Transactional(readOnly = true)
-    public List<WorkspaceMemberResultDto> findWorkspaceMembers(long requesterId, long workspaceId) throws BusinessException {
+    public Page<WorkspaceMemberResultDto> getWorkspaceMembersPage(long requesterId, long workspaceId, int page, int pageSize) throws BusinessException {
         MemberEntity requester = getMemberOrThrow(requesterId);
         WorkspaceEntity workspace = getWorkspaceOrThrow(workspaceId);
 
         getWorkspaceMemberOrThrow(workspace, requester); // requester와 workspace의 연관관계가 없으면 바로 예외 던져짐
 
-        return workspaceMemberRepository.findAllMemberByWorkspace(workspace)
-                .stream()
-                .map(workspaceMember -> {
-                    MemberEntity member = workspaceMember.getMember();
-
-                    return new WorkspaceMemberResultDto(
-                            member.getId(),
-                            member.getNickname(),
-                            member.getEmail(),
-                            workspaceMember.getRole()
-                    );
-                })
-                .toList();
+        return workspaceMemberRepository.findWorkspaceMemberPage(workspace, PageRequest.of(page, pageSize))
+                .map(entity -> new WorkspaceMemberResultDto(
+                                entity.getId(),
+                                entity.getMember().getNickname(),
+                                entity.getMember().getEmail(),
+                                entity.getRole()
+                        )
+                );
     }
 
     @Override
     @Transactional(readOnly = true)
-    public InviteResultDto inviteMember(List<String> toEmailList, long inviterId, long workspaceId) throws BusinessException{
+    public InviteResultDto inviteMember(List<String> toEmailList, long inviterId, long workspaceId) throws BusinessException {
 
         if (toEmailList.size() > 50) {
             throw new BusinessException(ErrorCode.TOO_MANY_INVITE);
@@ -151,7 +148,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
                     toEmail,
                     inviteWorkspace.getWorkspaceUrl()
             );
-            log.info("invite Token = {}",inviteToken);
+            log.info("invite Token = {}", inviteToken);
 
             String subject = "tfinder 워크스페이스 초대";
 
@@ -179,7 +176,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
     @Override
     @Transactional
-    public void acceptInvite(String token) throws BusinessException{
+    public void acceptInvite(String token) throws BusinessException {
 
         InviteTokenResult result = jwtManager.parsingInviteToken(token);
         String toEmail = result.toEmail();
@@ -189,7 +186,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
             MemberEntity member = getMemberOrThrow(toEmail);
             WorkspaceEntity workspace = getWorkspaceOrThrow(workspaceUrl);
 
-            if (workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)){
+            if (workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)) {
                 throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
             }
 

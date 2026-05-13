@@ -9,6 +9,11 @@ public record MyWorkspaceResponse(
         @Schema(description = "가입된 워크스페이스 수", example = "10")
         int size,
         @Schema(description = "가입된 워크스페이스들")
-        List<MyWorkspacesResultDto> workspaceList
+        List<WorksapceResponse> workspaceList
 ) {
+
+        public MyWorkspaceResponse(List<MyWorkspacesResultDto> workspaceList) {
+            this(workspaceList.size(), workspaceList.stream().map(WorksapceResponse::new).toList());
+        }
+
 }

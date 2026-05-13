@@ -3,6 +3,8 @@ package com.thinkfree.tfinder.workspace.infrastructure.persistence;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -48,7 +50,7 @@ public interface IWorkspaceMemberRepository extends JpaRepository<WorkspaceMembe
             join fetch workspaceMember.member
             where workspaceMember.workspace = :workspace
             """)
-    List<WorkspaceMemberEntity> findAllMemberByWorkspace(WorkspaceEntity workspace);
+    Page<WorkspaceMemberEntity> findWorkspaceMemberPage(WorkspaceEntity workspace, Pageable pageable);
 
     /**
      * 워크스페이스에 해당 이메일로 가입된 멤버가 있는지 확인

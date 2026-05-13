@@ -8,6 +8,8 @@ import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.Workspa
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -113,9 +115,9 @@ class IWorkspaceMemberRepositoryTest {
     }
 
     @Test
-    void 워크스페이스에_속한_멤버들을_모두_가져올_수_있다(){
+    void 워크스페이스에_속한_멤버들을_페이지로_가져올_수_있다(){
         //given
-        int repeat = 4;
+        int repeat = 35;
         WorkspaceEntity workspace = new WorkspaceEntity(
                 "testName",
                 "testUrl"
@@ -130,13 +132,34 @@ class IWorkspaceMemberRepositoryTest {
         }
 
         //when
-        List<WorkspaceMemberEntity> result = workspaceMemberRepository.findAllMemberByWorkspace(workspace);
-        WorkspaceEntity workspace1 = result.getFirst().getWorkspace();
-        WorkspaceEntity workspace2 = result.getFirst().getWorkspace();
+        int pageSize = 10;
+        Page<WorkspaceMemberEntity> pages0 = workspaceMemberRepository.findWorkspaceMemberPage(workspace, PageRequest.of(0, pageSize));
+        Page<WorkspaceMemberEntity> pages1 = workspaceMemberRepository.findWorkspaceMemberPage(workspace, PageRequest.of(1, pageSize));
+        Page<WorkspaceMemberEntity> pages2 = workspaceMemberRepository.findWorkspaceMemberPage(workspace, PageRequest.of(2, pageSize));
+        Page<WorkspaceMemberEntity> pages3 = workspaceMemberRepository.findWorkspaceMemberPage(workspace, PageRequest.of(3, pageSize));
+        List<WorkspaceMemberEntity> result0 = pages0.getContent();
+        List<WorkspaceMemberEntity> result1 = pages1.getContent();
+        List<WorkspaceMemberEntity> result2 = pages2.getContent();
+        List<WorkspaceMemberEntity> result3 = pages3.getContent();
+        WorkspaceEntity workspace1 = result0.getFirst().getWorkspace();
+        WorkspaceEntity workspace2 = result0.getFirst().getWorkspace();
 
         //then
-        assertThat(result).hasSize(repeat);
+        assertThat(result0).hasSize(pageSize);
+        assertThat(result1).hasSize(pageSize);
+        assertThat(result2).hasSize(pageSize);
+        assertThat(result3).hasSize(pageSize - (repeat % 10));
         assertThat(workspace1).usingRecursiveComparison().isEqualTo(workspace2);
+
+        assertThat(pages0.getTotalElements()).isEqualTo(35);
+        assertThat(pages0.getNumber()).isEqualTo(0);
+        assertThat(pages0.getTotalPages()).isEqualTo(4);
+        assertThat(pages0.getNumberOfElements()).isEqualTo(10);
+        assertThat(pages0.hasNext()).isTrue();
+        assertThat(pages3.getNumberOfElements()).isEqualTo(5);
+        assertThat(pages3.getNumber()).isEqualTo(3);
+        assertThat(pages3.hasNext()).isFalse();
+        assertThat(pages3.getSize()).isEqualTo(10);
     }
 
     private MemberEntity getMember(String email) {
