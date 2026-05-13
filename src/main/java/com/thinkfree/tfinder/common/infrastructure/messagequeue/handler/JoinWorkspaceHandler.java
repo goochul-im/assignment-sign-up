@@ -42,6 +42,7 @@ public class JoinWorkspaceHandler {
                         () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
                 );
 
+                //TODO: bulk insert 같은걸로 바꾸기
                 if (!workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)) {
                     workspaceMemberRepository.save(new WorkspaceMemberEntity(
                             workspace,
