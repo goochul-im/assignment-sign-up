@@ -46,25 +46,24 @@ public class AuthService implements IAuthUseCase {
             throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
 
         String token = jwtManager.generateValidateEmailToken(email);
-        log.info("email validate request token = {}",token);
+        log.info("email validate request token = {}", token);
 
-        try {
-            // 한 사람에 대한 이메일 인증 요청이 여러번 가도 되는가?
-            // SMTP 요청이 실패했는지 성공했는지 가져오질 못하니, 실패할 경우를 알 수 없다
-            // 네트워크나 SMTP 서버 요청으로 인해 장애가 나서 인증정보만 대기중이고 메일이 가지 않았을 때
-            // 중복 방지 로직으로 인해 인증 요청이 더이상 가지 못하면 회원이 가입을 할수가 없다.
-            emailValidateRepository.saveAsPending(
-                    email,
-                    getEmailExpiration()
-            );
-            mailSender.asyncSend(
-                    email,
-                    "이메일 인증 요청",
-                    makeValidateMailMessage(token)
-            );
-        } catch (Exception e) {
-            emailValidateRepository.delete(email);
-        }
+        // 한 사람에 대한 이메일 인증 요청이 여러번 가도 되는가?
+        // SMTP 요청이 실패했는지 성공했는지 가져오질 못하니, 실패할 경우를 알 수 없다
+        // 네트워크나 SMTP 서버 요청으로 인해 장애가 나서 인증정보만 대기중이고 메일이 가지 않았을 때
+        // 중복 방지 로직으로 인해 인증 요청이 더이상 가지 못하면 회원이 가입을 할수가 없다.
+//            emailValidateRepository.saveAsPending(
+//                    email,
+//                    getEmailExpiration()
+//            );
+        mailSender.asyncSend(
+                email,
+                "이메일 인증 요청",
+                makeValidateMailMessage(token)
+        );
+        // 이메일 전송에서 실패하고 예외가 나면 어떻게 되지?
+        // 1. 인증 요청을 해서 PENDING 상태의 정보가 저장됨 -> 근데 이 상태의 정보가 굳이 필요한가?
+        // 토큰을 통해서 인증을 하고, 이 상태관리를 서버에서 할 필요가 있나?
 
     }
 
@@ -72,8 +71,8 @@ public class AuthService implements IAuthUseCase {
     public String emailValidate(String token) throws BusinessException {
         String email = jwtManager.getEmailFromValidateEmailToken(token);
 
-        if (!emailValidateRepository.isRequested(email))
-            throw new BusinessException(ErrorCode.NO_VALIDATE_EMAIL);
+//        if (!emailValidateRepository.isRequested(email)) // 굳이 requested 정보를 서버에 저장할 필요가 없음. 그냥 바로 토큰 까서 보면 되지
+//            throw new BusinessException(ErrorCode.NO_VALIDATE_EMAIL);
 
         emailValidateRepository.saveAsValidated(email, getEmailExpiration()); // validate 상태 저장, 중복 인증으로 인한 유효 기간 연장 없음
         return email;
@@ -154,7 +153,7 @@ public class AuthService implements IAuthUseCase {
     @Override
     public void logout(String refreshToken) {
         String email = jwtManager.getEmailFromRefreshToken(refreshToken);
-        if (!refreshTokenRepository.deleteByEmail(email)){
+        if (!refreshTokenRepository.deleteByEmail(email)) {
             log.warn("리프레시 토큰이 삭제되지 않았습니다! 이미 삭제 처리가 되었거나, redis에 문제가 있을 수 있습니다.");
         }
     }

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Profile({"local","prod"})
+@Profile({"dev","prod"})
 public class GoogleMailSender implements IMailSender {
 
     private final JavaMailSender mailSender;

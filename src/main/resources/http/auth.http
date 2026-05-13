@@ -53,5 +53,5 @@ POST localhost:8080/auth/email/validate
 Content-Type: application/json
 
 {
-  "token": "eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3Nzg2NDg5NzMsInN1YiI6ImVtYWlsX3ZhbGlkYXRlX3Rva2VuIiwidmFsaWRhdGVfZW1haWwiOiJnb29jaEBuYXZlci5jb20ifQ.TyYzgcbgyPXiEvGp7zH2aeVTRmEfixs-2TqK94e9QDqf0KwgT4MZE5b5G4Fs0S4kzvBlRhh6i_fb3-laMhL4KQ"
+  "token": "eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3Nzg2NTgwNjgsInN1YiI6ImVtYWlsX3ZhbGlkYXRlX3Rva2VuIiwidmFsaWRhdGVfZW1haWwiOiJnb29jaEBuYXZlci5jb20ifQ.J6p_rwhlbhfwUflQF8Dc1cugkJZk2WuUK0kNtzDFV_fnlr84Sd-aBSzNqS_wpVVGJTpmaS1jFBudTHET7ZqO-g"
 }
