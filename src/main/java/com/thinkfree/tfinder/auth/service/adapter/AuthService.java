@@ -127,12 +127,6 @@ public class AuthService implements IAuthUseCase {
     }
 
     @Override
-    @Retryable(
-            includes = BusinessException.class,
-            maxRetries = 5,
-            delay = 200,
-            timeout = 5000
-    )
     public LoginResultDto refresh(String refreshToken) throws BusinessException {
 
         String email = jwtManager.getEmailFromRefreshToken(refreshToken);
@@ -147,10 +141,7 @@ public class AuthService implements IAuthUseCase {
 
         String newAccessToken = jwtManager.generateAccessToken(email);
         String newRefreshToken = jwtManager.generateRefreshToken(email);
-        if (!refreshTokenRepository.save(email, newRefreshToken, Duration.ofSeconds(jwtProperties.getRefreshExpirationSeconds()))) {
-            log.warn("리프레시 토큰이 저장되지 않았습니다!");
-            throw new BusinessException(ErrorCode.EXTERNAL_ERROR);
-        }
+        refreshTokenRepository.save(email, newRefreshToken, Duration.ofSeconds(jwtProperties.getRefreshExpirationSeconds()));
 
         return new LoginResultDto(
                 newAccessToken,
