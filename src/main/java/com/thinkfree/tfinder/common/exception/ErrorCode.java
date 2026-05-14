@@ -13,6 +13,10 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
+    /**
+     * 인증/인가 관련 실패
+     * A - Authentication or Authorize
+     */
     AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "A-001"),
     AUTHORIZATION_FAILED(HttpStatus.FORBIDDEN, "A-002"),
     ACCESS_TOKEN_ERROR(HttpStatus.UNAUTHORIZED, "A-003"),
@@ -24,20 +28,42 @@ public enum ErrorCode {
     VALIDATE_EMAIL_TOKEN_EXPIRED_ERROR(HttpStatus.UNAUTHORIZED, "A-009"),
     NO_VALIDATE_EMAIL(HttpStatus.UNAUTHORIZED, "A-010"),
 
+    /**
+     * 초대 관련 실패
+     * I - Invite
+     */
     INVITE_TOKEN_ERROR(HttpStatus.BAD_REQUEST,"I-001"),
     SIGNUP_FIRST(HttpStatus.SEE_OTHER, "I-002"),
 //    DUPLICATE_WORKSPACE_MEMBER(HttpStatus.CONFLICT, "I-003"),
     INVALID_WORKSPACE(HttpStatus.BAD_REQUEST, "I-004"),
     TOO_MANY_INVITE(HttpStatus.BAD_REQUEST, "I-005"),
 
+    /**
+     * 데이터베이스 조회 및 insert 관련 실패
+     * E - Entity
+     */
     ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "E-001"),
     DUPLICATE_ERROR(HttpStatus.CONFLICT, "E-002"),
 
+    /**
+     * 잘못된 요청으로 인한 실패
+     * R - Request
+     */
     INVALID_ARGUMENT(HttpStatus.BAD_REQUEST, "R-001"),
     INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "R-002"),
 
-    EXTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "X-999")
-    ;
+    /**
+     * 외부 모듈 장애로 인한 실패
+     * X - EXTERNAL
+     */
+    EXTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "X-999"),
+
+    /**
+     * 알수없는 서버 내부 이유로 실패
+     * U - Unknown
+     */
+    LOGIN_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "U-001"),
+    REFRESH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,"U-002");
 
     private final HttpStatus status;
     private final String errorCode;

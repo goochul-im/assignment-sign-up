@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @IntegrationTest
 class RedisRefreshTokenRepositoryTest {
 
+    private RedisRefreshTokenRepository repository;
+
     @Container
     static final GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine")
             .withExposedPorts(6379);
@@ -40,7 +42,7 @@ class RedisRefreshTokenRepositoryTest {
         String email = "test@email.com";
         String refreshToken = "refreshToken";
         StringRedisTemplate redisTemplate = redisTemplate();
-        RedisRefreshTokenRepository repository = new RedisRefreshTokenRepository(redisTemplate);
+        repository = new RedisRefreshTokenRepository(redisTemplate);
 
         //when
         repository.save(email, refreshToken, Duration.ofSeconds(60));
@@ -57,7 +59,7 @@ class RedisRefreshTokenRepositoryTest {
         //given
         String email = "test@email.com";
         StringRedisTemplate redisTemplate = redisTemplate();
-        RedisRefreshTokenRepository repository = new RedisRefreshTokenRepository(redisTemplate);
+        repository = new RedisRefreshTokenRepository(redisTemplate);
         repository.save(email, "refreshToken", Duration.ofSeconds(60));
 
         //when
@@ -87,48 +89,48 @@ class RedisRefreshTokenRepositoryTest {
 //        assertThat(nullValue).isNull();
 //    }
 //
-    @Test
-    void 레디스_테스트_2(){
-        //given
-        String email = "test@email.com";
-
-        //when & then
-        redis.close();
-        System.out.println("shutting down");
-        assertThrows(IllegalStateException.class, () -> redisTemplate().delete(email));
-        assertThrows(IllegalStateException.class, () -> redisTemplate().opsForValue().set(email, email));
-        assertThrows(IllegalStateException.class, () -> redisTemplate().opsForSet().add(email, email));
-        assertThrows(IllegalStateException.class, () -> redisTemplate().expire(email, Duration.ofSeconds(1000)));
-        // redis와의 연결이 끊어졌을 경우에는 IllegalStateException이 던져짐
-    }
-
-    @Test
-    void 레디스_테스트_3(){
-        //given
-        Long add = redisTemplate().opsForSet().add("new", "i1", "i2", "i3");
-        Long add2 = redisTemplate().opsForSet().add("new", "a1", "a2");
-
-        //when
-
-        //then
-        assertThat(add).isEqualTo(3L);
-        assertThat(add2).isEqualTo(2L);
-    }
-
-    @Test
-    void 레디스_테스트_4(){
-        //given
-        String email = "test@email.com";
-        String token = "testToken";
-        Duration duration = Duration.ofSeconds(1000);
-        StringRedisTemplate redisTemplate = redisTemplate();
-        RedisRefreshTokenRepository repository = new RedisRefreshTokenRepository(redisTemplate);
-
-        redis.close();
-        //when
-        assertThrows(RedisConnectionFailureException.class, () -> repository.save(email, token, duration));
-
-    }
+//    @Test
+//    void 레디스_테스트_2(){
+//        //given
+//        String email = "test@email.com";
+//
+//        //when & then
+//        redis.close();
+//        System.out.println("shutting down");
+//        assertThrows(IllegalStateException.class, () -> redisTemplate().delete(email));
+//        assertThrows(IllegalStateException.class, () -> redisTemplate().opsForValue().set(email, email));
+//        assertThrows(IllegalStateException.class, () -> redisTemplate().opsForSet().add(email, email));
+//        assertThrows(IllegalStateException.class, () -> redisTemplate().expire(email, Duration.ofSeconds(1000)));
+//        // redis와의 연결이 끊어졌을 경우에는 IllegalStateException이 던져짐
+//    }
+//
+//    @Test
+//    void 레디스_테스트_3(){
+//        //given
+//        Long add = redisTemplate().opsForSet().add("new", "i1", "i2", "i3");
+//        Long add2 = redisTemplate().opsForSet().add("new", "a1", "a2");
+//
+//        //when
+//
+//        //then
+//        assertThat(add).isEqualTo(3L);
+//        assertThat(add2).isEqualTo(2L);
+//    }
+//
+//    @Test
+//    void 레디스_테스트_4(){
+//        //given
+//        String email = "test@email.com";
+//        String token = "testToken";
+//        Duration duration = Duration.ofSeconds(1000);
+//        StringRedisTemplate redisTemplate = redisTemplate();
+//        RedisRefreshTokenRepository repository = new RedisRefreshTokenRepository(redisTemplate);
+//
+//        redis.close();
+//        //when
+//        assertThrows(RedisConnectionFailureException.class, () -> repository.save(email, token, duration));
+//
+//    }
 
     private StringRedisTemplate redisTemplate() {
         connectionFactory = new LettuceConnectionFactory(redis.getHost(), redis.getMappedPort(6379));

@@ -1,25 +1,24 @@
 package com.thinkfree.tfinder.common.exception;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 @Slf4j
 @RestControllerAdvice
-public class ExceptionAdvice {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> businessExceptionHandler(BusinessException exception) {
-        return ErrorResponse.toEntity(exception.getErrorCode());
+        return ErrorResponse.toEntity(exception.getErrorCode(), Optional.ofNullable(exception.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

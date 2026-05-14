@@ -1,10 +1,7 @@
 package com.thinkfree.tfinder.workspace.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity(name = "member")
 @Getter

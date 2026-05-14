@@ -19,13 +19,12 @@ import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.Workspa
 import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceDto;
 import com.thinkfree.tfinder.workspace.service.dto.InviteResultDto;
 import com.thinkfree.tfinder.workspace.service.dto.MyWorkspacesResultDto;
-import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResultDto;
+import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
@@ -64,6 +63,11 @@ class WorkspaceServiceTest {
 
     @Test
     void 멤버가_속한_워크스페이스_목록을_조회할_수_있어야_한다() {
+
+
+//        MemberEntity member1 = fixture.giveMeOne(MemberEntity.class);
+//        System.out.println(member1);
+
         //given
         long memberId = 1L;
         MemberEntity member = getMember(memberId);
@@ -129,14 +133,14 @@ class WorkspaceServiceTest {
                 ));
 
         //when
-        List<WorkspaceMemberResultDto> result = workspaceService.getWorkspaceMembersPage(requesterId, workspaceId, 0, 10).getContent();
+        List<WorkspaceMemberEntity> result = workspaceService.getWorkspaceMembersPage(requesterId, workspaceId, 0, 10).getContent();
 
         //then
         assertThat(result).hasSize(2);
-        assertThat(result.getFirst().memberId()).isEqualTo(requester.getId());
-        assertThat(result.getFirst().nickname()).isEqualTo(requester.getNickname());
-        assertThat(result.getFirst().email()).isEqualTo(requester.getEmail());
-        assertThat(result.getFirst().role()).isEqualTo(WorkspaceMemberRole.OWNER);
+        assertThat(result.getFirst().getId()).isEqualTo(requester.getId());
+        assertThat(result.getFirst().getMember().getNickname()).isEqualTo(requester.getNickname());
+        assertThat(result.getFirst().getMember().getEmail()).isEqualTo(requester.getEmail());
+        assertThat(result.getFirst().getRole()).isEqualTo(WorkspaceMemberRole.OWNER);
     }
 
     @Test

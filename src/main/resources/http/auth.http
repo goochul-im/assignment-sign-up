@@ -30,7 +30,7 @@ POST localhost:8080/auth/login
 Content-Type: application/json
 
 {
-  "email": "gooch123@naver.com",
+  "email": "gooch@naver.com",
   "password": "12341234"
 }
 
@@ -53,5 +53,5 @@ POST localhost:8080/auth/email/validate
 Content-Type: application/json
 
 {
-  "token": "eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3Nzg2NTgwNjgsInN1YiI6ImVtYWlsX3ZhbGlkYXRlX3Rva2VuIiwidmFsaWRhdGVfZW1haWwiOiJnb29jaEBuYXZlci5jb20ifQ.J6p_rwhlbhfwUflQF8Dc1cugkJZk2WuUK0kNtzDFV_fnlr84Sd-aBSzNqS_wpVVGJTpmaS1jFBudTHET7ZqO-g"
+  "token": "eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3Nzg3Mzk1NzIsInN1YiI6ImVtYWlsX3ZhbGlkYXRlX3Rva2VuIiwidmFsaWRhdGVfZW1haWwiOiJnb29jaEBuYXZlci5jb20ifQ.Mcjm9-pEHwOiD1hjnlHJYJt9vKrWD69syNooJjJS1aA5tvOPCTaNTbuBi0aunF5-_P1Y_UL5Kfny7i-GrVKvvQ"
 }

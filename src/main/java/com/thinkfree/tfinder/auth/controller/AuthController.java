@@ -12,6 +12,7 @@ import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
 import com.thinkfree.tfinder.auth.service.dto.MemberSignupResultDto;
 import com.thinkfree.tfinder.auth.service.dto.SignupDto;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
+import com.thinkfree.tfinder.common.concurrent.LockSupporter;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,6 +39,7 @@ public class AuthController {
 
     private final IAuthUseCase authUseCase;
     private final RefreshCookieProperties refreshCookieProperties;
+    private final LockSupporter lockSupporter;
 
     @Operation(
             summary = "로그인",
@@ -126,11 +128,19 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest request) {
 
-        MemberSignupResultDto result = authUseCase.signUp(new SignupDto( //TODO: 이 DTO도 래핑해서 보내야 하나? 애처에 반환될만한 정보들은 맞나?
+        final String lockKey = "try:signup:" + request.email();
+
+//        MemberSignupResultDto result = authUseCase.signUp(new SignupDto( //TODO: 이 DTO도 래핑해서 보내야 하나? 애초에 반환될만한 정보들은 맞나?
+//                request.email(),
+//                request.nickname(),
+//                request.password()
+//        ));
+
+        lockSupporter.lockSupport(() -> authUseCase.signUp(new SignupDto(
                 request.email(),
                 request.nickname(),
                 request.password()
-        ));
+        )), lockKey);
 
         return ResponseEntity.noContent()
                 .build();

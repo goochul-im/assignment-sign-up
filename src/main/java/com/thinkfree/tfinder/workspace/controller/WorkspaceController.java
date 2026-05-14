@@ -8,11 +8,9 @@ import com.thinkfree.tfinder.workspace.controller.response.CreateWorkspaceRespon
 import com.thinkfree.tfinder.workspace.controller.response.InviteResponse;
 import com.thinkfree.tfinder.workspace.controller.response.MyWorkspaceResponse;
 import com.thinkfree.tfinder.workspace.controller.response.WorkspaceMembersPageResponse;
-import com.thinkfree.tfinder.workspace.service.dto.InviteResultDto;
-import com.thinkfree.tfinder.workspace.service.dto.MyWorkspacesResultDto;
-import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResultDto;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
+import com.thinkfree.tfinder.workspace.service.dto.*;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
-import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceDto;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceQuery;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
 import io.swagger.v3.oas.annotations.Operation;
@@ -78,7 +76,7 @@ public class WorkspaceController {
             description = "인증된 멤버가 속한 워크스페이스의 모든 멤버와 역할을 조회합니다.",
             parameters = {
                     @Parameter(name = "page", description = "조회할 페이지 번호", in = ParameterIn.QUERY, example = "1"),
-                    @Parameter(name = "pageSize", description = "조회할 페이지 사이즈", in = ParameterIn.QUERY, example = "1"),
+                    @Parameter(name = "pageSize", description = "조회할 페이지 사이즈", in = ParameterIn.QUERY, example = "10"),
                     @Parameter(name = "workspaceId", description = "조회할 워크스페이스 ID", in = ParameterIn.PATH ,required = true, example = "1")
             }
     )
@@ -102,7 +100,7 @@ public class WorkspaceController {
             @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
 
-        Page<WorkspaceMemberResultDto> resultPage = workspaceQuery.getWorkspaceMembersPage( //TODO : 이거 DTO 그대로 컨트롤러 밖으로 반환해도 괜찮을까?
+        Page<WorkspaceMemberEntity> resultPage = workspaceQuery.getWorkspaceMembersPage(
                 currentUser.getMemberId(),
                 workspaceId,
                 page - 1,
@@ -145,12 +143,14 @@ public class WorkspaceController {
                 request.workspaceUrl()
         ));
 
+        CreateWorkspaceResponse response = new CreateWorkspaceResponse(
+                workspace.getId(),
+                workspace.getWorkspaceUrl()
+        );
+
         return ResponseEntity
                 .created(URI.create(workspace.getWorkspaceUrl()))
-                .body(new CreateWorkspaceResponse(
-                        workspace.getId(),
-                        workspace.getWorkspaceUrl()
-                ));
+                .body(response);
     }
 
     @Operation(
@@ -200,8 +200,10 @@ public class WorkspaceController {
                 request.workspaceId()
         );
 
+        InviteResponse response = new InviteResponse(result);
+
         return ResponseEntity.accepted()
-                .body(new InviteResponse(result));
+                .body(response);
     }
 
 }

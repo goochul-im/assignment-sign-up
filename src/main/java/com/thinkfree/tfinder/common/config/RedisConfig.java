@@ -3,6 +3,9 @@ package com.thinkfree.tfinder.common.config;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.SocketOptions;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,6 +46,15 @@ public class RedisConfig {
         StringRedisTemplate template = new StringRedisTemplate(redisConnectionFactory);
         template.setEnableTransactionSupport(true);
         return template;
+    }
+
+    @Bean
+    public RedissonClient redissonClient() {
+        Config config = new Config();
+        config.useSingleServer()
+                .setAddress("redis://" + host + ":" + port);
+
+        return Redisson.create(config);
     }
 
 }

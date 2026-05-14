@@ -64,7 +64,7 @@ public class AuthService implements IAuthUseCase {
         // 이메일 전송에서 실패하고 예외가 나면 어떻게 되지?
         // 1. 인증 요청을 해서 PENDING 상태의 정보가 저장됨 -> 근데 이 상태의 정보가 굳이 필요한가?
         // 토큰을 통해서 인증을 하고, 이 상태관리를 서버에서 할 필요가 있나?
-
+        // 결론 : 굳이 PENDING 정보를 관리할 필요는 없다.
     }
 
     @Override
@@ -75,6 +75,7 @@ public class AuthService implements IAuthUseCase {
 //            throw new BusinessException(ErrorCode.NO_VALIDATE_EMAIL);
 
         emailValidateRepository.saveAsValidated(email, getEmailExpiration()); // validate 상태 저장, 중복 인증으로 인한 유효 기간 연장 없음
+                                                                              // TODO: 이 작업이 원자적인가? 그렇진 않은데...
         return email;
     }
 
@@ -119,7 +120,10 @@ public class AuthService implements IAuthUseCase {
 
         String accessToken = jwtManager.generateAccessToken(member.getEmail());
         String refreshToken = jwtManager.generateRefreshToken(member.getEmail());
-        refreshTokenRepository.save(member.getEmail(), refreshToken, Duration.ofSeconds(jwtProperties.getRefreshExpirationSeconds()));
+        if (!refreshTokenRepository.save(member.getEmail(), refreshToken, Duration.ofSeconds(jwtProperties.getRefreshExpirationSeconds()))){
+            log.error("save 인자 중 하나가 null입니다. email = {}, token = {}, duration = {}",member.getEmail(), refreshToken, jwtProperties.getRefreshExpirationSeconds());
+            throw new BusinessException(ErrorCode.LOGIN_FAILED, "서버 내부 요인으로 인해 로그인이 실패했습니다.");
+        }
 
         return new LoginResultDto(
                 accessToken,
@@ -142,7 +146,10 @@ public class AuthService implements IAuthUseCase {
 
         String newAccessToken = jwtManager.generateAccessToken(email);
         String newRefreshToken = jwtManager.generateRefreshToken(email);
-        refreshTokenRepository.save(email, newRefreshToken, Duration.ofSeconds(jwtProperties.getRefreshExpirationSeconds()));
+        if (!refreshTokenRepository.save(email, newRefreshToken, Duration.ofSeconds(jwtProperties.getRefreshExpirationSeconds()))){
+            log.error("save 인자 중 하나가 null입니다. email = {}, token = {}, duration = {}",email, newRefreshToken, jwtProperties.getRefreshExpirationSeconds());
+            throw new BusinessException(ErrorCode.REFRESH_FAILED, "서버 내부 요인으로 인해 리프레싱이 실패했습니다.");
+        }
 
         return new LoginResultDto(
                 newAccessToken,

@@ -1,5 +1,7 @@
 package com.thinkfree.tfinder.workspace.controller.response;
 
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
+import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResponse;
 import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResultDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.domain.Page;
@@ -18,10 +20,22 @@ public record WorkspaceMembersPageResponse(
         @Schema(description = "다음 페이지 여부", example = "true")
         boolean hasNextPage,
         @Schema(description = "워크스페이스 멤버 목록")
-        List<WorkspaceMemberResultDto> memberList
+        List<WorkspaceMemberResponse> memberList
 ) {
 
-        public WorkspaceMembersPageResponse(Page<WorkspaceMemberResultDto> page) {
-                this((int) page.getTotalElements(), page.getNumber(), page.getTotalPages(), page.getSize(), page.hasNext(), page.getContent());
+        public WorkspaceMembersPageResponse(Page<WorkspaceMemberEntity> page) {
+                this((int) page.getTotalElements(),
+                        page.getNumber() + 1,
+                        page.getTotalPages(),
+                        page.getSize(),
+                        page.hasNext(),
+                        page.getContent().stream()
+                                .map(entity -> new WorkspaceMemberResponse(
+                                        entity.getId(),
+                                        entity.getMember().getNickname(),
+                                        entity.getMember().getEmail(),
+                                        entity.getRole()
+                                )).toList()
+                );
         }
 }

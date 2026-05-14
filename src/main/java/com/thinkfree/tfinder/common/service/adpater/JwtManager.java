@@ -92,7 +92,7 @@ public class JwtManager implements IJwtManager {
                 throw new JwtException("this token isn't for invite");
 
         } catch (JwtException e) {
-            throw new BusinessException(e.getMessage(), INVITE_TOKEN_ERROR);
+            throw new BusinessException(INVITE_TOKEN_ERROR, e.getMessage());
         }
 
         String fromEmail = (String) claims.get(FROM_EMAIL);
@@ -122,9 +122,9 @@ public class JwtManager implements IJwtManager {
                 throw new JwtException("이 토큰은 액세스 토큰이 아닙니다");
 
         } catch (ExpiredJwtException e) {
-            throw new BusinessException("액세스 토큰이 만료되었습니다.", ACCESS_TOKEN_EXPIRED_ERROR);
+            throw new BusinessException(ACCESS_TOKEN_EXPIRED_ERROR, "액세스 토큰이 만료되었습니다.");
         } catch (JwtException e) {
-            throw new BusinessException(e.getMessage(), ACCESS_TOKEN_ERROR);
+            throw new BusinessException(ACCESS_TOKEN_ERROR, e.getMessage());
         }
 
         return (String) claims.get(MEMBER_EMAIL);
@@ -146,9 +146,9 @@ public class JwtManager implements IJwtManager {
                 throw new JwtException("이 토큰은 리프레쉬 토큰이 아닙니다");
 
         } catch (ExpiredJwtException e) {
-            throw new BusinessException("리프레쉬 토큰이 만료되었습니다.", REFRESH_TOKEN_EXPIRED_ERROR);
+            throw new BusinessException(REFRESH_TOKEN_EXPIRED_ERROR, "리프레쉬 토큰이 만료되었습니다.");
         } catch (JwtException e) {
-            throw new BusinessException(e.getMessage(), REFRESH_TOKEN_ERROR);
+            throw new BusinessException(REFRESH_TOKEN_ERROR, e.getMessage());
         }
 
         return (String) claims.get(MEMBER_EMAIL);
@@ -170,9 +170,9 @@ public class JwtManager implements IJwtManager {
                 throw new JwtException("이 토큰은 이메일 인증 토큰이 아닙니다");
 
         } catch (ExpiredJwtException e) {
-            throw new BusinessException("이메일 인증 토큰이 만료되었습니다.", VALIDATE_EMAIL_TOKEN_EXPIRED_ERROR);
+            throw new BusinessException(VALIDATE_EMAIL_TOKEN_EXPIRED_ERROR, "이메일 인증 토큰이 만료되었습니다.");
         } catch (JwtException e) {
-            throw new BusinessException(e.getMessage(), VALIDATE_EMAIL_TOKEN_ERROR);
+            throw new BusinessException(VALIDATE_EMAIL_TOKEN_ERROR, e.getMessage());
         }
 
         return (String) claims.get(VALIDATE_EMAIL);

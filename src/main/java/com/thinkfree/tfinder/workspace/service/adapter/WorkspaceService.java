@@ -17,10 +17,7 @@ import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemb
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
-import com.thinkfree.tfinder.workspace.service.dto.InviteResultDto;
-import com.thinkfree.tfinder.workspace.service.dto.MyWorkspacesResultDto;
-import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceDto;
-import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResultDto;
+import com.thinkfree.tfinder.workspace.service.dto.*;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceQuery;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
 import lombok.RequiredArgsConstructor;
@@ -89,7 +86,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
                 .stream()
                 .map(workspaceMember -> {
                     WorkspaceEntity workspace = workspaceMember.getWorkspace();
-                    return new MyWorkspacesResultDto(
+                    return new MyWorkspacesResultDto( // TODO:가공해서 보내야하나? 아니면 엔티티 그대로 보내도 되려나??
                             workspace.getId(),
                             workspace.getWorkspaceName(),
                             workspace.getWorkspaceUrl(),
@@ -101,20 +98,13 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<WorkspaceMemberResultDto> getWorkspaceMembersPage(long requesterId, long workspaceId, int page, int pageSize) throws BusinessException {
+    public Page<WorkspaceMemberEntity> getWorkspaceMembersPage(long requesterId, long workspaceId, int page, int pageSize) throws BusinessException {
         MemberEntity requester = getMemberOrThrow(requesterId);
         WorkspaceEntity workspace = getWorkspaceOrThrow(workspaceId);
 
         getWorkspaceMemberOrThrow(workspace, requester); // requester와 workspace의 연관관계가 없으면 바로 예외 던져짐
 
-        return workspaceMemberRepository.findWorkspaceMemberPage(workspace, PageRequest.of(page, pageSize))
-                .map(entity -> new WorkspaceMemberResultDto(
-                                entity.getId(),
-                                entity.getMember().getNickname(),
-                                entity.getMember().getEmail(),
-                                entity.getRole()
-                        )
-                );
+        return workspaceMemberRepository.findWorkspaceMemberPage(workspace, PageRequest.of(page, pageSize));
     }
 
     @Override
@@ -130,7 +120,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         WorkspaceMemberEntity workspaceMember = getWorkspaceMemberOrThrow(inviteWorkspace, inviter);
 
         WorkspaceMemberRole role = workspaceMember.getRole();
-        if (!(role == WorkspaceMemberRole.MANAGER || role == WorkspaceMemberRole.OWNER)) {
+        if (!(WorkspaceMemberRole.MANAGER.equals(role) || WorkspaceMemberRole.OWNER.equals(role))) {
             throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
         }
 
@@ -140,6 +130,8 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
         ArrayList<String> failed = new ArrayList<>();
         ArrayList<String> success = new ArrayList<>();
+        ArrayList<String> alreadyJoined = new ArrayList<>(joinedEmails);
+
         for (String toEmail : emailsSet) {
             // 이미 워크스페이스에 가입한 경우에는 이메일을 또 보낼 필요 없다
 
@@ -170,7 +162,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         return new InviteResultDto(
                 success,
                 failed,
-                new ArrayList<>(joinedEmails)
+                alreadyJoined
         );
     }
 

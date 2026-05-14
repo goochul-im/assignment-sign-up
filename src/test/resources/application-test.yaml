@@ -27,6 +27,11 @@ spring:
       invite: 172800
       validate: 600
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 frontend:
   url: http://localhost:3000
 
