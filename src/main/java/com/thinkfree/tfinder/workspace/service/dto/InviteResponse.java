@@ -1,6 +1,5 @@
-package com.thinkfree.tfinder.workspace.controller.response;
+package com.thinkfree.tfinder.workspace.service.dto;
 
-import com.thinkfree.tfinder.workspace.service.dto.InviteResultDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
@@ -16,7 +15,7 @@ public record InviteResponse(
         List<String> alreadyJoinedEmails
 ) {
 
-    public InviteResponse(InviteResultDto dto) {
-        this(dto.inviteSuccessEmails().size(), dto.inviteSuccessEmails(), dto.inviteFailedEmails(), dto.alreadyJoinedEmails());
+    public InviteResponse(List<String> success, List<String> failed, List<String> alreadyJoined) {
+        this(success.size(), success, failed, alreadyJoined);
     }
 }

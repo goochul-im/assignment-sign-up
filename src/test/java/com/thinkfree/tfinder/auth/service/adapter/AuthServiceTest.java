@@ -136,6 +136,7 @@ class AuthServiceTest {
         given(jwtManager.generateAccessToken(any())).willReturn(accessToken);
         given(jwtManager.generateRefreshToken(any())).willReturn(refreshToken);
         given(jwtProperties.getRefreshExpirationSeconds()).willReturn(refreshExpiredSeconds);
+        given(refreshTokenRepository.save(any(), any(), any())).willReturn(true);
 
         //when
         LoginResultDto result = authService.login(dto);

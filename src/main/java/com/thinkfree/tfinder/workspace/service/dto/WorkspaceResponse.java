@@ -1,10 +1,10 @@
-package com.thinkfree.tfinder.workspace.controller.response;
+package com.thinkfree.tfinder.workspace.service.dto;
 
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
-import com.thinkfree.tfinder.workspace.service.dto.MyWorkspacesResultDto;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record WorksapceResponse(
+public record WorkspaceResponse(
         @Schema(description = "워크스페이스 ID", example = "100")
         long workspaceId,
         @Schema(description = "워크스페이스 이름", example = "test-workspace")
@@ -15,7 +15,10 @@ public record WorksapceResponse(
         WorkspaceMemberRole role
 ) {
 
-    public WorksapceResponse(MyWorkspacesResultDto dto) {
-        this(dto.workspaceId(), dto.workspaceName(), dto.workspaceUrl(), dto.role());
+    public WorkspaceResponse(WorkspaceMemberEntity entity) {
+        this(entity.getId(),
+                entity.getWorkspace().getWorkspaceName(),
+                entity.getWorkspace().getWorkspaceUrl(),
+                entity.getRole());
     }
 }

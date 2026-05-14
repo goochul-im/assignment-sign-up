@@ -4,13 +4,11 @@ import com.thinkfree.tfinder.auth.security.CustomUserDetails;
 import com.thinkfree.tfinder.workspace.controller.request.InviteAcceptRequest;
 import com.thinkfree.tfinder.workspace.controller.request.InviteRequest;
 import com.thinkfree.tfinder.workspace.controller.request.WorkspaceCreateRequest;
-import com.thinkfree.tfinder.workspace.controller.response.CreateWorkspaceResponse;
-import com.thinkfree.tfinder.workspace.controller.response.InviteResponse;
-import com.thinkfree.tfinder.workspace.controller.response.MyWorkspaceResponse;
-import com.thinkfree.tfinder.workspace.controller.response.WorkspaceMembersPageResponse;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
+import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceResponse;
+import com.thinkfree.tfinder.workspace.service.dto.InviteResponse;
+import com.thinkfree.tfinder.workspace.service.dto.MyWorkspaceResponse;
+import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMembersPageResponse;
 import com.thinkfree.tfinder.workspace.service.dto.*;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceQuery;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,13 +22,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 
 @Tag(name = "워크스페이스", description = "워크스페이스 API")
 @RestController
@@ -62,10 +58,8 @@ public class WorkspaceController {
             @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
 
-        List<MyWorkspacesResultDto> myWorkspaces = workspaceQuery.getMyWorkspaces(currentUser.getMemberId()); // TODO: 얘는 왜 굳이 Response로 감싸야 하는가?
-        MyWorkspaceResponse response = new MyWorkspaceResponse(
-                myWorkspaces
-        );
+        MyWorkspaceResponse response = workspaceQuery.getMyWorkspaces(currentUser.getMemberId()); // TODO: 얘는 왜 굳이 Response로 감싸야 하는가?
+
         return ResponseEntity.ok()
                 .body(response);
     }
@@ -100,14 +94,11 @@ public class WorkspaceController {
             @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
 
-        Page<WorkspaceMemberEntity> resultPage = workspaceQuery.getWorkspaceMembersPage(
+        WorkspaceMembersPageResponse response = workspaceQuery.getWorkspaceMembersPage(
                 currentUser.getMemberId(),
                 workspaceId,
                 page - 1,
                 pageSize
-        );
-        WorkspaceMembersPageResponse response = new WorkspaceMembersPageResponse(
-                resultPage
         );
 
         return ResponseEntity.ok()
@@ -137,19 +128,14 @@ public class WorkspaceController {
             @AuthenticationPrincipal CustomUserDetails currentUser
     ){
 
-        WorkspaceEntity workspace = workspaceUseCase.create(new CreateWorkspaceDto(
+        CreateWorkspaceResponse response = workspaceUseCase.create(new CreateWorkspaceCommand(
                 currentUser.getMemberId(),
                 request.workspaceName(),
                 request.workspaceUrl()
         ));
 
-        CreateWorkspaceResponse response = new CreateWorkspaceResponse(
-                workspace.getId(),
-                workspace.getWorkspaceUrl()
-        );
-
         return ResponseEntity
-                .created(URI.create(workspace.getWorkspaceUrl()))
+                .created(URI.create(response.workspaceUrl()))
                 .body(response);
     }
 
@@ -194,13 +180,11 @@ public class WorkspaceController {
             @AuthenticationPrincipal CustomUserDetails currentUser
             ) {
 
-        InviteResultDto result = workspaceUseCase.inviteMember(
+        InviteResponse response = workspaceUseCase.inviteMember(
                 request.toEmailList(),
                 currentUser.getMemberId(),
                 request.workspaceId()
         );
-
-        InviteResponse response = new InviteResponse(result);
 
         return ResponseEntity.accepted()
                 .body(response);

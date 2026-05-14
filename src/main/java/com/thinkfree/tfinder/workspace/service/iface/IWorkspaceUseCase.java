@@ -1,9 +1,9 @@
 package com.thinkfree.tfinder.workspace.service.iface;
 
 import com.thinkfree.tfinder.common.exception.BusinessException;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
-import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceDto;
-import com.thinkfree.tfinder.workspace.service.dto.InviteResultDto;
+import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceResponse;
+import com.thinkfree.tfinder.workspace.service.dto.InviteResponse;
+import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceCommand;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ public interface IWorkspaceUseCase {
      * @return 생성된 워크스페이스
      * @throws BusinessException 이름이 중복되거나, URL이 중복됨
      */
-    WorkspaceEntity create(CreateWorkspaceDto dto) throws BusinessException;
+    CreateWorkspaceResponse create(CreateWorkspaceCommand dto) throws BusinessException;
 
     /**
      * 멤버를 워크스페이스에 초대합니다.
@@ -29,7 +29,7 @@ public interface IWorkspaceUseCase {
      * 워크스페이스의 관리자나 소유자가 아님
      * 워크스페이스에 속해있지 않음
      */
-    InviteResultDto inviteMember(List<String> toEmailList, long inviterId, long workspaceId) throws BusinessException;
+    InviteResponse inviteMember(List<String> toEmailList, long inviterId, long workspaceId) throws BusinessException;
 
     /**
      * 초대를 수락할 때 사용됩니다. 내부적으로 토큰을 파싱해서 워크스페이스에 초대를 수락한 멤버를 추가해야합니다.

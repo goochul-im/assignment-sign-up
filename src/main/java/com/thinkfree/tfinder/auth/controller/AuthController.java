@@ -85,7 +85,6 @@ public class AuthController {
     ) {
 
         String refreshToken = extractRefreshToken(request);
-        validateRefreshTokenCookie(refreshToken);
         LoginResultDto result = authUseCase.refresh(refreshToken);
 
         return ResponseEntity.ok()
@@ -108,7 +107,6 @@ public class AuthController {
     ) {
 
         String refreshToken = extractRefreshToken(request);
-        validateRefreshTokenCookie(refreshToken);
         authUseCase.logout(refreshToken);
 
         return ResponseEntity.noContent()
@@ -129,12 +127,6 @@ public class AuthController {
     public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest request) {
 
         final String lockKey = "try:signup:" + request.email();
-
-//        MemberSignupResultDto result = authUseCase.signUp(new SignupDto( //TODO: 이 DTO도 래핑해서 보내야 하나? 애초에 반환될만한 정보들은 맞나?
-//                request.email(),
-//                request.nickname(),
-//                request.password()
-//        ));
 
         lockSupporter.lockSupport(() -> authUseCase.signUp(new SignupDto(
                 request.email(),
@@ -205,12 +197,6 @@ public class AuthController {
                 .path(refreshCookieProperties.getPath())
                 .maxAge(0)
                 .build();
-    }
-
-    private void validateRefreshTokenCookie(String refreshToken) {
-        if (refreshToken == null || refreshToken.isBlank()) {
-            throw new BusinessException(ErrorCode.REFRESH_TOKEN_ERROR);
-        }
     }
 
     private String extractRefreshToken(HttpServletRequest request) {

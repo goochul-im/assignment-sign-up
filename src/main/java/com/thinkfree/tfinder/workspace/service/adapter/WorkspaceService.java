@@ -9,6 +9,10 @@ import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.InviteMessag
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.iface.IMessageQueue;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
+import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceResponse;
+import com.thinkfree.tfinder.workspace.service.dto.InviteResponse;
+import com.thinkfree.tfinder.workspace.service.dto.MyWorkspaceResponse;
+import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMembersPageResponse;
 import com.thinkfree.tfinder.workspace.domain.MessageKey;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
@@ -54,7 +58,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
     @Override
     @Transactional
-    public WorkspaceEntity create(CreateWorkspaceDto dto) throws BusinessException {
+    public CreateWorkspaceResponse create(CreateWorkspaceCommand dto) throws BusinessException {
         MemberEntity creator = getMemberOrThrow(dto.requestMemberId());
 
         if (workspaceRepository.existsByWorkspaceName(dto.workspaceName()) || workspaceRepository.existsByWorkspaceUrl(dto.workspaceUrl())) {
@@ -74,42 +78,38 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         );
         workspaceMemberRepository.save(workspaceMember);
 
-        return workspace;
+        return new CreateWorkspaceResponse(
+                workspace.getId(),
+                workspace.getWorkspaceUrl(),
+                workspace.getWorkspaceName());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<MyWorkspacesResultDto> getMyWorkspaces(long memberId) throws BusinessException {
+    public MyWorkspaceResponse getMyWorkspaces(long memberId) throws BusinessException {
         MemberEntity member = getMemberOrThrow(memberId);
+        List<WorkspaceMemberEntity> list = workspaceMemberRepository.findAllByMember(member);
 
-        return workspaceMemberRepository.findAllByMember(member)
-                .stream()
-                .map(workspaceMember -> {
-                    WorkspaceEntity workspace = workspaceMember.getWorkspace();
-                    return new MyWorkspacesResultDto( // TODO:가공해서 보내야하나? 아니면 엔티티 그대로 보내도 되려나??
-                            workspace.getId(),
-                            workspace.getWorkspaceName(),
-                            workspace.getWorkspaceUrl(),
-                            workspaceMember.getRole()
-                    );
-                })
-                .toList();
+        return new MyWorkspaceResponse(
+                list
+        );
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<WorkspaceMemberEntity> getWorkspaceMembersPage(long requesterId, long workspaceId, int page, int pageSize) throws BusinessException {
+    public WorkspaceMembersPageResponse getWorkspaceMembersPage(long requesterId, long workspaceId, int page, int pageSize) throws BusinessException {
         MemberEntity requester = getMemberOrThrow(requesterId);
         WorkspaceEntity workspace = getWorkspaceOrThrow(workspaceId);
 
         getWorkspaceMemberOrThrow(workspace, requester); // requester와 workspace의 연관관계가 없으면 바로 예외 던져짐
 
-        return workspaceMemberRepository.findWorkspaceMemberPage(workspace, PageRequest.of(page, pageSize));
+        Page<WorkspaceMemberEntity> workspaceMemberPage = workspaceMemberRepository.findWorkspaceMemberPage(workspace, PageRequest.of(page, pageSize));
+        return new WorkspaceMembersPageResponse(workspaceMemberPage);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public InviteResultDto inviteMember(List<String> toEmailList, long inviterId, long workspaceId) throws BusinessException {
+    public InviteResponse inviteMember(List<String> toEmailList, long inviterId, long workspaceId) throws BusinessException {
 
         if (toEmailList.size() > 50) {
             throw new BusinessException(ErrorCode.TOO_MANY_INVITE);
@@ -159,7 +159,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
         }
 
-        return new InviteResultDto(
+        return new InviteResponse(
                 success,
                 failed,
                 alreadyJoined

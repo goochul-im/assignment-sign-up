@@ -91,7 +91,7 @@ public class JwtManager implements IJwtManager {
             if (!claims.getSubject().equals(INVITE_TOKEN_SUBJECT))
                 throw new JwtException("this token isn't for invite");
 
-        } catch (JwtException e) {
+        } catch (Exception e) {
             throw new BusinessException(INVITE_TOKEN_ERROR, e.getMessage());
         }
 
@@ -123,7 +123,7 @@ public class JwtManager implements IJwtManager {
 
         } catch (ExpiredJwtException e) {
             throw new BusinessException(ACCESS_TOKEN_EXPIRED_ERROR, "액세스 토큰이 만료되었습니다.");
-        } catch (JwtException e) {
+        } catch (Exception e) {
             throw new BusinessException(ACCESS_TOKEN_ERROR, e.getMessage());
         }
 
@@ -147,7 +147,7 @@ public class JwtManager implements IJwtManager {
 
         } catch (ExpiredJwtException e) {
             throw new BusinessException(REFRESH_TOKEN_EXPIRED_ERROR, "리프레쉬 토큰이 만료되었습니다.");
-        } catch (JwtException e) {
+        } catch (Exception e) {
             throw new BusinessException(REFRESH_TOKEN_ERROR, e.getMessage());
         }
 
@@ -171,7 +171,7 @@ public class JwtManager implements IJwtManager {
 
         } catch (ExpiredJwtException e) {
             throw new BusinessException(VALIDATE_EMAIL_TOKEN_EXPIRED_ERROR, "이메일 인증 토큰이 만료되었습니다.");
-        } catch (JwtException e) {
+        } catch (Exception e) {
             throw new BusinessException(VALIDATE_EMAIL_TOKEN_ERROR, e.getMessage());
         }
 

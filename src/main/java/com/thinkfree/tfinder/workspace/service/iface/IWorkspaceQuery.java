@@ -1,13 +1,8 @@
 package com.thinkfree.tfinder.workspace.service.iface;
 
 import com.thinkfree.tfinder.common.exception.BusinessException;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
-import com.thinkfree.tfinder.workspace.service.dto.MyWorkspacesResultDto;
-import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResponse;
-import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResultDto;
-import org.springframework.data.domain.Page;
-
-import java.util.List;
+import com.thinkfree.tfinder.workspace.service.dto.MyWorkspaceResponse;
+import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMembersPageResponse;
 
 public interface IWorkspaceQuery {
 
@@ -17,7 +12,7 @@ public interface IWorkspaceQuery {
      * @return 멤버가 속한 워크스페이스 목록
      * @throws BusinessException 요청자가 존재하지 않음
      */
-    List<MyWorkspacesResultDto> getMyWorkspaces(long memberId) throws BusinessException;
+    MyWorkspaceResponse getMyWorkspaces(long memberId) throws BusinessException;
 
     /**
      * 워크스페이스에 속한 멤버를 페이지로 조회합니다.
@@ -28,6 +23,6 @@ public interface IWorkspaceQuery {
      * @return 워크스페이스에 속한 멤버 목록
      * @throws BusinessException 요청자 또는 워크스페이스가 존재하지 않거나, 요청자가 워크스페이스에 속해있지 않음
      */
-    Page<WorkspaceMemberEntity> getWorkspaceMembersPage(long requesterId, long workspaceId, int page, int pageSize) throws BusinessException;
+    WorkspaceMembersPageResponse getWorkspaceMembersPage(long requesterId, long workspaceId, int page, int pageSize) throws BusinessException;
 
 }

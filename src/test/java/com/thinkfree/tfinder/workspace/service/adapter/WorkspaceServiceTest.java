@@ -8,6 +8,10 @@ import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.iface.IMessageQueue;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
+import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceResponse;
+import com.thinkfree.tfinder.workspace.service.dto.InviteResponse;
+import com.thinkfree.tfinder.workspace.service.dto.MyWorkspaceResponse;
+import com.thinkfree.tfinder.workspace.service.dto.WorkspaceResponse;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
@@ -16,9 +20,7 @@ import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemb
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
-import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceDto;
-import com.thinkfree.tfinder.workspace.service.dto.InviteResultDto;
-import com.thinkfree.tfinder.workspace.service.dto.MyWorkspacesResultDto;
+import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceCommand;
 import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -78,7 +80,8 @@ class WorkspaceServiceTest {
         given(workspaceMemberRepository.findAllByMember(member)).willReturn(List.of(workspaceMember));
 
         //when
-        List<MyWorkspacesResultDto> result = workspaceService.getMyWorkspaces(memberId);
+        MyWorkspaceResponse myWorkspaces = workspaceService.getMyWorkspaces(memberId);
+        List<WorkspaceResponse> result = myWorkspaces.workspaceList();
 
         //then
         assertThat(result).hasSize(1);
@@ -100,7 +103,8 @@ class WorkspaceServiceTest {
         given(workspaceMemberRepository.findAllByMember(member)).willReturn(List.of());
 
         //when
-        List<MyWorkspacesResultDto> result = workspaceService.getMyWorkspaces(memberId);
+        MyWorkspaceResponse myWorkspaces = workspaceService.getMyWorkspaces(memberId);
+        List<WorkspaceResponse> result = myWorkspaces.workspaceList();
 
         //then
         assertThat(result).hasSize(0);
@@ -133,14 +137,14 @@ class WorkspaceServiceTest {
                 ));
 
         //when
-        List<WorkspaceMemberEntity> result = workspaceService.getWorkspaceMembersPage(requesterId, workspaceId, 0, 10).getContent();
+        List<WorkspaceMemberResponse> result = workspaceService.getWorkspaceMembersPage(requesterId, workspaceId, 0, 10).memberList();
 
         //then
         assertThat(result).hasSize(2);
-        assertThat(result.getFirst().getId()).isEqualTo(requester.getId());
-        assertThat(result.getFirst().getMember().getNickname()).isEqualTo(requester.getNickname());
-        assertThat(result.getFirst().getMember().getEmail()).isEqualTo(requester.getEmail());
-        assertThat(result.getFirst().getRole()).isEqualTo(WorkspaceMemberRole.OWNER);
+        assertThat(result.getFirst().memberId()).isEqualTo(requester.getId());
+        assertThat(result.getFirst().nickname()).isEqualTo(requester.getNickname());
+        assertThat(result.getFirst().email()).isEqualTo(requester.getEmail());
+        assertThat(result.getFirst().role()).isEqualTo(WorkspaceMemberRole.OWNER);
     }
 
     @Test
@@ -262,7 +266,7 @@ class WorkspaceServiceTest {
         given(messageQueue.publish(any(), any())).willReturn(true);
 
         //when
-        InviteResultDto result = workspaceService.inviteMember(emailList, memberId, workspaceId);
+        InviteResponse result = workspaceService.inviteMember(emailList, memberId, workspaceId);
 
         //then
         assertThat(result.alreadyJoinedEmails()).containsExactlyInAnyOrder(alreadyJoinedEmail);
@@ -310,7 +314,7 @@ class WorkspaceServiceTest {
         long requestMemberId = 1L;
         String workspaceName = "test";
         String workspaceUrl = "testUrl";
-        CreateWorkspaceDto dto = new CreateWorkspaceDto(requestMemberId, workspaceName, workspaceUrl);
+        CreateWorkspaceCommand dto = new CreateWorkspaceCommand(requestMemberId, workspaceName, workspaceUrl);
 
         given(workspaceRepository.existsByWorkspaceName(any())).willReturn(false);
         given(workspaceRepository.existsByWorkspaceUrl(any())).willReturn(false);
@@ -326,12 +330,12 @@ class WorkspaceServiceTest {
         given(workspaceRepository.save(any())).willReturn(workspace);
 
         //when
-        WorkspaceEntity result = workspaceService.create(dto);
+        CreateWorkspaceResponse result = workspaceService.create(dto);
 
         //then
-        assertThat(result.getId()).isEqualTo(1L);
-        assertThat(result.getWorkspaceName()).isEqualTo(workspaceName);
-        assertThat(result.getWorkspaceUrl()).isEqualTo(workspaceUrl);
+        assertThat(result.workspaceId()).isEqualTo(1L);
+        assertThat(result.workspaceUrl()).isEqualTo(workspaceUrl);
+        assertThat(result.workspaceName()).isEqualTo(workspaceName);
     }
 
     @Test
@@ -340,7 +344,7 @@ class WorkspaceServiceTest {
         long requestMemberId = 1L;
         String workspaceName = "test";
         String workspaceUrl = "testUrl";
-        CreateWorkspaceDto dto = new CreateWorkspaceDto(requestMemberId, workspaceName, workspaceUrl);
+        CreateWorkspaceCommand dto = new CreateWorkspaceCommand(requestMemberId, workspaceName, workspaceUrl);
         given(memberRepository.findById(any())).willReturn(Optional.of(getMember(requestMemberId)));
         given(workspaceRepository.existsByWorkspaceName(any())).willReturn(true);
 
@@ -356,7 +360,7 @@ class WorkspaceServiceTest {
         long requestMemberId = 1L;
         String workspaceName = "test";
         String workspaceUrl = "testUrl";
-        CreateWorkspaceDto dto = new CreateWorkspaceDto(requestMemberId, workspaceName, workspaceUrl);
+        CreateWorkspaceCommand dto = new CreateWorkspaceCommand(requestMemberId, workspaceName, workspaceUrl);
         given(memberRepository.findById(any())).willReturn(Optional.of(getMember(requestMemberId)));
         given(workspaceRepository.existsByWorkspaceName(any())).willReturn(false);
         given(workspaceRepository.existsByWorkspaceUrl(any())).willReturn(true);
