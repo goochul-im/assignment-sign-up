@@ -22,7 +22,7 @@ public interface IWorkspaceUseCase {
      * @param toEmailList 수신자들
      * @param inviterId 초대한 멤버의 ID
      * @param workspaceId 초대한 워크스페이스 ID
-     * @return toEmailList 중 이미 워크스페이스에 가입한 이메일, 초대 요청이 실패한 이메일, 초대 요청이 성공한 이메일을 반화
+     * @return toEmailList 중 이미 워크스페이스에 가입한 이메일, 초대 요청이 실패한 이메일, 초대 요청이 성공한 이메일을 반환
      * @throws BusinessException
      * 가입되어있지 않은 멤버
      * 존재하지 않는 워크스페이스
@@ -40,5 +40,14 @@ public interface IWorkspaceUseCase {
      * 초대받은 사람이 아직 회원이 아님
      */
     void acceptInvite(String token) throws BusinessException;
+
+    /**
+     * 워크스페이스를 삭제합니다.
+     * @param workspaceId 삭제할 워크스페이스 ID
+     * @param requesterId 삭제를 요청한 요청자
+     * @throws BusinessException
+     * 없는 워크스페이스거나, 해당 워크스페이스에 대한 권한이 없을 떼
+     */
+    void delete(long workspaceId, long requesterId) throws BusinessException;
 
 }

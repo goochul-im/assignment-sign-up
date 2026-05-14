@@ -7,7 +7,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 @Configuration
 public class TestContainerConfiguration {
 
-    public static final PostgreSQLContainer<?> POSTGRESQL_CONTAINER = new PostgreSQLContainer<>("postgresql:16-alpine");
+    public static final PostgreSQLContainer<?> POSTGRESQL_CONTAINER = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @PreDestroy
     void preDestroy() {

@@ -1,5 +1,7 @@
 package com.thinkfree.tfinder.workspace.infrastructure.persistence;
 
+import com.navercorp.fixturemonkey.FixtureMonkey;
+import com.navercorp.fixturemonkey.api.introspector.ConstructorPropertiesArbitraryIntrospector;
 import com.thinkfree.tfinder.annotation.IntegrationTest;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
@@ -27,6 +29,10 @@ class IMemberRepositoryTest {
     private IMemberRepository memberRepository;
     @Autowired
     private IWorkspaceRepository workspaceRepository;
+
+    private final FixtureMonkey fixture = FixtureMonkey.builder()
+            .objectIntrospector(ConstructorPropertiesArbitraryIntrospector.INSTANCE)
+            .build();
 
     @Test
     void 이메일_리스트_중_워크스페이스에_속한_이메일만_가져올_수_있다(){

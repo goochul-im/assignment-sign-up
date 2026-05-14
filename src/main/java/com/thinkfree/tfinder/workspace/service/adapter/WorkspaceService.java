@@ -199,6 +199,20 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
     }
 
+    @Override
+    @Transactional
+    public void delete(long workspaceId, long requesterId) {
+        WorkspaceEntity workspace = getWorkspaceOrThrow(workspaceId);
+        MemberEntity member = getMemberOrThrow(requesterId);
+        WorkspaceMemberEntity workspaceMember = getWorkspaceMemberOrThrow(workspace, member);
+
+        if (!WorkspaceMemberRole.OWNER.equals(workspaceMember.getRole())) {
+            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
+        }
+
+        workspace.delete();
+    }
+
     private String makeInviteMailMessage(WorkspaceEntity workspace, String token) {
         // 들어가야 할 정보
         // 클릭할 URL + 메시지 내용

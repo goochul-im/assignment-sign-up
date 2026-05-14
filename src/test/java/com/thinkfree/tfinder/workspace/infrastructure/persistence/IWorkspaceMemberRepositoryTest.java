@@ -162,6 +162,8 @@ class IWorkspaceMemberRepositoryTest {
         assertThat(pages3.getSize()).isEqualTo(10);
     }
 
+
+
     private MemberEntity getMember(String email) {
         return new MemberEntity(
                 "testNickname",

@@ -192,4 +192,14 @@ public class WorkspaceController {
                 .body(response);
     }
 
+    @DeleteMapping("/{workspaceId}")
+    public ResponseEntity<?> delete(
+            @PathVariable String workspaceId,
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+
+
+        return null;
+    }
+
 }
