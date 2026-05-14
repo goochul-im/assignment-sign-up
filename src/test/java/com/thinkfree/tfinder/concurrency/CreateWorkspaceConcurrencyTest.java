@@ -3,103 +3,88 @@ package com.thinkfree.tfinder.concurrency;
 import com.navercorp.fixturemonkey.FixtureMonkey;
 import com.navercorp.fixturemonkey.api.introspector.ConstructorPropertiesArbitraryIntrospector;
 import com.thinkfree.tfinder.annotation.IntegrationTest;
-import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
-import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshTokenRepository;
-import com.thinkfree.tfinder.auth.service.dto.SignupDto;
-import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
 import com.thinkfree.tfinder.common.concurrent.LockSupporter;
-import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
-import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
-import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
+import com.thinkfree.tfinder.workspace.service.adapter.WorkspaceService;
+import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceCommand;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@Testcontainers
-@SpringBootTest
 @IntegrationTest
+@SpringBootTest
 @Profile("test")
-public class SignupConcurrencyTest {
-
-    @Autowired
-    private LockSupporter lockSupporter;
-    @Autowired
-    private IAuthUseCase authUseCase;
-    @Autowired
-    private PasswordEncoder encoder;
-    @Autowired
-    private IMemberRepository memberRepository;
-    @Autowired
-    private IJwtManager jwtManager;
-    @Autowired
-    private IRefreshTokenRepository refreshTokenRepository;
-    @Autowired
-    private IEmailValidateRepository emailValidateRepository;
-    @Autowired
-    private IMailSender mailSender;
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
-    @Autowired
-    private JwtProperties jwtProperties;
-
-    private final FixtureMonkey fixture = FixtureMonkey.builder()
-            .objectIntrospector(ConstructorPropertiesArbitraryIntrospector.INSTANCE)
-            .build();
+@Testcontainers
+public class CreateWorkspaceConcurrencyTest {
 
     @Container
     static final GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine")
             .withExposedPorts(6379);
-
     @DynamicPropertySource
     static void redisProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.redis.host", redis::getHost);
         registry.add("spring.data.redis.port", () -> redis.getMappedPort(6379));
     }
 
+    @Autowired
+    private WorkspaceService workspaceService;
+    @Autowired
+    private IMemberRepository memberRepository;
+    @Autowired
+    private LockSupporter lockSupporter;
+
+    private final FixtureMonkey fixture = FixtureMonkey.builder()
+            .objectIntrospector(ConstructorPropertiesArbitraryIntrospector.INSTANCE)
+            .build();
+
     @Test
-    void 동시에_여러명이_가입해도_한명만_가입에_성공해야_한다() throws InterruptedException {
+    void 같은_URL을_가진_워크스페이스를_동시에_생성하면_하나만_생성된다() throws InterruptedException {
         //given
         int threadCount = 30;
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
 
-        String email = "cuncurrent@email.com";
+        String url = "cuncurrentUrl";
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger failedCount = new AtomicInteger(0);
 
-        emailValidateRepository.saveAsValidated(email, Duration.ofDays(1));
-        boolean validate = emailValidateRepository.isValidated(email);
-        assertThat(validate).isTrue();
+        List<MemberEntity> members = memberRepository.saveAll(IntStream.range(0, threadCount)
+                .mapToObj(i -> new MemberEntity(
+                        "testmember",
+                        "workspace-concurrency-" + i + "@email.com",
+                        "testpassword"
+                ))
+                .toList());
 
         //when
         for (int i = 0; i < threadCount; i++) {
+            int memberId = i;
             executor.submit(() -> {
                 try {
                     lockSupporter.lockSupport(() ->
-                                    authUseCase.signUp(new SignupDto(
-                                            email,
-                                            "just name",
-                                            "just password"
-                                    )),
-                            email
+                            workspaceService.create(new CreateWorkspaceCommand(
+                                    members.get(memberId).getId(),
+                                    "any" + memberId,
+                                    url
+                            )),
+                            url
                     );
 
                     successCount.addAndGet(1);

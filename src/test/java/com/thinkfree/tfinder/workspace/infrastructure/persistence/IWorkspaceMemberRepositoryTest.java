@@ -5,6 +5,7 @@ import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -27,6 +28,8 @@ class IWorkspaceMemberRepositoryTest {
     private IMemberRepository memberRepository;
     @Autowired
     private IWorkspaceRepository workspaceRepository;
+    @Autowired
+    private EntityManager entityManager;
 
     @Test
     void 워크스페이스와_이메일로_워크스페이스_멤버_존재_여부를_확인할_수_있다(){
@@ -94,6 +97,35 @@ class IWorkspaceMemberRepositoryTest {
         assertThat(result).hasSize(repeat);
         assertThat(member1).usingRecursiveComparison().isEqualTo(member2);
         // 리스트 객체 비교??
+    }
+
+    @Test
+    void 멤버가_속한_워크스페이스를_조회할_때_삭제된_워크스페이스는_제외된다(){
+        //given
+        MemberEntity member = memberRepository.save(getMember("test@email.com"));
+        WorkspaceEntity activeWorkspace = workspaceRepository.save(new WorkspaceEntity(
+                "activeWorkspace",
+                "activeUrl"
+        ));
+        WorkspaceEntity deletedWorkspace = workspaceRepository.save(new WorkspaceEntity(
+                "deletedWorkspace",
+                "deletedUrl"
+        ));
+
+        workspaceMemberRepository.save(new WorkspaceMemberEntity(activeWorkspace, member, WorkspaceMemberRole.MEMBER));
+        workspaceMemberRepository.save(new WorkspaceMemberEntity(deletedWorkspace, member, WorkspaceMemberRole.MEMBER));
+
+        deletedWorkspace.delete();
+        workspaceRepository.save(deletedWorkspace);
+        entityManager.flush();
+        entityManager.clear();
+
+        //when
+        List<WorkspaceMemberEntity> result = workspaceMemberRepository.findAllByMember(member);
+
+        //then
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getWorkspace().getWorkspaceUrl()).isEqualTo("activeUrl");
     }
 
     @Test

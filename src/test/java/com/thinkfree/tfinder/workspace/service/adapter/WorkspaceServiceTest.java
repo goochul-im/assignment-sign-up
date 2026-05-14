@@ -324,7 +324,6 @@ class WorkspaceServiceTest {
         String workspaceUrl = "testUrl";
         CreateWorkspaceCommand dto = new CreateWorkspaceCommand(requestMemberId, workspaceName, workspaceUrl);
 
-        given(workspaceRepository.existsByWorkspaceName(any())).willReturn(false);
         given(workspaceRepository.existsByWorkspaceUrl(any())).willReturn(false);
         given(memberRepository.findById(any())).willReturn(Optional.of(getMember(requestMemberId)));
 
@@ -347,22 +346,6 @@ class WorkspaceServiceTest {
     }
 
     @Test
-    void 워크스페이스를_생성할_때_워크스페이스_이름이_중복되면_DUPLICATE_ERROR_예외를_던진다(){
-        //given
-        long requestMemberId = 1L;
-        String workspaceName = "test";
-        String workspaceUrl = "testUrl";
-        CreateWorkspaceCommand dto = new CreateWorkspaceCommand(requestMemberId, workspaceName, workspaceUrl);
-        given(memberRepository.findById(any())).willReturn(Optional.of(getMember(requestMemberId)));
-        given(workspaceRepository.existsByWorkspaceName(any())).willReturn(true);
-
-        //when & then
-        BusinessException exception = assertThrows(BusinessException.class, () -> workspaceService.create(dto));
-
-        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.DUPLICATE_ERROR);
-    }
-
-    @Test
     void 워크스페이스를_생성할_때_워크스페이스_URL이_중복되면_DUPLICATE_ERROR_예외를_던진다(){
         //given
         long requestMemberId = 1L;
@@ -370,7 +353,6 @@ class WorkspaceServiceTest {
         String workspaceUrl = "testUrl";
         CreateWorkspaceCommand dto = new CreateWorkspaceCommand(requestMemberId, workspaceName, workspaceUrl);
         given(memberRepository.findById(any())).willReturn(Optional.of(getMember(requestMemberId)));
-        given(workspaceRepository.existsByWorkspaceName(any())).willReturn(false);
         given(workspaceRepository.existsByWorkspaceUrl(any())).willReturn(true);
 
         //when & then

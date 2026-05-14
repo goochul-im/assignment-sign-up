@@ -5,15 +5,12 @@ import com.navercorp.fixturemonkey.api.introspector.ConstructorPropertiesArbitra
 import com.thinkfree.tfinder.annotation.IntegrationTest;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import jakarta.persistence.EntityManager;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.NoSuchElementException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @IntegrationTest
 @DataJpaTest
@@ -24,10 +21,6 @@ class IWorkspaceRepositoryTest {
     private IWorkspaceRepository workspaceRepository;
     @Autowired
     private EntityManager entityManager;
-
-    private final FixtureMonkey fixture = FixtureMonkey.builder()
-            .objectIntrospector(ConstructorPropertiesArbitraryIntrospector.INSTANCE)
-            .build();
 
     @Test
     void delete_대신_소프트_딜리트가_발생한다() {
@@ -41,10 +34,11 @@ class IWorkspaceRepositoryTest {
 
         //when
         workspace.delete();
-        entityManager.persist(workspace);
+        entityManager.flush();
+        entityManager.clear();
 
         //then
-        assertThrows(NoSuchElementException.class, () -> workspaceRepository.findById(id));
+        assertThat(workspaceRepository.findById(id)).isEmpty();
 
     }
 
