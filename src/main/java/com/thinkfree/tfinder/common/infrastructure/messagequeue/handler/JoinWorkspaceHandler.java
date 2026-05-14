@@ -5,7 +5,6 @@ import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInvit
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.JoinWorkSpaceMessageDto;
-import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.MessageDto;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
@@ -28,8 +27,7 @@ public class JoinWorkspaceHandler {
     private final IWorkspaceMemberRepository workspaceMemberRepository;
     private final IEmailValidateRepository emailValidateRepository;
 
-    public void handler(JoinWorkSpaceMessageDto message) {
-        MemberEntity member = message.getMember();
+    public void handle(MemberEntity member) {
 
         String email = member.getEmail();
         Set<String> pendingWorkspaceUrls = pendingInviteRepository.findWorkspaceUrlsByEmail(email);
