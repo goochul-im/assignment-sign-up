@@ -54,16 +54,18 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "A-001, 이메일 또는 비밀번호 불일치"),
     })
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<AccessTokenResponse> login(@Valid @RequestBody LoginRequest request) {
 
         LoginResultDto result = authUseCase.login(new LoginDto(
                 request.email(),
                 request.password()
         ));
 
+        AccessTokenResponse response = new AccessTokenResponse(result.accessToken());
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, createRefreshCookie(result.refreshToken()).toString())
-                .body(new AccessTokenResponse(result.accessToken()));
+                .body(response);
     }
 
     @Operation(
@@ -80,16 +82,18 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "A-005, 리프레쉬 토큰에 오류가 있음"),
     })
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(
+    public ResponseEntity<AccessTokenResponse> refresh(
             HttpServletRequest request
     ) {
 
         String refreshToken = extractRefreshToken(request);
         LoginResultDto result = authUseCase.refresh(refreshToken);
 
+        AccessTokenResponse response = new AccessTokenResponse(result.accessToken());
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, createRefreshCookie(result.refreshToken()).toString())
-                .body(new AccessTokenResponse(result.accessToken()));
+                .body(response);
     }
 
     @Operation(
@@ -169,7 +173,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "A-010, 인증 요청이 되지 않았거나, 인증 정보가 만료된 이메일"),
     })
     @PostMapping("/email/validate")
-    public ResponseEntity<?> validateEmail(@Valid @RequestBody EmailValidateRequest request){
+    public ResponseEntity<ValidateEmailResponse> validateEmail(@Valid @RequestBody EmailValidateRequest request){
 
         String validateEmail = authUseCase.emailValidate(request.token());
         ValidateEmailResponse response = new ValidateEmailResponse(validateEmail);

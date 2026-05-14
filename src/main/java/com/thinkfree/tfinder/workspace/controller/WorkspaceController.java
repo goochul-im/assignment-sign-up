@@ -54,7 +54,7 @@ public class WorkspaceController {
             @ApiResponse(responseCode = "404", description = "E-001, API를 요청한 멤버가 존재하지 않음"),
     })
     @GetMapping("/my")
-    public ResponseEntity<?> findMyWorkspaces(
+    public ResponseEntity<MyWorkspaceResponse> findMyWorkspaces(
             @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
 
@@ -87,7 +87,7 @@ public class WorkspaceController {
             @ApiResponse(responseCode = "404", description = "E-001, 멤버 또는 워크스페이스가 존재하지 않음"),
     })
     @GetMapping("/{workspaceId}/members")
-    public ResponseEntity<?> findWorkspaceMembers(
+    public ResponseEntity<WorkspaceMembersPageResponse> findWorkspaceMembers(
             @PathVariable long workspaceId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize,
@@ -123,7 +123,7 @@ public class WorkspaceController {
             @ApiResponse(responseCode = "409", description = "E-002, 워크스페이스 이름 또는 URL 중복"),
     })
     @PostMapping
-    public ResponseEntity<?> create(
+    public ResponseEntity<CreateWorkspaceResponse> create(
             @RequestBody @Valid WorkspaceCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails currentUser
     ){
@@ -175,7 +175,7 @@ public class WorkspaceController {
             @ApiResponse(responseCode = "409", description = "A-002, 해당 워크스페이스에 초대자가 속해있지 않거나, 권한이 없음"),
     })
     @PostMapping("/invite")
-    public ResponseEntity<?> inviteMembers(
+    public ResponseEntity<InviteResponse> inviteMembers(
             @RequestBody InviteRequest request,
             @AuthenticationPrincipal CustomUserDetails currentUser
             ) {
