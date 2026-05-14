@@ -192,14 +192,32 @@ public class WorkspaceController {
                 .body(response);
     }
 
+    @SecurityRequirement(name = "Auth")
+    @Operation(
+            summary = "워크스페이스 삭제",
+            description = "워크스페이스를 삭제합니다",
+            parameters = {
+                    @Parameter(name = "workspaceId", description = "삭제할 워크스페이스 ID", in = ParameterIn.PATH, example = "1")
+            }
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "워크스페이스 삭제 성공"
+            ),
+            @ApiResponse(responseCode = "403", description = "A-002, 해당 워크스페이스에 속해있지 않거나 권한이 없음"),
+            @ApiResponse(responseCode = "404", description = "E-001, 멤버 또는 워크스페이스가 존재하지 않음"),
+    })
     @DeleteMapping("/{workspaceId}")
     public ResponseEntity<?> delete(
-            @PathVariable String workspaceId,
+            @PathVariable long workspaceId,
             @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
 
+        workspaceUseCase.delete(workspaceId, currentUser.getMemberId());
 
-        return null;
+        return ResponseEntity.noContent()
+                .build();
     }
 
 }

@@ -46,7 +46,10 @@ public interface IWorkspaceUseCase {
      * @param workspaceId 삭제할 워크스페이스 ID
      * @param requesterId 삭제를 요청한 요청자
      * @throws BusinessException
-     * 없는 워크스페이스거나, 해당 워크스페이스에 대한 권한이 없을 떼
+     * 가입되어있지 않은 멤버
+     * 존재하지 않는 워크스페이스
+     * 워크스페이스의 관리자나 소유자가 아님
+     * 워크스페이스에 속해있지 않음
      */
     void delete(long workspaceId, long requesterId) throws BusinessException;
 
