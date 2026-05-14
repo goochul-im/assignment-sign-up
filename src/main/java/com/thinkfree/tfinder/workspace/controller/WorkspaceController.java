@@ -120,7 +120,7 @@ public class WorkspaceController {
                     )
             ),
             @ApiResponse(responseCode = "404", description = "E-001, 생성 요청자가 존재하지 않습니다."),
-            @ApiResponse(responseCode = "409", description = "E-002, 워크스페이스 이름 또는 URL 중복"),
+            @ApiResponse(responseCode = "409", description = "E-002, 워크스페이스 URL 중복"),
     })
     @PostMapping
     public ResponseEntity<CreateWorkspaceResponse> create(

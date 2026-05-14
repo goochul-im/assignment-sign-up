@@ -15,7 +15,7 @@ public class WorkspaceEntity extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String workspaceName;
     @Column(nullable = false, unique = true)
     private String workspaceUrl;

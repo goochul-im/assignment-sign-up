@@ -52,10 +52,6 @@ public class AuthService implements IAuthUseCase {
         // SMTP 요청이 실패했는지 성공했는지 가져오질 못하니, 실패할 경우를 알 수 없다
         // 네트워크나 SMTP 서버 요청으로 인해 장애가 나서 인증정보만 대기중이고 메일이 가지 않았을 때
         // 중복 방지 로직으로 인해 인증 요청이 더이상 가지 못하면 회원이 가입을 할수가 없다.
-//            emailValidateRepository.saveAsPending(
-//                    email,
-//                    getEmailExpiration()
-//            );
         mailSender.asyncSend(
                 email,
                 "이메일 인증 요청",
@@ -71,11 +67,7 @@ public class AuthService implements IAuthUseCase {
     public String emailValidate(String token) throws BusinessException {
         String email = jwtManager.getEmailFromValidateEmailToken(token);
 
-//        if (!emailValidateRepository.isRequested(email)) // 굳이 requested 정보를 서버에 저장할 필요가 없음. 그냥 바로 토큰 까서 보면 되지
-//            throw new BusinessException(ErrorCode.NO_VALIDATE_EMAIL);
-
         emailValidateRepository.saveAsValidated(email, getEmailExpiration()); // validate 상태 저장, 중복 인증으로 인한 유효 기간 연장 없음
-                                                                              // TODO: 이 작업이 원자적인가? 그렇진 않은데...
         return email;
     }
 
@@ -102,6 +94,11 @@ public class AuthService implements IAuthUseCase {
         // 트랜잭션 커밋 이후 이벤트가 발행되고, 트랜잭션이벤트 리스너가 이를 받아 메시지를 발행합니다.~
         eventPublisher.publishEvent(new JoinPendingEvent(savedMember));
 
+        // TODO:RedisConnectionFailureException가 발생하면 롤백해야할 정도의 심각한 일인가?
+        if (!emailValidateRepository.delete(signupEmail)){ //인증정보 삭제
+            log.warn("이메일 인증 정보가 정상적으로 삭제되지 않았습니다. email = {}", signupEmail);
+        }
+
         return new MemberSignupResultDto(
                 savedMember.getId(),
                 savedMember.getNickname()
@@ -120,7 +117,8 @@ public class AuthService implements IAuthUseCase {
 
         String accessToken = jwtManager.generateAccessToken(member.getEmail());
         String refreshToken = jwtManager.generateRefreshToken(member.getEmail());
-        if (!refreshTokenRepository.save(member.getEmail(), refreshToken, Duration.ofSeconds(jwtProperties.getRefreshExpirationSeconds()))){
+        boolean isTokenSaved = refreshTokenRepository.save(member.getEmail(), refreshToken, Duration.ofSeconds(jwtProperties.getRefreshExpirationSeconds()));
+        if (!isTokenSaved){
             log.error("save 인자 중 하나가 null입니다. email = {}, token = {}, duration = {}",member.getEmail(), refreshToken, jwtProperties.getRefreshExpirationSeconds());
             throw new BusinessException(ErrorCode.LOGIN_FAILED, "서버 내부 요인으로 인해 로그인이 실패했습니다.");
         }
@@ -146,7 +144,8 @@ public class AuthService implements IAuthUseCase {
 
         String newAccessToken = jwtManager.generateAccessToken(email);
         String newRefreshToken = jwtManager.generateRefreshToken(email);
-        if (!refreshTokenRepository.save(email, newRefreshToken, Duration.ofSeconds(jwtProperties.getRefreshExpirationSeconds()))){
+        boolean isTokenSaved = refreshTokenRepository.save(email, newRefreshToken, Duration.ofSeconds(jwtProperties.getRefreshExpirationSeconds()));
+        if (!isTokenSaved){
             log.error("save 인자 중 하나가 null입니다. email = {}, token = {}, duration = {}",email, newRefreshToken, jwtProperties.getRefreshExpirationSeconds());
             throw new BusinessException(ErrorCode.REFRESH_FAILED, "서버 내부 요인으로 인해 리프레싱이 실패했습니다.");
         }

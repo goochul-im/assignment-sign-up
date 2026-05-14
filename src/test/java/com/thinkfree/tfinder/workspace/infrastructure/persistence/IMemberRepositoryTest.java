@@ -74,6 +74,18 @@ class IMemberRepositoryTest {
         assertThat(result).containsExactlyInAnyOrder(email1, email2, email3);
     }
 
+    @Test
+    void 이메일에_null_값이_들어오면_false를_반환한다(){
+        //given
+        String email = null;
+
+        //when
+        boolean b = memberRepository.existsByEmail(email);
+
+        //then
+        assertThat(b).isFalse();
+    }
+
     private MemberEntity getMember(String email) {
         return new MemberEntity(
                 "testNickname",

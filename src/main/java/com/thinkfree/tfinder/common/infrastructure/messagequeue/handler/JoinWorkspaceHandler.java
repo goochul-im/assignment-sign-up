@@ -25,7 +25,6 @@ public class JoinWorkspaceHandler {
     private final IPendingInviteRepository pendingInviteRepository;
     private final IWorkspaceRepository workspaceRepository;
     private final IWorkspaceMemberRepository workspaceMemberRepository;
-    private final IEmailValidateRepository emailValidateRepository;
 
     public void handle(MemberEntity member) {
 
@@ -55,10 +54,11 @@ public class JoinWorkspaceHandler {
 
         String signupEmail = member.getEmail();
         try {
-            emailValidateRepository.delete(signupEmail);
-            pendingInviteRepository.delete(signupEmail);
-        } catch (Exception e) {
-            log.warn("인증 정보 삭제중 에러 발생");
+            if (!pendingInviteRepository.delete(signupEmail)) {
+                log.warn("워크스페이스 대기 정보 삭제 실패, email = {}",signupEmail);
+            }
+        } catch (IllegalArgumentException e) {
+            log.warn("null값 삭제 시도로 인한 예외 발생");
         }
     }
 

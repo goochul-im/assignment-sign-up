@@ -16,7 +16,7 @@ public class MemberEntity extends BaseEntity{
     private String nickname;
     @Column(nullable = false, unique = true)
     private String email;
-    @Column()
+    @Column(nullable = false)
     private String password;
     // OAuthAccount 추가 필요
 

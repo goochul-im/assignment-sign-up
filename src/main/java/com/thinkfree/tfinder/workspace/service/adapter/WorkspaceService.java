@@ -61,7 +61,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     public CreateWorkspaceResponse create(CreateWorkspaceCommand dto) throws BusinessException {
         MemberEntity creator = getMemberOrThrow(dto.requestMemberId());
 
-        if (workspaceRepository.existsByWorkspaceName(dto.workspaceName()) || workspaceRepository.existsByWorkspaceUrl(dto.workspaceUrl())) {
+        if (workspaceRepository.existsByWorkspaceUrl(dto.workspaceUrl())) {
             throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
         }
 
