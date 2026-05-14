@@ -210,7 +210,10 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
             throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
         }
 
+        // 워크스페이스 소프트 딜리트
         workspace.delete();
+        // 워크스페이스 멤버 삭제 처리
+        workspaceMemberRepository.deleteAllByWorkspace(workspace);
     }
 
     private String makeInviteMailMessage(WorkspaceEntity workspace, String token) {

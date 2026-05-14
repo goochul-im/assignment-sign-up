@@ -66,7 +66,6 @@ public interface IWorkspaceMemberRepository extends JpaRepository<WorkspaceMembe
         """)
     boolean existsByWorkspaceAndMemberEmail(WorkspaceEntity workspace, String email);
 
-
-
+    void deleteAllByWorkspace(WorkspaceEntity workspace);
 
 }

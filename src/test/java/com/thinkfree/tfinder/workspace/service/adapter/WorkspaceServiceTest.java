@@ -1,5 +1,8 @@
 package com.thinkfree.tfinder.workspace.service.adapter;
 
+import com.navercorp.fixturemonkey.FixtureMonkey;
+import com.navercorp.fixturemonkey.FixtureMonkeyBuilder;
+import com.navercorp.fixturemonkey.api.introspector.ConstructorPropertiesArbitraryIntrospector;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
 import com.thinkfree.tfinder.common.config.JwtProperties;
@@ -22,6 +25,7 @@ import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.Workspa
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
 import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceCommand;
 import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResponse;
+import net.jqwik.api.Arbitraries;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -62,6 +66,10 @@ class WorkspaceServiceTest {
     IMessageQueue messageQueue;
     @InjectMocks
     private WorkspaceService workspaceService;
+
+    private static final FixtureMonkey fixtureMonkey = FixtureMonkey.builder()
+            .objectIntrospector(ConstructorPropertiesArbitraryIntrospector.INSTANCE)
+            .build();
 
     @Test
     void 멤버가_속한_워크스페이스_목록을_조회할_수_있어야_한다() {
@@ -371,6 +379,24 @@ class WorkspaceServiceTest {
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.DUPLICATE_ERROR);
     }
 
+    @Test
+    void 워크스페이스를_삭제할_때_권한이_없다면_예외를_던진다(){
+        //given
+        long requesterId = 1L;
+        long workspaceId = 1L;
+        MemberEntity member = getMember(requesterId);
+        WorkspaceEntity workspace = getWorkspace(workspaceId);
+        WorkspaceMemberEntity workspaceMember = getWorkspaceMember(workspace, member, WorkspaceMemberRole.MEMBER);
+
+        given(memberRepository.findById(requesterId)).willReturn(Optional.of(member));
+        given(workspaceRepository.findById(workspaceId)).willReturn(Optional.of(workspace));
+        given(workspaceMemberRepository.findByWorkspaceAndMember(workspace, member))
+                .willReturn(Optional.of(workspaceMember));
+
+        //when & then
+        assertThrows(BusinessException.class, () -> workspaceService.delete(requesterId, workspaceId));
+    }
+
 
     private WorkspaceMemberEntity getWorkspaceMember(WorkspaceEntity workspace, MemberEntity member) {
         return new WorkspaceMemberEntity(
@@ -378,6 +404,15 @@ class WorkspaceServiceTest {
                 workspace,
                 member,
                 WorkspaceMemberRole.OWNER
+        );
+    }
+
+    private WorkspaceMemberEntity getWorkspaceMember(WorkspaceEntity workspace, MemberEntity member, WorkspaceMemberRole role) {
+        return new WorkspaceMemberEntity(
+                1L,
+                workspace,
+                member,
+                role
         );
     }
 
