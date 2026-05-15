@@ -3,6 +3,7 @@ package com.thinkfree.tfinder.workspace.service.adapter;
 import com.navercorp.fixturemonkey.FixtureMonkey;
 import com.navercorp.fixturemonkey.FixtureMonkeyBuilder;
 import com.navercorp.fixturemonkey.api.introspector.ConstructorPropertiesArbitraryIntrospector;
+import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailSendLimitRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
 import com.thinkfree.tfinder.common.config.JwtProperties;
@@ -11,6 +12,7 @@ import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.iface.IMessageQueue;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
+import com.thinkfree.tfinder.workspace.domain.WorkspaceTier;
 import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceResponse;
 import com.thinkfree.tfinder.workspace.service.dto.InviteResponse;
 import com.thinkfree.tfinder.workspace.service.dto.MyWorkspaceResponse;
@@ -64,6 +66,8 @@ class WorkspaceServiceTest {
     IPendingInviteRepository pendingInviteRepository;
     @Mock
     IMessageQueue messageQueue;
+    @Mock
+    private IEmailSendLimitRepository emailSendLimitRepository;
     @InjectMocks
     private WorkspaceService workspaceService;
 
@@ -271,7 +275,8 @@ class WorkspaceServiceTest {
         given(workspaceMemberRepository.findByWorkspaceAndMember(workspace, member)).willReturn(Optional.of(workspaceMember));
 
         given(memberRepository.findJoinedEmails(workspace, emailList)).willReturn(Set.of(alreadyJoinedEmail));
-        given(messageQueue.publish(any(), any())).willReturn(true);
+
+        given(emailSendLimitRepository.getRemainLimit(anyInt(), anyLong())).willReturn(10);
 
         //when
         InviteResponse result = workspaceService.inviteMember(emailList, memberId, workspaceId);
@@ -286,6 +291,15 @@ class WorkspaceServiceTest {
         //given
         IntStream ints = new Random().ints(100,0,100);
         List<String> list = ints.boxed().map(String::valueOf).toList();
+        long memberId = 1L;
+        long workspaceId = 1L;
+        MemberEntity member = getMember(memberId);
+        WorkspaceEntity workspace = getWorkspace(workspaceId);
+        given(memberRepository.findById(any())).willReturn(Optional.of(member));
+        given(workspaceRepository.findById(any())).willReturn(Optional.of(workspace));
+        WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(workspace, member, WorkspaceMemberRole.MEMBER);
+        given(workspaceMemberRepository.findByWorkspaceAndMember(workspace, member)).willReturn(Optional.of(workspaceMember));
+        given(emailSendLimitRepository.getRemainLimit(anyInt(), anyLong())).willReturn(10);
 
         //when & then
         BusinessException businessException = assertThrows(BusinessException.class, () -> workspaceService.inviteMember(list, 1L, 1L));
@@ -308,6 +322,7 @@ class WorkspaceServiceTest {
         given(workspaceRepository.findById(any())).willReturn(Optional.of(workspace));
         WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(workspace, member, WorkspaceMemberRole.MEMBER);
         given(workspaceMemberRepository.findByWorkspaceAndMember(workspace, member)).willReturn(Optional.of(workspaceMember));
+        given(emailSendLimitRepository.getRemainLimit(anyInt(), anyLong())).willReturn(100);
 
         //when & then
         BusinessException exception = assertThrows(BusinessException.class, () -> workspaceService.inviteMember(list, memberId, workspaceId));
@@ -333,8 +348,10 @@ class WorkspaceServiceTest {
                 workspaceUrl,
                 0L,
                 false,
-                null
+                null,
+                WorkspaceTier.FREE
         );
+
         given(workspaceRepository.save(any())).willReturn(workspace);
 
         //when
@@ -406,7 +423,8 @@ class WorkspaceServiceTest {
                 "testUrl",
                 100L,
                 false,
-                null
+                null,
+                WorkspaceTier.FREE
         );
     }
 

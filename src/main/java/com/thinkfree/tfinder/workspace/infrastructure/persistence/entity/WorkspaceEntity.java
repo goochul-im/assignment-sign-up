@@ -1,11 +1,11 @@
 package com.thinkfree.tfinder.workspace.infrastructure.persistence.entity;
 
+import com.thinkfree.tfinder.workspace.domain.WorkspaceTier;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.Instant;
@@ -30,15 +30,32 @@ public class WorkspaceEntity extends BaseEntity{
     private boolean isDelete = false;
     @Column(name = "deleted_at")
     private Instant deletedAt = null;
+    @Column(name = "tier")
+    @Enumerated(value = EnumType.STRING)
+    private WorkspaceTier tier;
 
     public WorkspaceEntity(String workspaceName, String workspaceUrl) {
+
         this.workspaceName = workspaceName;
         this.workspaceUrl = workspaceUrl;
+        this.tier = WorkspaceTier.FREE;
     }
 
     public void delete() {
         this.isDelete = true;
         this.deletedAt = Instant.now();
+    }
+
+    /**
+     * 추후에 결제 엔티티로 변경해야함
+     * 비즈니스 로직이 변경에 영향받지 않도록 함수로 추상화
+     */
+    public int getMailLimit() {
+        return this.tier.getMailLimit();
+    }
+
+    public int getCapacity() {
+        return this.tier.getCapacity();
     }
 
 }

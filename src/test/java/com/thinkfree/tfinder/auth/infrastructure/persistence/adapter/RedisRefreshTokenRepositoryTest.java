@@ -11,6 +11,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Duration;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,19 +74,23 @@ class RedisRefreshTokenRepositoryTest {
         String email = "test@email.com";
 
         //when
-        Boolean delete = redisTemplate().delete(email); // 없는 키를 삭제하면 false
-        Boolean noKey = redisTemplate().expire("no key", Duration.ofSeconds(1000)); // 없는 키에 expire를 걸면 false
-        redisTemplate().opsForValue().set("my Key","my Value");
-        String nullValue = redisTemplate().opsForValue().get("no key");
-        assertThrows(IllegalArgumentException.class, () -> redisTemplate().opsForValue().set(null, email)); // null을 키로 주면 예외
-        assertThrows(IllegalArgumentException.class, () -> redisTemplate().opsForSet().add(null, email)); // null을 키로 주면 예외
-        assertThrows(IllegalArgumentException.class, () -> redisTemplate().expire("no key", null)); // Duration은 null로 주면 예외
-        assertThrows(IllegalArgumentException.class, () -> redisTemplate().delete((String) null)); // null을 삭제하면 예외
+        StringRedisTemplate template = redisTemplate();
+        Boolean delete = template.delete(email); // 없는 키를 삭제하면 false
+        Boolean noKey = template.expire("no key", Duration.ofSeconds(1000)); // 없는 키에 expire를 걸면 false
+        template.opsForValue().set("my Key","my Value");
+        String nullValue = template.opsForValue().get("no key");
+        assertThrows(IllegalArgumentException.class, () -> template.opsForValue().set(null, email)); // null을 키로 주면 예외
+        assertThrows(IllegalArgumentException.class, () -> template.opsForSet().add(null, email)); // null을 키로 주면 예외
+        assertThrows(IllegalArgumentException.class, () -> template.expire("no key", null)); // Duration은 null로 주면 예외
+        assertThrows(IllegalArgumentException.class, () -> template.delete((String) null)); // null을 삭제하면 예외
+
+        Long noKey1 = template.getExpire("not key", TimeUnit.MINUTES);
 
         //then
         assertThat(delete).isFalse();
         assertThat(noKey).isFalse();
         assertThat(nullValue).isNull();
+        assertThat(noKey1).isNull();
     }
 //
 //    @Test

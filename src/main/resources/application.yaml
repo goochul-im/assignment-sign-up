@@ -31,6 +31,8 @@ spring:
           auth: true
           starttls:
             enable: true
+    invite:
+      limite: 50
 
   jwt:
     key: ${JWT_SECRET}
@@ -45,22 +47,23 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
 
-  rabbitmq:
-    host: ${RABBIT_MQ:localhost}
-    username: ${RABBIT_USERNAME:guest}
-    password: ${RABBIT_PASSWORD:guest}
-    port: 5672
-    listener:
-      simple:
-        prefetch: 1
-        concurrency: 25
-        max-concurrency: 25
-        retry:
-          enabled: true
-          initial-interval: 2s
-          max-interval: 10s
-          max-retries: 5
-          multiplier: 2
+#  rabbitmq:
+#    host: ${RABBIT_MQ:localhost}
+#    username: ${RABBIT_USERNAME:guest}
+#    password: ${RABBIT_PASSWORD:guest}
+#    port: 5672
+#    listener:
+#      simple:
+#        prefetch: 1
+#        concurrency: 25
+#        max-concurrency: 25
+#        retry:
+#          enabled: true
+#          initial-interval: 2s
+#          max-interval: 10s
+#          max-retries: 5
+#          multiplier: 2
+
 
 frontend:
   url: ${FRONTEND_URL}

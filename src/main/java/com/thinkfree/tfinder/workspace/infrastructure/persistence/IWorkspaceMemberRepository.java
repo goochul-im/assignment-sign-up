@@ -68,4 +68,6 @@ public interface IWorkspaceMemberRepository extends JpaRepository<WorkspaceMembe
 
     void deleteAllByWorkspace(WorkspaceEntity workspace);
 
+    int countAllByWorkspace(WorkspaceEntity workspace);
+
 }

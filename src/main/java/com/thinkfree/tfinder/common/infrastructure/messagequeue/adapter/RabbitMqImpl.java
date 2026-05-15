@@ -15,13 +15,15 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
+/**
+ * @deprecated 현재 사용되지 않음
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class RabbitMqImpl implements IMessageQueue {
+public class RabbitMqImpl implements IMessageQueue { //TODO: 메시지 큐를 굳이 사용할 필요가 있나?
 
     private final RabbitTemplate rabbitTemplate;
-    private final IMailSender iMailSender;
 
     @Override
     public boolean publish(MessageKey key, MessageDto message) {
@@ -40,16 +42,5 @@ public class RabbitMqImpl implements IMessageQueue {
 
         return true;
     }
-
-    /**
-     * 메시지 큐 방식으로 바꾸기는 했지만, 한번에 소비되는 메시지 수를 제한하지 않으면 무슨 소용인가?
-     * 비동기 전송 대신에 동기식 전송으로 바꾸자.
-     */
-    @RabbitListener(queues = RabbitMqConfig.INVITE_QUEUE_NAME)
-    public void inviteMessageConsume(InviteMessageDto message) {
-        log.info("메시지 수신, message ID = {}", message.getId());
-        iMailSender.send(message.getToEmail(), message.getTitle(), message.getMessage());
-    }
-
 
 }

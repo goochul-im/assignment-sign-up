@@ -1,10 +1,12 @@
 package com.thinkfree.tfinder.workspace.service.adapter;
 
+import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailSendLimitRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
+import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.InviteMessageDto;
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.iface.IMessageQueue;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
@@ -50,11 +52,15 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     private final IJwtManager jwtManager;
     private final IEmailValidateRepository emailValidateRepository;
     private final IPendingInviteRepository pendingInviteRepository;
-    private final IMessageQueue messageQueue;
+    private final IEmailSendLimitRepository emailSendLimitRepository;
+    private final IMailSender mailSender;
     private final JwtProperties jwtProperties;
 
     @Value("${frontend.url}")
     private String FRONTEND_URL;
+
+    @Value("${spring.mail.invite.limite}")
+    private int INVITE_MAIL_LIMIT;
 
     @Override
     @Transactional
@@ -111,13 +117,18 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     @Transactional(readOnly = true)
     public InviteResponse inviteMember(List<String> toEmailList, long inviterId, long workspaceId) throws BusinessException {
 
-        if (toEmailList.size() > 50) {
-            throw new BusinessException(ErrorCode.TOO_MANY_INVITE);
-        }
-
         MemberEntity inviter = getMemberOrThrow(inviterId);
         WorkspaceEntity inviteWorkspace = getWorkspaceOrThrow(workspaceId);
         WorkspaceMemberEntity workspaceMember = getWorkspaceMemberOrThrow(inviteWorkspace, inviter);
+
+        // TODO: 추후 결제 플랜 엔티티로 변경 필요
+        int mailLimit = inviteWorkspace.getMailLimit(); // 현재 워크스페이스 플랜의 시간당 메일 할당량
+
+        int emailSize = toEmailList.size();
+        int remainEmailSize = emailSendLimitRepository.getRemainLimit(mailLimit, workspaceId);
+        if (remainEmailSize < emailSize) { // 시간당 할당량보다 많이 보내면 예외가 던저짐
+            throw new BusinessException(ErrorCode.TOO_MANY_INVITE, makeNotEnoughMailMessage(remainEmailSize));
+        }
 
         WorkspaceMemberRole role = workspaceMember.getRole();
         if (!(WorkspaceMemberRole.MANAGER.equals(role) || WorkspaceMemberRole.OWNER.equals(role))) {
@@ -128,8 +139,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         Set<String> emailsSet = new HashSet<>(toEmailList);
         emailsSet.removeAll(joinedEmails); // 이미 가입한 이메일을 제거
 
-        ArrayList<String> failed = new ArrayList<>();
-        ArrayList<String> success = new ArrayList<>();
+        ArrayList<String> success = new ArrayList<>(emailsSet);
         ArrayList<String> alreadyJoined = new ArrayList<>(joinedEmails);
 
         for (String toEmail : emailsSet) {
@@ -143,25 +153,18 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
             log.info("invite Token = {}", inviteToken);
 
             String subject = "tfinder 워크스페이스 초대";
-
-            boolean publish = messageQueue.publish(MessageKey.INVITE, new InviteMessageDto(
-                    Instant.now().toString(),
+            mailSender.asyncSend(
                     toEmail,
-                    subject
-                    , makeInviteMailMessage(inviteWorkspace, inviteToken)
-            ));
-
-            if (publish) {
-                success.add(toEmail);
-            } else {
-                failed.add(toEmail);
-            }
-
+                    subject,
+                    makeInviteMailMessage(
+                            inviteWorkspace,
+                            inviteToken
+                    )
+            );
         }
 
         return new InviteResponse(
                 success,
-                failed,
                 alreadyJoined
         );
     }
@@ -230,6 +233,15 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
                 <p>링크가 열리지 않는다면 아래 주소를 복사해서 브라우저에 붙여넣어 주세요.</p>
                 <p>%s</p>
                 """.formatted(workspace.getWorkspaceName(), inviteUrl, inviteUrl);
+
+        return message;
+    }
+
+    private String makeNotEnoughMailMessage(int remainMail) {
+        String message = """
+                시간당 초대 할당량을 모두 소진하였습니다.
+                남은 초대 할당량은 %d입니다. 잠시 후에 다시 시도해주세요
+                """.formatted(remainMail);
 
         return message;
     }

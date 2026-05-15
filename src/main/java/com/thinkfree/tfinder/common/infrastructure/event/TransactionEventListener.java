@@ -14,7 +14,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class EventListener {
+public class TransactionEventListener {
 
     private final JoinWorkspaceHandler handler;
 

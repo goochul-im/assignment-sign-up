@@ -164,7 +164,7 @@ public class WorkspaceController {
     @SecurityRequirement(name = "Auth")
     @Operation(
             summary = "워크스페이스 초대 요청",
-            description = "워크스페이스 초대 요청을 보냅니다. 최대 50개의 이메일에 초대를 보낼수 있습니다."
+            description = "워크스페이스 초대 요청을 보냅니다. 시간당 메일 발송량 제한이 있습니다."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "202", description = "SMTP에 초대 메일 발송 요청 완료",
@@ -175,6 +175,7 @@ public class WorkspaceController {
             ),
             @ApiResponse(responseCode = "404", description = "E-001, 초대자가 존재하지 않거나 초대할 워크스페이스가 존재하지 않음"),
             @ApiResponse(responseCode = "409", description = "A-002, 해당 워크스페이스에 초대자가 속해있지 않거나, 권한이 없음"),
+            @ApiResponse(responseCode = "400", description = "I-005, 시간당 메일 할당량을 넘어서서 보냈음."),
     })
     @PostMapping("/invite")
     public ResponseEntity<InviteResponse> inviteMembers(
