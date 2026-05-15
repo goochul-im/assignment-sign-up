@@ -28,7 +28,8 @@ public class DummyDataConstructor {
         WorkspaceEntity workspace2 = new WorkspaceEntity("dummy workspace2", "dummy url2");
         WorkspaceEntity workspace3 = new WorkspaceEntity("dummy workspace3", "dummy url3");
         WorkspaceEntity workspace4 = new WorkspaceEntity("dummy workspace4", "dummy url4");
-        WorkspaceEntity workspace5 = new WorkspaceEntity("dummy workspace5", "dummy url5", true);
+        WorkspaceEntity workspace5 = new WorkspaceEntity("dummy workspace5", "dummy url5");
+        workspace5.delete();
 
         memberRepository.save(member);
 

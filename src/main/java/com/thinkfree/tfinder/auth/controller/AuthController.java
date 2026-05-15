@@ -9,12 +9,10 @@ import com.thinkfree.tfinder.auth.controller.response.AccessTokenResponse;
 import com.thinkfree.tfinder.auth.controller.response.ValidateEmailResponse;
 import com.thinkfree.tfinder.auth.service.dto.LoginDto;
 import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
-import com.thinkfree.tfinder.auth.service.dto.MemberSignupResultDto;
+import com.thinkfree.tfinder.auth.service.dto.MemberSignupResponse;
 import com.thinkfree.tfinder.auth.service.dto.SignupDto;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
 import com.thinkfree.tfinder.common.concurrent.LockSupporter;
-import com.thinkfree.tfinder.common.exception.BusinessException;
-import com.thinkfree.tfinder.common.exception.ErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -123,23 +121,28 @@ public class AuthController {
             description = "회원가입을 진행합니다."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "회원가입 성공"),
+            @ApiResponse(responseCode = "200", description = "회원가입 성공", content =
+                @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = MemberSignupResponse.class)
+                )
+            ),
             @ApiResponse(responseCode = "409", description = "E-002, 중복 이메일"),
-            @ApiResponse(responseCode = "401", description = "A-010, 이메일이 인증되지 않았거나, 인증이 만료되었습니다.")
+            @ApiResponse(responseCode = "401", description = "A-010, 이메일이 인증되지 않았거나, 인증이 만료됨")
     })
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest request) {
 
         final String lockKey = "try:signup:" + request.email();
 
-        lockSupporter.lockSupport(() -> authUseCase.signUp(new SignupDto(
+        MemberSignupResponse result = lockSupporter.lockSupport(() -> authUseCase.signUp(new SignupDto(
                 request.email(),
                 request.nickname(),
                 request.password()
         )), lockKey);
 
-        return ResponseEntity.noContent()
-                .build();
+        return ResponseEntity.ok()
+                .body(result);
     }
 
     @Operation(

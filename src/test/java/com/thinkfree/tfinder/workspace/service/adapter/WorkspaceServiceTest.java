@@ -332,7 +332,8 @@ class WorkspaceServiceTest {
                 workspaceName,
                 workspaceUrl,
                 0L,
-                false
+                false,
+                null
         );
         given(workspaceRepository.save(any())).willReturn(workspace);
 
@@ -404,7 +405,8 @@ class WorkspaceServiceTest {
                 "testWorkspace",
                 "testUrl",
                 100L,
-                false
+                false,
+                null
         );
     }
 

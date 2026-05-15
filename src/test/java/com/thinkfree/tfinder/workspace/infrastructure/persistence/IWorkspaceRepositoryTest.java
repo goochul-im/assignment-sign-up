@@ -39,7 +39,6 @@ class IWorkspaceRepositoryTest {
 
         //then
         assertThat(workspaceRepository.findById(id)).isEmpty();
-
     }
 
 

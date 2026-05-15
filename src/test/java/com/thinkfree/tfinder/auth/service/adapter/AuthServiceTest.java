@@ -4,7 +4,7 @@ import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidat
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
 import com.thinkfree.tfinder.auth.service.dto.LoginDto;
 import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
-import com.thinkfree.tfinder.auth.service.dto.MemberSignupResultDto;
+import com.thinkfree.tfinder.auth.service.dto.MemberSignupResponse;
 import com.thinkfree.tfinder.auth.service.dto.SignupDto;
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
@@ -87,11 +87,11 @@ class AuthServiceTest {
         given(emailValidateRepository.isValidated(email)).willReturn(true);
 
         //when
-        MemberSignupResultDto result = authService.signUp(dto);
+        MemberSignupResponse result = authService.signUp(dto);
 
         //then
         assertThat(result.memberId()).isEqualTo(returnMember.getId());
-        assertThat(result.username()).isEqualTo(username);
+        assertThat(result.nickname()).isEqualTo(username);
     }
 
     @Test

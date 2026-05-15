@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.resilience.annotation.Retryable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,7 +72,7 @@ public class AuthService implements IAuthUseCase {
 
     @Override
     @Transactional
-    public MemberSignupResultDto signUp(SignupDto dto) {
+    public MemberSignupResponse signUp(SignupDto dto) {
 
         String signupEmail = dto.email();
 
@@ -99,7 +98,7 @@ public class AuthService implements IAuthUseCase {
             log.warn("이메일 인증 정보가 정상적으로 삭제되지 않았습니다. email = {}", signupEmail);
         }
 
-        return new MemberSignupResultDto(
+        return new MemberSignupResponse(
                 savedMember.getId(),
                 savedMember.getNickname()
         );
