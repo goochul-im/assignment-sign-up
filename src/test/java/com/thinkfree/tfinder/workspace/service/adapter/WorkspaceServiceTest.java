@@ -65,8 +65,6 @@ class WorkspaceServiceTest {
     @Mock
     IPendingInviteRepository pendingInviteRepository;
     @Mock
-    IMessageQueue messageQueue;
-    @Mock
     private IEmailSendLimitRepository emailSendLimitRepository;
     @InjectMocks
     private WorkspaceService workspaceService;

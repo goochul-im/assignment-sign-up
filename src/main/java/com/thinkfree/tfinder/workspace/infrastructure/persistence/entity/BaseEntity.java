@@ -19,6 +19,6 @@ public abstract class BaseEntity {
     private Instant createdAt;
 
     @LastModifiedDate
-    private Instant modifiedBy;
+    private Instant modifiedAt;
 
 }
