@@ -12,6 +12,9 @@ import org.slf4j.Logger;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.stereotype.Component;
 
+/**
+ * @deprecated GlobalExceptionHandler랑 다들게 없어서 비활성화했습니다.
+ */
 @Aspect
 @Slf4j
 @Component
