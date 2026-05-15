@@ -60,7 +60,7 @@ public class WorkspaceController {
             @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
 
-        MyWorkspaceResponse response = workspaceQuery.getMyWorkspaces(currentUser.getMemberId()); // TODO: 얘는 왜 굳이 Response로 감싸야 하는가?
+        MyWorkspaceResponse response = workspaceQuery.getMyWorkspaces(currentUser.getMemberId());
 
         return ResponseEntity.ok()
                 .body(response);

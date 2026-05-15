@@ -1,6 +1,8 @@
 package com.thinkfree.tfinder.common.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.RedisConnectionFailureException;
+import org.springframework.data.redis.RedisSystemException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
@@ -19,6 +21,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> businessExceptionHandler(BusinessException exception) {
         return ErrorResponse.toEntity(exception.getErrorCode(), Optional.ofNullable(exception.getMessage()));
+    }
+
+    @ExceptionHandler({RedisConnectionFailureException.class, RedisSystemException.class})
+    public ResponseEntity<ErrorResponse> handleRedisConnectionFailureException(
+            Exception exception
+    ) {
+
+        log.error("Redis 연결이 끊어졌습니다.");
+        HashMap<String, String> errorCause = new HashMap<>();
+        errorCause.put("errorMessage", exception.getMessage());
+
+        return ErrorResponse.toEntity(ErrorCode.EXTERNAL_ERROR, errorCause);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -47,14 +61,13 @@ public class GlobalExceptionHandler {
         return ErrorResponse.toEntity(ErrorCode.INVALID_REQUEST_BODY, errorCause);
     }
 
-//    @ExceptionHandler(RedisConnectionFailureException.class) //TODO: AOP 대신에 글로벌 예외 핸들러도 생각해볼것
-//    public ResponseEntity<ErrorResponse> handleRedisConnectionFailureException(
-//            RedisConnectionFailureException exception
+//    @ExceptionHandler(RedisSystemException.class)
+//    public ResponseEntity<ErrorResponse> handleRedisSystemException(
+//            RedisSystemException exception
 //    ) {
 //
 //        log.error("Redis 연결이 끊어졌습니다.");
 //        HashMap<String, String> errorCause = new HashMap<>();
-//        errorCause.put("body", "RequestBody 형식이 맞지 않습니다.");
 //        errorCause.put("errorMessage", exception.getMessage());
 //
 //        return ErrorResponse.toEntity(ErrorCode.EXTERNAL_ERROR, errorCause);

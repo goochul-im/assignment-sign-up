@@ -1,17 +1,12 @@
 package com.thinkfree.tfinder.common.infrastructure.messagequeue.adapter;
 
 import com.thinkfree.tfinder.common.config.RabbitMqConfig;
-import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
-import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.InviteMessageDto;
-import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.JoinWorkSpaceMessageDto;
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.MessageDto;
-import com.thinkfree.tfinder.common.infrastructure.messagequeue.handler.JoinWorkspaceHandler;
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.iface.IMessageQueue;
 import com.thinkfree.tfinder.workspace.domain.MessageKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 

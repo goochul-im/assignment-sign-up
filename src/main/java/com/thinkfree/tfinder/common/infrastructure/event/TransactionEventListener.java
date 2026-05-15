@@ -1,6 +1,6 @@
 package com.thinkfree.tfinder.common.infrastructure.event;
 
-import com.thinkfree.tfinder.common.infrastructure.messagequeue.handler.JoinWorkspaceHandler;
+import com.thinkfree.tfinder.common.infrastructure.messagequeue.handler.JoinPendingInviteHandler;
 import com.thinkfree.tfinder.workspace.event.JoinPendingEvent;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class TransactionEventListener {
 
-    private final JoinWorkspaceHandler handler;
+    private final JoinPendingInviteHandler handler;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)

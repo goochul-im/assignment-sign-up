@@ -20,7 +20,7 @@ public interface IWorkspaceQuery {
      * @param workspaceId 조회할 워크스페이스 ID
      * @param page 페이지 번호
      * @param pageSize 페이지 크기
-     * @return 워크스페이스에 속한 멤버 목록
+     * @return 워크스페이스에 속한 멤버 목록 페이지
      * @throws BusinessException 요청자 또는 워크스페이스가 존재하지 않거나, 요청자가 워크스페이스에 속해있지 않음
      */
     WorkspaceMembersPageResponse getWorkspaceMembersPage(long requesterId, long workspaceId, int page, int pageSize) throws BusinessException;
