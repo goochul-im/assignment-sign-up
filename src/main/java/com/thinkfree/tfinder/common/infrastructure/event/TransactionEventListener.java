@@ -1,6 +1,6 @@
 package com.thinkfree.tfinder.common.infrastructure.event;
 
-import com.thinkfree.tfinder.common.infrastructure.messagequeue.handler.JoinPendingInviteHandler;
+import com.thinkfree.tfinder.common.infrastructure.event.handler.JoinPendingInviteHandler;
 import com.thinkfree.tfinder.workspace.event.JoinPendingEvent;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import lombok.RequiredArgsConstructor;
@@ -16,14 +16,14 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class TransactionEventListener {
 
-    private final JoinPendingInviteHandler handler;
+    private final JoinPendingInviteHandler joinPendingInviteHandler;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void joinPendingInviteListener(JoinPendingEvent event) {
         log.info("join 트랜잭션 이벤트 수신 완료");
         MemberEntity member = event.member();
-        handler.handle(member);
+        joinPendingInviteHandler.handle(member);
     }
 
 }

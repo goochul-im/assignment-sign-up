@@ -59,9 +59,6 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     @Value("${frontend.url}")
     private String FRONTEND_URL;
 
-    @Value("${spring.mail.invite.limite}")
-    private int INVITE_MAIL_LIMIT;
-
     @Override
     @Transactional
     public CreateWorkspaceResponse create(CreateWorkspaceCommand dto) throws BusinessException {
@@ -161,7 +158,10 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
                             inviteToken
                     )
             );
+
         }
+        // 사용한 메일 할당량 감소시키기
+        emailSendLimitRepository.decreaseRemainLimit(emailsSet.size(), workspaceId);
 
         return new InviteResponse(
                 success,
@@ -170,7 +170,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     }
 
     @Override
-    @Transactional
+    @Transactional(noRollbackFor = BusinessException.class)
     public void acceptInvite(String token) throws BusinessException {
 
         InviteTokenResult result = jwtManager.parsingInviteToken(token);
@@ -193,10 +193,9 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
             workspaceMemberRepository.save(workspaceMember);
         } else {
-            // 회원이 아닐 경우
             Duration expiration = Duration.ofSeconds(jwtProperties.getValidateEmailExpirationSeconds());
             emailValidateRepository.saveAsValidated(toEmail, expiration);    // emailValidate와 pendingInvite는 하나의 트랜잭션으로 묶여서
-            pendingInviteRepository.save(toEmail, workspaceUrl, expiration); // 쓰기 지연을 통해 에러가 발생하면 모두 저장되지 않음
+            pendingInviteRepository.save(toEmail, workspaceUrl, expiration);
             throw new BusinessException(ErrorCode.SIGNUP_FIRST);
         }
 
@@ -216,7 +215,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         // 워크스페이스 소프트 딜리트
         workspace.delete();
         // 워크스페이스 멤버 삭제 처리
-        workspaceMemberRepository.deleteAllByWorkspace(workspace);
+//        workspaceMemberRepository.deleteAllByWorkspace(workspace);
     }
 
     private String makeInviteMailMessage(WorkspaceEntity workspace, String token) {

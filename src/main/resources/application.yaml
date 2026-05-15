@@ -31,8 +31,6 @@ spring:
           auth: true
           starttls:
             enable: true
-    invite:
-      limite: 50
 
   jwt:
     key: ${JWT_SECRET}

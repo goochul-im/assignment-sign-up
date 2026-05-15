@@ -84,13 +84,14 @@ class RedisRefreshTokenRepositoryTest {
         assertThrows(IllegalArgumentException.class, () -> template.expire("no key", null)); // Duration은 null로 주면 예외
         assertThrows(IllegalArgumentException.class, () -> template.delete((String) null)); // null을 삭제하면 예외
 
-        Long noKey1 = template.getExpire("not key", TimeUnit.MINUTES);
+        template.opsForValue().set("dec", "10");
+        Long decrement = template.opsForValue().decrement("dec", 15);
 
         //then
         assertThat(delete).isFalse();
         assertThat(noKey).isFalse();
         assertThat(nullValue).isNull();
-        assertThat(noKey1).isNull();
+        assertThat(decrement).isEqualTo(-5);
     }
 //
 //    @Test

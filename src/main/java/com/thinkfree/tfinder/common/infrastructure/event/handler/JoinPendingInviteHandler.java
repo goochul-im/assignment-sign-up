@@ -1,8 +1,6 @@
-package com.thinkfree.tfinder.common.infrastructure.messagequeue.handler;
+package com.thinkfree.tfinder.common.infrastructure.event.handler;
 
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
-import com.thinkfree.tfinder.common.exception.BusinessException;
-import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
@@ -24,6 +22,10 @@ public class JoinPendingInviteHandler {
     private final IWorkspaceRepository workspaceRepository;
     private final IWorkspaceMemberRepository workspaceMemberRepository;
 
+    /**
+     * 대기중이던 초대 수락 이벤트들을 소모해
+     * 회원을 워크스페이스에 가입시킵니다.
+     */
     public void handle(MemberEntity member) {
 
         String email = member.getEmail();
@@ -53,7 +55,7 @@ public class JoinPendingInviteHandler {
         String signupEmail = member.getEmail();
         try {
             if (!pendingInviteRepository.delete(signupEmail)) {
-                // 여기서도 레디스 커넥션 fail이 발생하면, 전부다 롤백되는가?
+                // 여기서도 레디스 커넥션 fail이 발생하면, 전부다 롤백되는가? -> 그건 아님
                 log.warn("워크스페이스 대기 정보 삭제 실패, email = {}",signupEmail);
             }
         } catch (IllegalArgumentException e) {

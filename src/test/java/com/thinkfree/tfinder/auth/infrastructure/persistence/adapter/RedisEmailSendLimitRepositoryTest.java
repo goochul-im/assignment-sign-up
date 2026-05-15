@@ -47,7 +47,7 @@ class RedisEmailSendLimitRepositoryTest {
         long id = 1;
         String remainLimit = "10";
         repository = new RedisEmailSendLimitRepository(redisTemplate());
-        redisTemplate().opsForValue().set("send:limit" + id, remainLimit);
+        redisTemplate().opsForValue().set("send:limit:" + id, remainLimit);
 
         //when
         int result = repository.getRemainLimit(50, id);

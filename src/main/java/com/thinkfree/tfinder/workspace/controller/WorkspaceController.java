@@ -130,11 +130,13 @@ public class WorkspaceController {
             @AuthenticationPrincipal CustomUserDetails currentUser
     ){
 
+        final String createLock = "lock:create:workspaceUrl:";
+
         CreateWorkspaceResponse response = lockSupporter.lockSupport(() -> workspaceUseCase.create(new CreateWorkspaceCommand(
                 currentUser.getMemberId(),
                 request.workspaceName(),
                 request.workspaceUrl()
-        )), request.workspaceUrl());
+        )), createLock + request.workspaceUrl());
 
         return ResponseEntity
                 .created(URI.create(response.workspaceUrl()))
@@ -183,11 +185,13 @@ public class WorkspaceController {
             @AuthenticationPrincipal CustomUserDetails currentUser
             ) {
 
-        InviteResponse response = workspaceUseCase.inviteMember(
+        final String inviteLock = "lock:invite:workspaceId:";
+
+        InviteResponse response = lockSupporter.lockSupport(() -> workspaceUseCase.inviteMember(
                 request.toEmailList(),
                 currentUser.getMemberId(),
                 request.workspaceId()
-        );
+        ), inviteLock + request.workspaceId());
 
         return ResponseEntity.accepted()
                 .body(response);

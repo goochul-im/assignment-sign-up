@@ -20,7 +20,7 @@ POST http://localhost:8080/auth/signup
 Content-Type: application/json
 
 {
-  "email": "gooch@naver.com",
+  "email": "gooc@naver.com",
   "password": "12341234",
   "nickname": "gooch123"
 }
