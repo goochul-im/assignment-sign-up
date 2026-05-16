@@ -6,9 +6,11 @@ import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberE
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
 import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
@@ -16,6 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @IntegrationTest
@@ -192,6 +195,38 @@ class IWorkspaceMemberRepositoryTest {
         assertThat(pages3.getNumber()).isEqualTo(3);
         assertThat(pages3.hasNext()).isFalse();
         assertThat(pages3.getSize()).isEqualTo(10);
+    }
+
+    @Test
+    void 멤버와_워크스페이스로_중복_저장될_경우_예외가_발생한다(){
+        //given
+        String testemail = "testemail";
+        MemberEntity member = new MemberEntity(
+                "test",
+                testemail,
+                "test"
+        );
+        WorkspaceEntity workspace = new WorkspaceEntity(
+                "testWorkspace",
+                "testUrl"
+        );
+        WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(
+                workspace,
+                member,
+                WorkspaceMemberRole.MEMBER
+        );
+        member = memberRepository.save(member);
+        workspace = workspaceRepository.save(workspace);
+        workspaceMemberRepository.save(workspaceMember);
+        WorkspaceMemberEntity workspaceMember2 = new WorkspaceMemberEntity(
+                workspace,
+                member,
+                WorkspaceMemberRole.MEMBER
+        );
+
+        //when
+        assertThrows(DataIntegrityViolationException.class, () -> workspaceMemberRepository.save(workspaceMember2));
+
     }
 
 

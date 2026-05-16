@@ -195,8 +195,8 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
             workspaceMemberRepository.save(workspaceMember);
         } else {
             Duration expiration = Duration.ofSeconds(jwtProperties.getValidateEmailExpirationSeconds());
-            emailValidateRepository.saveAsValidated(toEmail, expiration);    // emailValidate와 pendingInvite는 하나의 트랜잭션으로 묶여서
-            pendingInviteRepository.save(toEmail, workspaceUrl, expiration);
+            emailValidateRepository.saveAsValidated(toEmail, expiration);    // emailValidate와 pendingInvite는 하나의 트랜잭션으로 묶임.
+            pendingInviteRepository.save(toEmail, workspaceUrl, expiration); // 하나가 실패하면 다같이 롤백됨
             throw new BusinessException(ErrorCode.SIGNUP_FIRST);
         }
 

@@ -2,10 +2,14 @@ package com.thinkfree.tfinder.auth.infrastructure.persistence.adapter;
 
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Set;
 
 @Repository
@@ -19,15 +23,21 @@ public class RedisPendingInviteRepository implements IPendingInviteRepository {
     @Override
     public void save(String email, String workspaceUrl, Duration expiration) {
         String key = getKey(email);
-        redisTemplate.opsForSet().add(key, workspaceUrl); //set이라서 중복 저장이 안됨
-        redisTemplate.expire(key, expiration);
-//         이 방식은.. 초대별 TTL이 안된다.
-        // 초대별로 바꾸려면 어떻게 해야하지..?
+        long now = Instant.now().toEpochMilli();
+        long expiresAt = now + expiration.toMillis();
+
+        removeExpiredInvites(key, now); // 이미 만료된 대기 요청들을 삭제
+        redisTemplate.opsForZSet().add(key, workspaceUrl, expiresAt);
+        refreshKeyExpirationAtLatestInvite(key); // 가장 나중의
     }
 
     @Override
     public Set<String> findWorkspaceUrlsByEmail(String email) {
-        Set<String> workspaceUrls = redisTemplate.opsForSet().members(getKey(email));
+        String key = getKey(email);
+        long now = Instant.now().toEpochMilli();
+
+        removeExpiredInvites(key, now);
+        Set<String> workspaceUrls = redisTemplate.opsForZSet().rangeByScore(key, now + 1, Double.POSITIVE_INFINITY);
         if (workspaceUrls == null) return Set.of();
 
         return workspaceUrls;
@@ -40,5 +50,22 @@ public class RedisPendingInviteRepository implements IPendingInviteRepository {
 
     private String getKey(String email) {
         return KEY_PREFIX + email;
+    }
+
+    private void removeExpiredInvites(String key, long now) {
+        redisTemplate.opsForZSet().removeRangeByScore(key, 0, now);
+    }
+
+    private void refreshKeyExpirationAtLatestInvite(String key) {
+        Set<ZSetOperations.@NonNull TypedTuple<String>> latestInvites = redisTemplate.opsForZSet() //가장 늦게 만료되는 초대 요청 가져오기
+                .reverseRangeWithScores(key, 0, 0);
+
+        if (latestInvites == null || latestInvites.isEmpty()) return;
+
+        Double latestExpiresAt = latestInvites.iterator().next().getScore(); // 가장 늦게 끝나는 초대 요청의 만료 시간 가져오기
+        if (latestExpiresAt == null) return;
+
+        redisTemplate.expireAt(key, Date.from(Instant.ofEpochMilli(latestExpiresAt.longValue()))); // key를 해당 시간에 만료되도록 설정
+        // 그러면 마지막 요청이 만료될때 zset 키 자체도 같이 만료되어서 삭제됨
     }
 }

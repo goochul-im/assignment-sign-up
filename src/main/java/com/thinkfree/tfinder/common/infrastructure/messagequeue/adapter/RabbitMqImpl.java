@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 /**
  * @deprecated 현재 사용되지 않음
  */
-@Component
+//@Component
 @Slf4j
 @RequiredArgsConstructor
 public class RabbitMqImpl implements IMessageQueue { //TODO: 메시지 큐를 굳이 사용할 필요가 있나?

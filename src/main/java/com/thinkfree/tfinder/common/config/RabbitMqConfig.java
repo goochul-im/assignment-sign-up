@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
  * no use now
  * @deprecated 현재 사용하지 않음
  */
-@Configuration
+//@Configuration
 public class RabbitMqConfig {
 
     public static final String INVITE_QUEUE_NAME = "email.invite";
