@@ -9,6 +9,7 @@ import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.Workspa
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
@@ -47,6 +48,8 @@ public class JoinPendingInviteHandler {
                             WorkspaceMemberRole.MEMBER
                     ));
                 }
+            } catch (DataIntegrityViolationException e) {
+                log.warn("워크스페이스 중복 참여 시도 발생, member = {}, workspaceUrl = {}", member.getEmail(), workspaceUrl);
             } catch (Exception e) {
                 log.warn("참여 대기중인 워크스페이스에 참여 중 에러 발생, member = {}, workspaceUrl = {}", member.getEmail(), workspaceUrl);
             }

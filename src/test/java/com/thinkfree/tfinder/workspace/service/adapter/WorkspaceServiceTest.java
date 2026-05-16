@@ -295,7 +295,7 @@ class WorkspaceServiceTest {
         WorkspaceEntity workspace = getWorkspace(workspaceId);
         given(memberRepository.findById(any())).willReturn(Optional.of(member));
         given(workspaceRepository.findById(any())).willReturn(Optional.of(workspace));
-        WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(workspace, member, WorkspaceMemberRole.MEMBER);
+        WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(workspace, member, WorkspaceMemberRole.OWNER);
         given(workspaceMemberRepository.findByWorkspaceAndMember(workspace, member)).willReturn(Optional.of(workspaceMember));
         given(emailSendLimitRepository.getRemainLimit(anyInt(), anyLong())).willReturn(10);
 
@@ -320,7 +320,6 @@ class WorkspaceServiceTest {
         given(workspaceRepository.findById(any())).willReturn(Optional.of(workspace));
         WorkspaceMemberEntity workspaceMember = new WorkspaceMemberEntity(workspace, member, WorkspaceMemberRole.MEMBER);
         given(workspaceMemberRepository.findByWorkspaceAndMember(workspace, member)).willReturn(Optional.of(workspaceMember));
-        given(emailSendLimitRepository.getRemainLimit(anyInt(), anyLong())).willReturn(100);
 
         //when & then
         BusinessException exception = assertThrows(BusinessException.class, () -> workspaceService.inviteMember(list, memberId, workspaceId));

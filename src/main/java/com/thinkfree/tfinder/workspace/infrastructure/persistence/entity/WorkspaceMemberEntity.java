@@ -10,6 +10,12 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 
 @Entity(name = "workspace_member")
+@Table(
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_workspace_member",
+                columnNames = {"workspace_id","member_id"}
+        )
+)
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

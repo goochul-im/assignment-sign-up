@@ -121,11 +121,6 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         // TODO: 추후 결제 플랜 엔티티로 변경 필요
         int mailLimit = inviteWorkspace.getMailLimit(); // 현재 워크스페이스 플랜의 시간당 메일 할당량
 
-        int emailSize = toEmailList.size();
-        int remainEmailSize = emailSendLimitRepository.getRemainLimit(mailLimit, workspaceId);
-        if (remainEmailSize < emailSize) { // 시간당 할당량보다 많이 보내면 예외가 던저짐
-            throw new BusinessException(ErrorCode.TOO_MANY_INVITE, makeNotEnoughMailMessage(remainEmailSize));
-        }
 
         WorkspaceMemberRole role = workspaceMember.getRole();
         if (!(WorkspaceMemberRole.MANAGER.equals(role) || WorkspaceMemberRole.OWNER.equals(role))) {
@@ -133,13 +128,19 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         }
 
         Set<String> joinedEmails = memberRepository.findJoinedEmails(inviteWorkspace, toEmailList);
-        Set<String> emailsSet = new HashSet<>(toEmailList);
-        emailsSet.removeAll(joinedEmails); // 이미 가입한 이메일을 제거
+        Set<String> notJoinedEmails = new HashSet<>(toEmailList);
+        notJoinedEmails.removeAll(joinedEmails); // 이미 가입한 이메일을 제거
 
-        ArrayList<String> success = new ArrayList<>(emailsSet);
+        int sendCount = notJoinedEmails.size();
+        int remainEmailSize = emailSendLimitRepository.getRemainLimit(mailLimit, workspaceId);
+        if (remainEmailSize < sendCount) { // 시간당 할당량보다 많이 보내면 예외가 던저짐
+            throw new BusinessException(ErrorCode.TOO_MANY_INVITE, makeNotEnoughMailMessage(remainEmailSize));
+        }
+
+        ArrayList<String> success = new ArrayList<>(notJoinedEmails);
         ArrayList<String> alreadyJoined = new ArrayList<>(joinedEmails);
 
-        for (String toEmail : emailsSet) {
+        for (String toEmail : notJoinedEmails) {
             // 이미 워크스페이스에 가입한 경우에는 이메일을 또 보낼 필요 없다
 
             String inviteToken = jwtManager.generateInviteToken(
@@ -161,7 +162,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
         }
         // 사용한 메일 할당량 감소시키기
-        emailSendLimitRepository.decreaseRemainLimit(emailsSet.size(), workspaceId);
+        emailSendLimitRepository.decreaseRemainLimit(notJoinedEmails.size(), workspaceId);
 
         return new InviteResponse(
                 success,

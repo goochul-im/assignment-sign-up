@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,7 +89,13 @@ public class AuthService implements IAuthUseCase {
                 signupEmail,
                 encoder.encode(dto.password())
         );
-        MemberEntity savedMember = memberRepository.save(member);
+        MemberEntity savedMember = null;
+
+        try {
+            savedMember = memberRepository.save(member);
+        } catch (DataIntegrityViolationException e) {
+            throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
+        }
 
         // 트랜잭션 커밋 이후 이벤트가 발행되고, 트랜잭션이벤트 리스너가 이를 받아 메시지를 발행합니다.~
         eventPublisher.publishEvent(new JoinPendingEvent(savedMember));
