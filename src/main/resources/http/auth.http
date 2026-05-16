@@ -11,9 +11,16 @@ Content-Type: application/json
   "password": "12341234"
 }
 
+> {%
+ var token = response.body.accessToken
+
+ client
+     .global.set("access_token", token)
+ %}
+
 ### 액세스 토큰 검증
 GET localhost:8080/test
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3Nzg2NjcwNjYsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6InRlc3RAZW1haWwuY29tIn0.epNPvA6ewvwBiWv_496Mh6i3gk9N7oTEXEnDSa8_CfoH2H7n73d7lSzOUUqOXz5CA3Z8q8w8frgYBoj9-q63UQ
+Authorization: Bearer {{access_token}}
 
 ### 새 유저 회원가입
 POST http://localhost:8080/auth/signup
