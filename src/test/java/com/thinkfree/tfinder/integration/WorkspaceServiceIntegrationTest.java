@@ -47,8 +47,6 @@ class WorkspaceServiceIntegrationTest {
     @Autowired
     private IPendingInviteRepository pendingInviteRepository;
     @Autowired
-    private IMessageQueue messageQueue;
-    @Autowired
     private JwtProperties jwtProperties;
     @Autowired
     private EntityManager entityManager;

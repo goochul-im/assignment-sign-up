@@ -7,15 +7,18 @@ import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshToken
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
+import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInviteOutboxMapper;
+import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInvitePayload;
+import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
+import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventType;
+import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxRepository;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
-import com.thinkfree.tfinder.workspace.event.JoinPendingEvent;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,7 +37,8 @@ public class AuthService implements IAuthUseCase {
     private final IRefreshTokenRepository refreshTokenRepository;
     private final IEmailValidateRepository emailValidateRepository;
     private final IMailSender mailSender;
-    private final ApplicationEventPublisher eventPublisher;
+    private final OutboxRepository outboxRepository;
+    private final JoinPendingInviteOutboxMapper joinPendingInviteOutboxMapper;
     private final JwtProperties jwtProperties;
 
     @Value("${frontend.url}")
@@ -97,13 +101,16 @@ public class AuthService implements IAuthUseCase {
             throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
         }
 
-        // 트랜잭션 커밋 이후 이벤트가 발행되고, 트랜잭션이벤트 리스너가 이를 받아 메시지를 발행합니다.~
-        eventPublisher.publishEvent(new JoinPendingEvent(savedMember));
+        String payload = joinPendingInviteOutboxMapper.toPayload(new JoinPendingInvitePayload(
+                savedMember.getId(),
+                savedMember.getEmail()
+        ));
+        outboxRepository.save(OutboxEntity.pending( // 현재 대기중인 초대 있는지 확인
+                OutboxEventType.JOIN_WORKSPACE_PENDING_INVITE,
+                payload
+        ));
 
-        // TODO:RedisConnectionFailureException가 발생하면 롤백해야할 정도의 심각한 일인가?
-        if (!emailValidateRepository.delete(signupEmail)){ //인증정보 삭제
-            log.warn("이메일 인증 정보가 정상적으로 삭제되지 않았습니다. email = {}", signupEmail);
-        }
+        emailValidateRepository.delete(signupEmail);
 
         return new MemberSignupResponse(
                 savedMember.getId(),

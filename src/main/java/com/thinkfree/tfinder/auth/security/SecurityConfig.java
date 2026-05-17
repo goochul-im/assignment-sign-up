@@ -50,6 +50,7 @@ public class SecurityConfig {
                         matcher.matcher("/v3/api-docs/**")
                 );
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtManager, customUserDetailsService, permitRequestMather);
+        // 빈으로 등록하고 또 HttpSecurity에 추가하면 두개가 생김
 
         http
                 .authorizeHttpRequests(authorize -> authorize

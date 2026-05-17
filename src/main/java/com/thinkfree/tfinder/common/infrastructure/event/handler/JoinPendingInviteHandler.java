@@ -1,7 +1,13 @@
 package com.thinkfree.tfinder.common.infrastructure.event.handler;
 
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
+import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInviteOutboxMapper;
+import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInvitePayload;
+import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
+import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventHandler;
+import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventType;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
+import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
@@ -17,17 +23,35 @@ import java.util.Set;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class JoinPendingInviteHandler {
+public class JoinPendingInviteHandler implements OutboxEventHandler {
 
     private final IPendingInviteRepository pendingInviteRepository;
+    private final IMemberRepository memberRepository;
     private final IWorkspaceRepository workspaceRepository;
     private final IWorkspaceMemberRepository workspaceMemberRepository;
+    private final JoinPendingInviteOutboxMapper mapper;
+
+
+    @Override
+    public OutboxEventType supportType() {
+        return OutboxEventType.JOIN_WORKSPACE_PENDING_INVITE;
+    }
+
+    @Override
+    public void handle(OutboxEntity outbox) {
+        JoinPendingInvitePayload payload = mapper.fromPayload(outbox.getPayload());
+        MemberEntity member = memberRepository.findById(payload.memberId()).orElseThrow(
+                RuntimeException::new
+        );
+
+        handle(member);
+    }
 
     /**
      * 대기중이던 초대 수락 이벤트들을 소모해
      * 회원을 워크스페이스에 가입시킵니다.
      */
-    public void handle(MemberEntity member) {
+    private void handle(MemberEntity member) {
 
         String email = member.getEmail();
         Set<String> pendingWorkspaceUrls = pendingInviteRepository.findWorkspaceUrlsByEmail(email);
@@ -56,14 +80,7 @@ public class JoinPendingInviteHandler {
         }
 
         String signupEmail = member.getEmail();
-        try {
-            if (!pendingInviteRepository.delete(signupEmail)) {
-                // 여기서도 레디스 커넥션 fail이 발생하면, 전부다 롤백되는가? -> 그건 아님
-                log.warn("워크스페이스 대기 정보 삭제 실패, email = {}",signupEmail);
-            }
-        } catch (IllegalArgumentException e) {
-            log.warn("null값 삭제 시도로 인한 예외 발생");
-        }
+        pendingInviteRepository.delete(signupEmail);
     }
 
 }

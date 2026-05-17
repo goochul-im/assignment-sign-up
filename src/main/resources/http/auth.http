@@ -37,9 +37,16 @@ POST localhost:8080/auth/login
 Content-Type: application/json
 
 {
-  "email": "gooch@naver.com",
+  "email": "gooc@naver.com",
   "password": "12341234"
 }
+
+> {%
+    var token = response.body.accessToken
+
+    client
+        .global.set("access_token", token)
+%}
 
 ### 리프레쉬 토큰 인증
 POST localhost:8080/auth/refresh

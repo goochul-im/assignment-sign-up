@@ -23,7 +23,7 @@ public class TransactionEventListener {
     public void joinPendingInviteListener(JoinPendingEvent event) {
         log.info("join 트랜잭션 이벤트 수신 완료");
         MemberEntity member = event.member();
-        joinPendingInviteHandler.handle(member);
+//        joinPendingInviteHandler.handle(member);
     }
 
 }

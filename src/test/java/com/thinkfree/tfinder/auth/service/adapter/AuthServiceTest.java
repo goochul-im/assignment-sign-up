@@ -9,6 +9,10 @@ import com.thinkfree.tfinder.auth.service.dto.SignupDto;
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshTokenRepository;
+import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInviteOutboxMapper;
+import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInvitePayload;
+import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
+import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxRepository;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
@@ -20,7 +24,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Duration;
@@ -53,7 +56,9 @@ class AuthServiceTest {
     @Mock
     IMailSender mailSender;
     @Mock
-    ApplicationEventPublisher eventPublisher;
+    OutboxRepository outboxRepository;
+    @Mock
+    JoinPendingInviteOutboxMapper joinPendingInviteOutboxMapper;
     @Mock
     JwtProperties jwtProperties;
 
@@ -85,6 +90,7 @@ class AuthServiceTest {
         given(encoder.encode(passwd)).willReturn(encodePasswd);
         given(memberRepository.save(any())).willReturn(returnMember);
         given(emailValidateRepository.isValidated(email)).willReturn(true);
+        given(joinPendingInviteOutboxMapper.toPayload(any(JoinPendingInvitePayload.class))).willReturn("{}");
 
         //when
         MemberSignupResponse result = authService.signUp(dto);
@@ -92,6 +98,7 @@ class AuthServiceTest {
         //then
         assertThat(result.memberId()).isEqualTo(returnMember.getId());
         assertThat(result.nickname()).isEqualTo(username);
+        verify(outboxRepository).save(any(OutboxEntity.class));
     }
 
     @Test
