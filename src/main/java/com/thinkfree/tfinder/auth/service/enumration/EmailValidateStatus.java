@@ -2,7 +2,7 @@ package com.thinkfree.tfinder.auth.service.enumration;
 
 public enum EmailValidateStatus {
 
-    PENDING("pending"), VALIDATE("validate");
+    VALIDATE("validate");
 
     private final String status;
     EmailValidateStatus(String status) {

@@ -17,19 +17,8 @@ public class RedisEmailValidateRepository implements IEmailValidateRepository {
     private final StringRedisTemplate redisTemplate;
 
     @Override
-    public void saveAsPending(String email, Duration expiration) {
-        redisTemplate.opsForValue().set(getKey(email), EmailValidateStatus.PENDING.getStatus(), expiration);
-    }
-
-    @Override
     public void saveAsValidated(String email, Duration expiration) {
         redisTemplate.opsForValue().set(getKey(email), EmailValidateStatus.VALIDATE.getStatus(), expiration);
-    }
-
-    @Override
-    public boolean isRequested(String email) {
-        String byEmail = getByEmail(email);
-        return byEmail != null && byEmail.equals(EmailValidateStatus.PENDING.getStatus());
     }
 
     @Override
