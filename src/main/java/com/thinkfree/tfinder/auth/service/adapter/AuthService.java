@@ -47,6 +47,7 @@ public class AuthService implements IAuthUseCase {
     private String FRONTEND_URL;
 
     @Override
+    @Transactional(readOnly = true)
     public void requestEmailValidation(String email) {
         if (memberRepository.existsByEmail(email))
             throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
@@ -121,6 +122,7 @@ public class AuthService implements IAuthUseCase {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public LoginResultDto login(LoginRequest dto) throws BusinessException {
 
         MemberEntity member = memberRepository.findByEmail(dto.email()).orElseThrow(
@@ -145,6 +147,7 @@ public class AuthService implements IAuthUseCase {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public LoginResultDto refresh(String refreshToken) throws BusinessException {
 
         String email = jwtManager.getEmailFromRefreshToken(refreshToken);
