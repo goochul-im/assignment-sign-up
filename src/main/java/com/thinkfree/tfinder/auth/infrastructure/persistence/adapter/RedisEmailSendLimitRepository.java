@@ -20,7 +20,6 @@ public class RedisEmailSendLimitRepository implements IEmailSendLimitRepository 
     @Override
     public int getRemainLimit(int mailLimit, long workspaceId) {
         Boolean hasLimit = template.opsForValue().setIfAbsent(key(workspaceId), String.valueOf(mailLimit), TTL);
-        if (hasLimit == null) throw new BusinessException(ErrorCode.EXTERNAL_ERROR, "redis 트랜잭션이나 파이프라인 안에서 실행되었습니다");
 
         if (hasLimit) return mailLimit;
         return Integer.valueOf(template.opsForValue().get(key(workspaceId)));
@@ -29,7 +28,6 @@ public class RedisEmailSendLimitRepository implements IEmailSendLimitRepository 
     @Override
     public boolean decreaseRemainLimit(int decrease, long workspaceId) {
         Long remain = template.opsForValue().decrement(key(workspaceId), decrease);
-        if (remain == null) throw new BusinessException(ErrorCode.EXTERNAL_ERROR, "redis 트랜잭션이나 파이프라인 안에서 실행되었습니다");
         if (remain < 0) {
             template.opsForValue().increment(key(workspaceId), decrease); //복구
             throw new BusinessException(ErrorCode.INVALID_ARGUMENT);

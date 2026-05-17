@@ -1,14 +1,15 @@
 package com.thinkfree.tfinder.auth.service.adapter;
 
 import com.thinkfree.tfinder.annotation.IntegrationTest;
-import com.thinkfree.tfinder.auth.service.dto.SignupDto;
+import com.thinkfree.tfinder.auth.controller.request.SignupRequest;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
+import com.thinkfree.tfinder.common.exception.SignupRequireException;
 import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventStatus;
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventType;
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxRepository;
+import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventStatus;
+import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventType;
+import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxRepository;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
@@ -29,7 +30,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Duration;
-import java.util.UUID;
 import java.util.function.BooleanSupplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,7 +64,7 @@ class AuthServiceIntegrationTest {
     @Autowired
     private IWorkspaceMemberRepository workspaceMemberRepository;
     @Autowired
-    private OutboxRepository outboxRepository;
+    private IOutboxRepository outboxRepository;
 
     @Test
     void 회원가입_후_아웃박스_스케줄링으로_대기중인_초대를_수락한다() throws InterruptedException {
@@ -89,16 +89,15 @@ class AuthServiceIntegrationTest {
         ));
 
         String inviteToken = jwtManager.generateInviteToken(ownerEmail, signupEmail, workspaceUrl);
-        BusinessException signupFirst = assertThrows(
-                BusinessException.class,
+        assertThrows(
+                SignupRequireException.class,
                 () -> workspaceUseCase.acceptInvite(inviteToken)
         );
-        assertThat(signupFirst.getErrorCode()).isEqualTo(ErrorCode.SIGNUP_FIRST);
 
         // when
-        authUseCase.signUp(new SignupDto(
-                signupEmail,
+        authUseCase.signUp(new SignupRequest(
                 "invitee",
+                signupEmail,
                 "password"
         ));
 

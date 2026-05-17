@@ -1,5 +1,7 @@
 package com.thinkfree.tfinder.common.infrastructure.outbox;
 
+import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxEventHandler;
+import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -14,7 +16,7 @@ public class OutboxEventProducer {
 
     private static final int BATCH_SIZE = 100;
 
-    private final OutboxRepository outboxRepository;
+    private final IOutboxRepository outboxRepository;
     private final OutboxEventHandlerProvider handlerRegistry;
 
     @Transactional
@@ -23,7 +25,7 @@ public class OutboxEventProducer {
 
         for (OutboxEntity outbox : outboxes) {
             try {
-                OutboxEventHandler handler = handlerRegistry.getHandler(outbox.getEventType());
+                IOutboxEventHandler handler = handlerRegistry.getHandler(outbox.getEventType());
                 handler.handle(outbox);
                 outbox.markDone();
             } catch (Exception e) {

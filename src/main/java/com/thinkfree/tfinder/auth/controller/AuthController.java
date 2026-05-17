@@ -7,10 +7,8 @@ import com.thinkfree.tfinder.auth.controller.request.LoginRequest;
 import com.thinkfree.tfinder.auth.controller.request.SignupRequest;
 import com.thinkfree.tfinder.auth.controller.response.AccessTokenResponse;
 import com.thinkfree.tfinder.auth.controller.response.ValidateEmailResponse;
-import com.thinkfree.tfinder.auth.service.dto.LoginDto;
 import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
 import com.thinkfree.tfinder.auth.service.dto.MemberSignupResponse;
-import com.thinkfree.tfinder.auth.service.dto.SignupDto;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
 import com.thinkfree.tfinder.common.concurrent.LockSupporter;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,10 +52,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AccessTokenResponse> login(@Valid @RequestBody LoginRequest request) {
 
-        LoginResultDto result = authUseCase.login(new LoginDto(
-                request.email(),
-                request.password()
-        ));
+        LoginResultDto result = authUseCase.login(request);
 
         AccessTokenResponse response = new AccessTokenResponse(result.accessToken());
 
@@ -135,11 +130,7 @@ public class AuthController {
 
         final String lockKey = "try:signup:" + request.email();
 
-        MemberSignupResponse result = lockSupporter.lockSupport(() -> authUseCase.signUp(new SignupDto(
-                request.email(),
-                request.nickname(),
-                request.password()
-        )), lockKey);
+        MemberSignupResponse result = lockSupporter.lockSupport(() -> authUseCase.signUp(request), lockKey);
 
         return ResponseEntity.ok()
                 .body(result);

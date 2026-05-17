@@ -1,5 +1,7 @@
 package com.thinkfree.tfinder.common.infrastructure.outbox;
 
+import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventType;
+import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxPayloadMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.JacksonException;
@@ -7,7 +9,7 @@ import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
-public class JoinPendingInviteOutboxMapper implements OutboxPayloadMapper<JoinPendingInvitePayload> {
+public class JoinPendingInviteOutboxMapper implements IOutboxPayloadMapper<JoinPendingInvitePayload> {
 
     private final ObjectMapper objectMapper;
 

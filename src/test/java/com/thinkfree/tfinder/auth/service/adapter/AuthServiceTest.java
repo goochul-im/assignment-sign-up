@@ -1,18 +1,18 @@
 package com.thinkfree.tfinder.auth.service.adapter;
 
+import com.thinkfree.tfinder.auth.controller.request.LoginRequest;
+import com.thinkfree.tfinder.auth.controller.request.SignupRequest;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
-import com.thinkfree.tfinder.auth.service.dto.LoginDto;
 import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
 import com.thinkfree.tfinder.auth.service.dto.MemberSignupResponse;
-import com.thinkfree.tfinder.auth.service.dto.SignupDto;
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshTokenRepository;
 import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInviteOutboxMapper;
 import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInvitePayload;
 import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxRepository;
+import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxRepository;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
@@ -56,7 +56,7 @@ class AuthServiceTest {
     @Mock
     IMailSender mailSender;
     @Mock
-    OutboxRepository outboxRepository;
+    IOutboxRepository outboxRepository;
     @Mock
     JoinPendingInviteOutboxMapper joinPendingInviteOutboxMapper;
     @Mock
@@ -73,9 +73,9 @@ class AuthServiceTest {
         String username = "test";
         String passwd = "testPasswd";
         String encodePasswd = "encoded";
-        SignupDto dto = new SignupDto(
-                email,
+        SignupRequest dto = new SignupRequest(
                 username,
+                email,
                 passwd
         );
 
@@ -107,7 +107,7 @@ class AuthServiceTest {
         String email = "test@email.com";
         String name = "test";
         String passwd = "testPasswd";
-        SignupDto dto = new SignupDto(
+        SignupRequest dto = new SignupRequest(
                 email,
                 name,
                 passwd
@@ -127,7 +127,7 @@ class AuthServiceTest {
         String accessToken = "fake accessToken";
         String refreshToken = "fake refreshToken";
         long refreshExpiredSeconds = 3000L;
-        LoginDto dto = new LoginDto(
+        LoginRequest dto = new LoginRequest(
                 email,
                 passwd
         );
@@ -159,7 +159,7 @@ class AuthServiceTest {
         //given
         String email = "test@email.com";
         String passwd = "testPasswd";
-        LoginDto dto = new LoginDto(
+        LoginRequest dto = new LoginRequest(
                 email,
                 passwd
         );

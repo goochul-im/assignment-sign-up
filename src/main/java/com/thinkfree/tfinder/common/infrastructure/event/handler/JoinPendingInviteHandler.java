@@ -4,8 +4,8 @@ import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInvit
 import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInviteOutboxMapper;
 import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInvitePayload;
 import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventHandler;
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventType;
+import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxEventHandler;
+import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventType;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
@@ -23,7 +23,7 @@ import java.util.Set;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class JoinPendingInviteHandler implements OutboxEventHandler {
+public class JoinPendingInviteHandler implements IOutboxEventHandler {
 
     private final IPendingInviteRepository pendingInviteRepository;
     private final IMemberRepository memberRepository;
@@ -64,7 +64,6 @@ public class JoinPendingInviteHandler implements OutboxEventHandler {
                         RuntimeException::new
                 );
 
-                //TODO: bulk insert 같은걸로 바꿀수는 없나?
                 if (!workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)) {
                     workspaceMemberRepository.save(new WorkspaceMemberEntity(
                             workspace,

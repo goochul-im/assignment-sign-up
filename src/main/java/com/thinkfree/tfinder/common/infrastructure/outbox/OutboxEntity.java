@@ -1,5 +1,7 @@
 package com.thinkfree.tfinder.common.infrastructure.outbox;
 
+import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventStatus;
+import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventType;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;

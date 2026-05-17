@@ -1,6 +1,6 @@
 package com.thinkfree.tfinder.common.util;
 
-public interface UUIDGenerator {
+public interface IUUIDGenerator {
 
     String generate();
 

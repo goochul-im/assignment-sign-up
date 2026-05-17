@@ -6,6 +6,7 @@ import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInvit
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
+import com.thinkfree.tfinder.common.exception.SignupRequireException;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.InviteMessageDto;
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.iface.IMessageQueue;
@@ -136,6 +137,8 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         if (remainEmailSize < sendCount) { // 시간당 할당량보다 많이 보내면 예외가 던저짐
             throw new BusinessException(ErrorCode.TOO_MANY_INVITE, makeNotEnoughMailMessage(remainEmailSize));
         }
+        // 사용한 메일 할당량 감소시키기
+        emailSendLimitRepository.decreaseRemainLimit(notJoinedEmails.size(), workspaceId);
 
         ArrayList<String> success = new ArrayList<>(notJoinedEmails);
         ArrayList<String> alreadyJoined = new ArrayList<>(joinedEmails);
@@ -161,8 +164,6 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
             );
 
         }
-        // 사용한 메일 할당량 감소시키기
-        emailSendLimitRepository.decreaseRemainLimit(notJoinedEmails.size(), workspaceId);
 
         return new InviteResponse(
                 success,
@@ -171,7 +172,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     }
 
     @Override
-    @Transactional(noRollbackFor = BusinessException.class)
+    @Transactional(noRollbackFor = SignupRequireException.class)
     public void acceptInvite(String token) throws BusinessException {
 
         InviteTokenResult result = jwtManager.parsingInviteToken(token);
@@ -197,8 +198,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
             Duration expiration = Duration.ofSeconds(jwtProperties.getValidateEmailExpirationSeconds());
             emailValidateRepository.saveAsValidated(toEmail, expiration);    // emailValidate와 pendingInvite는 하나의 트랜잭션으로 묶임.
             pendingInviteRepository.save(toEmail, workspaceUrl, expiration); // 하나가 실패하면 다같이 롤백됨
-            // TODO: Lua 스크립트를 사용해서 변경
-            throw new BusinessException(ErrorCode.SIGNUP_FIRST);
+            throw new SignupRequireException();
         }
 
     }
@@ -217,7 +217,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         // 워크스페이스 소프트 딜리트
         workspace.delete();
         // 워크스페이스 멤버 삭제 처리
-//        workspaceMemberRepository.deleteAllByWorkspace(workspace);
+        // TODO: 추후 워크스페이스 관련 삭제 처리 아웃박스 패턴 사용
     }
 
     private String makeInviteMailMessage(WorkspaceEntity workspace, String token) {

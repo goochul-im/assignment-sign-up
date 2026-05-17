@@ -23,6 +23,11 @@ public class GlobalExceptionHandler {
         return ErrorResponse.toEntity(exception.getErrorCode(), Optional.ofNullable(exception.getMessage()));
     }
 
+    @ExceptionHandler(SignupRequireException.class)
+    public ResponseEntity<ErrorResponse> signupRequireExceptionHandler(SignupRequireException exception) {
+        return ErrorResponse.toEntity(ErrorCode.SIGNUP_FIRST, Optional.ofNullable(exception.getMessage()));
+    }
+
     @ExceptionHandler({RedisConnectionFailureException.class, RedisSystemException.class})
     public ResponseEntity<ErrorResponse> handleRedisConnectionFailureException(
             Exception exception

@@ -9,6 +9,7 @@ import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInvit
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
+import com.thinkfree.tfinder.common.exception.SignupRequireException;
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.iface.IMessageQueue;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
@@ -224,10 +225,7 @@ class WorkspaceServiceTest {
         given(jwtProperties.getValidateEmailExpirationSeconds()).willReturn(validateEmailExpirationSecond);
 
         //when & then
-        BusinessException businessException = assertThrows(BusinessException.class, () -> workspaceService.acceptInvite(token));
-
-        //then
-        assertThat(businessException.getErrorCode()).isEqualTo(ErrorCode.SIGNUP_FIRST);
+        assertThrows(SignupRequireException.class, () -> workspaceService.acceptInvite(token));
     }
 
     @Test

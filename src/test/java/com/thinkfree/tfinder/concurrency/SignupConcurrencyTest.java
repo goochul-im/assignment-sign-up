@@ -3,9 +3,9 @@ package com.thinkfree.tfinder.concurrency;
 import com.navercorp.fixturemonkey.FixtureMonkey;
 import com.navercorp.fixturemonkey.api.introspector.ConstructorPropertiesArbitraryIntrospector;
 import com.thinkfree.tfinder.annotation.IntegrationTest;
+import com.thinkfree.tfinder.auth.controller.request.SignupRequest;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshTokenRepository;
-import com.thinkfree.tfinder.auth.service.dto.SignupDto;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
 import com.thinkfree.tfinder.common.concurrent.LockSupporter;
 import com.thinkfree.tfinder.common.config.JwtProperties;
@@ -94,9 +94,9 @@ public class SignupConcurrencyTest {
             executor.submit(() -> {
                 try {
                     lockSupporter.lockSupport(() ->
-                                    authUseCase.signUp(new SignupDto(
-                                            email,
+                                    authUseCase.signUp(new SignupRequest(
                                             "just name",
+                                            email,
                                             "just password"
                                     )),
                             email

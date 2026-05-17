@@ -57,7 +57,7 @@ public class RedisPendingInviteRepository implements IPendingInviteRepository {
     }
 
     private void refreshKeyExpirationAtLatestInvite(String key) {
-        Set<ZSetOperations.@NonNull TypedTuple<String>> latestInvites = redisTemplate.opsForZSet() //가장 늦게 만료되는 초대 요청 가져오기
+        Set<ZSetOperations.TypedTuple<String>> latestInvites = redisTemplate.opsForZSet() //가장 늦게 만료되는 초대 요청 가져오기
                 .reverseRangeWithScores(key, 0, 0);
 
         if (latestInvites == null || latestInvites.isEmpty()) return;

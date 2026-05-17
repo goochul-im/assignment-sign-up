@@ -1,5 +1,7 @@
 package com.thinkfree.tfinder.auth.service.adapter;
 
+import com.thinkfree.tfinder.auth.controller.request.LoginRequest;
+import com.thinkfree.tfinder.auth.controller.request.SignupRequest;
 import com.thinkfree.tfinder.auth.service.dto.*;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
@@ -10,8 +12,8 @@ import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInviteOutboxMapper;
 import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInvitePayload;
 import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventType;
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxRepository;
+import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventType;
+import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxRepository;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
@@ -37,7 +39,7 @@ public class AuthService implements IAuthUseCase {
     private final IRefreshTokenRepository refreshTokenRepository;
     private final IEmailValidateRepository emailValidateRepository;
     private final IMailSender mailSender;
-    private final OutboxRepository outboxRepository;
+    private final IOutboxRepository outboxRepository;
     private final JoinPendingInviteOutboxMapper joinPendingInviteOutboxMapper;
     private final JwtProperties jwtProperties;
 
@@ -77,7 +79,7 @@ public class AuthService implements IAuthUseCase {
 
     @Override
     @Transactional
-    public MemberSignupResponse signUp(SignupDto dto) {
+    public MemberSignupResponse signUp(SignupRequest dto) {
 
         String signupEmail = dto.email();
 
@@ -89,7 +91,7 @@ public class AuthService implements IAuthUseCase {
         }
 
         MemberEntity member = new MemberEntity(
-                dto.name(),
+                dto.nickname(),
                 signupEmail,
                 encoder.encode(dto.password())
         );
@@ -119,7 +121,7 @@ public class AuthService implements IAuthUseCase {
     }
 
     @Override
-    public LoginResultDto login(LoginDto dto) throws BusinessException {
+    public LoginResultDto login(LoginRequest dto) throws BusinessException {
 
         MemberEntity member = memberRepository.findByEmail(dto.email()).orElseThrow(
                 () -> new BusinessException(ErrorCode.AUTHENTICATION_FAILED)
