@@ -7,7 +7,7 @@ import com.thinkfree.tfinder.auth.controller.request.SignupRequest;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshTokenRepository;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
-import com.thinkfree.tfinder.common.concurrent.LockSupporter;
+import com.thinkfree.tfinder.common.concurrent.RedisLockSupporter;
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.*;
 public class SignupConcurrencyTest {
 
     @Autowired
-    private LockSupporter lockSupporter;
+    private RedisLockSupporter lockSupporter;
     @Autowired
     private IAuthUseCase authUseCase;
     @Autowired

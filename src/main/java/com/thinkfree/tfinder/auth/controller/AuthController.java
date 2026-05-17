@@ -10,7 +10,8 @@ import com.thinkfree.tfinder.auth.controller.response.ValidateEmailResponse;
 import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
 import com.thinkfree.tfinder.auth.service.dto.MemberSignupResponse;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
-import com.thinkfree.tfinder.common.concurrent.LockSupporter;
+import com.thinkfree.tfinder.common.concurrent.ILockSupporter;
+import com.thinkfree.tfinder.common.concurrent.RedisLockSupporter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,7 +36,7 @@ public class AuthController {
 
     private final IAuthUseCase authUseCase;
     private final RefreshCookieProperties refreshCookieProperties;
-    private final LockSupporter lockSupporter;
+    private final ILockSupporter lockSupporter;
 
     @Operation(
             summary = "로그인",

@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class LockSupporter {
+public class RedisLockSupporter implements ILockSupporter{
 
     private final RedissonClient redissonClient;
 
