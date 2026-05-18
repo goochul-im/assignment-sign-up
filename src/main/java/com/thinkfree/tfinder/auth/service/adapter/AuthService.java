@@ -113,7 +113,9 @@ public class AuthService implements IAuthUseCase {
                 payload
         ));
 
-        emailValidateRepository.delete(signupEmail);
+        if (!emailValidateRepository.delete(signupEmail)) {
+            log.warn("이메일 인증정보 삭제에 실패했습니다. 없는 값을 삭제하려 시도했습니다. email = {}", signupEmail);
+        }
 
         return new MemberSignupResponse(
                 savedMember.getId(),
@@ -187,6 +189,7 @@ public class AuthService implements IAuthUseCase {
         // 클릭할 URL + 메시지 내용
         String validateUrl = FRONTEND_URL + "?token=" + token;
 
+        // TODO: message 국제화 필요, messages.properties를 사용하는 방법 찾아보기
         String message = """
                 <h2>tfinder 이메일 인증</h2>
                 <p><b>아래 링크를 눌러 이메일을 인증하고, 가입을 완료해주세요.</b></p>
