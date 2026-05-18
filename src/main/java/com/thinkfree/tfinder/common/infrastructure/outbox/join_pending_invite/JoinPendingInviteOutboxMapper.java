@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.common.infrastructure.outbox.handler;
+package com.thinkfree.tfinder.common.infrastructure.outbox.join_pending_invite;
 
 import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxPayloadMapper;
 import lombok.RequiredArgsConstructor;

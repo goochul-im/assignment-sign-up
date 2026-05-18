@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.common.concurrent;
+package com.thinkfree.tfinder.common.util.concurrent;
 
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;

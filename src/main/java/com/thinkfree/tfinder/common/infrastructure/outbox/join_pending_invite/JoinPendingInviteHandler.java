@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.common.infrastructure.outbox.handler;
+package com.thinkfree.tfinder.common.infrastructure.outbox.join_pending_invite;
 
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
 import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventEntity;
@@ -61,9 +61,6 @@ public class JoinPendingInviteHandler implements IOutboxEventHandler {
 
         for (String workspaceUrl : pendingWorkspaceUrls) {
             try {
-                if (workspaceUrl.equals("dummy url4")) {
-                    throw new Exception();
-                }
 
                 WorkspaceEntity workspace = workspaceRepository.findByWorkspaceUrl(workspaceUrl).orElseThrow(
                         Exception::new

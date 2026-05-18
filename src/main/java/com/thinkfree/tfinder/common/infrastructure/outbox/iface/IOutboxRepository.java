@@ -12,7 +12,7 @@ public interface IOutboxRepository extends JpaRepository<OutboxEventEntity, Long
     @Query(
             value = """
                     select *
-                    from outbox_entity
+                    from outbox_event
                     where status = 'PENDING'
                     order by id
                     limit :limit

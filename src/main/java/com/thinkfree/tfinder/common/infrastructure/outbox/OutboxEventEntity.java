@@ -10,7 +10,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 @Entity
-@Table(name = "outbox_event_entity")
+@Table(name = "outbox_event")
 @Getter
 @NoArgsConstructor
 public class OutboxEventEntity extends BaseEntity {

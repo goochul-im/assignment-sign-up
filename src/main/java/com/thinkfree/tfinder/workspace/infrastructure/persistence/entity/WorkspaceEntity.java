@@ -9,8 +9,10 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.Instant;
+import java.util.Locale;
 
-@Entity(name = "workspace")
+@Entity
+@Table(name = "workspace")
 @Getter
 @AllArgsConstructor
 @SQLRestriction("is_delete = false")
@@ -33,6 +35,8 @@ public class WorkspaceEntity extends BaseEntity{
     @Column(name = "tier")
     @Enumerated(value = EnumType.STRING)
     private WorkspaceTier tier;
+    @Column(name = "locale")
+    private Locale locale = Locale.KOREA;
 
     public WorkspaceEntity(String workspaceName, String workspaceUrl) {
 

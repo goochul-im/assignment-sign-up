@@ -3,7 +3,8 @@ package com.thinkfree.tfinder.workspace.infrastructure.persistence.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity(name = "member")
+@Entity
+@Table(name = "member")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED) //PRIVATE가 안되는 이유? -> 프록시 객체는 super를 호출해야 하기 때문에

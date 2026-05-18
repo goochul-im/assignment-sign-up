@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.common.constant;
+package com.thinkfree.tfinder.common.util.constant;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

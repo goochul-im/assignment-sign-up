@@ -58,15 +58,6 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, Object> nonTransactionRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(redisConnectionFactory);
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new GenericJacksonJsonRedisSerializer(objectMapper));
-        return redisTemplate;
-    }
-
-    @Bean
     public RedissonClient redissonClient() {
         Config config = new Config();
         config.useSingleServer()

@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.common.util;
+package com.thinkfree.tfinder.common.util.uuid;
 
 public interface IUUIDGenerator {
 

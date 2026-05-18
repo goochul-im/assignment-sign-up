@@ -10,7 +10,7 @@ import com.thinkfree.tfinder.auth.controller.response.ValidateEmailResponse;
 import com.thinkfree.tfinder.auth.service.dto.LoginResult;
 import com.thinkfree.tfinder.auth.service.dto.MemberSignupResponse;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
-import com.thinkfree.tfinder.common.concurrent.ILockSupporter;
+import com.thinkfree.tfinder.common.util.concurrent.ILockSupporter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

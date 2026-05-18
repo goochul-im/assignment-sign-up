@@ -1,11 +1,9 @@
-package com.thinkfree.tfinder.common.service.adpater;
+package com.thinkfree.tfinder.common.util.jwt.adpater;
 
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
-import com.thinkfree.tfinder.common.service.dto.AccessTokenResult;
-import com.thinkfree.tfinder.common.service.dto.RefreshTokenResult;
-import com.thinkfree.tfinder.common.service.iface.IJwtManager;
-import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
+import com.thinkfree.tfinder.common.util.jwt.dto.InviteTokenResult;
+import com.thinkfree.tfinder.common.util.jwt.iface.IJwtManager;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;

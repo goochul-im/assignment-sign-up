@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OutboxEventProcessor {
 
-    private static final int BATCH_SIZE = 100;
+    private static final int BATCH_SIZE = 100; // 이벤트를 몇개씩 가져올건가?
 
     private final IOutboxRepository outboxRepository;
     private final OutboxEventHandlerProvider handlerProvider;

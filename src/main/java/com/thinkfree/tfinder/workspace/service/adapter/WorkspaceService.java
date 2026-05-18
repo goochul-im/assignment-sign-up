@@ -8,8 +8,8 @@ import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.exception.SignupRequireException;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
-import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
-import com.thinkfree.tfinder.common.service.iface.IJwtManager;
+import com.thinkfree.tfinder.common.util.jwt.dto.InviteTokenResult;
+import com.thinkfree.tfinder.common.util.jwt.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceResponse;
 import com.thinkfree.tfinder.workspace.service.dto.InviteResponse;
 import com.thinkfree.tfinder.workspace.service.dto.MyWorkspaceResponse;
@@ -27,16 +27,14 @@ import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -59,7 +57,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     @Override
     @Transactional
     public CreateWorkspaceResponse create(CreateWorkspaceCommand dto) throws BusinessException {
-        MemberEntity creator = getMemberOrThrow(dto.requestMemberId());
+        MemberEntity creator = findMemberOrThrow(dto.requestMemberId());
 
         if (workspaceRepository.existsByWorkspaceUrl(dto.workspaceUrl())) {
             throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
@@ -87,7 +85,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     @Override
     @Transactional(readOnly = true)
     public MyWorkspaceResponse getMyWorkspaces(long memberId) throws BusinessException {
-        MemberEntity member = getMemberOrThrow(memberId);
+        MemberEntity member = findMemberOrThrow(memberId);
         List<WorkspaceMemberEntity> list = workspaceMemberRepository.findAllByMember(member);
 
         return new MyWorkspaceResponse(
@@ -98,10 +96,10 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     @Override
     @Transactional(readOnly = true)
     public WorkspaceMembersPageResponse getWorkspaceMembersPage(long requesterId, long workspaceId, int page, int pageSize) throws BusinessException {
-        MemberEntity requester = getMemberOrThrow(requesterId);
-        WorkspaceEntity workspace = getWorkspaceOrThrow(workspaceId);
+        MemberEntity requester = findMemberOrThrow(requesterId);
+        WorkspaceEntity workspace = findWorkspaceOrThrow(workspaceId);
 
-        getWorkspaceMemberOrThrow(workspace, requester); // requester와 workspace의 연관관계가 없으면 바로 예외 던져짐
+        findWorkspaceMemberOrThrow(workspace, requester); // requester와 workspace의 연관관계가 없으면 바로 예외 던져짐
 
         Page<WorkspaceMemberEntity> workspaceMemberPage = workspaceMemberRepository.findWorkspaceMemberPage(workspace, PageRequest.of(page, pageSize));
         return new WorkspaceMembersPageResponse(workspaceMemberPage);
@@ -111,9 +109,9 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     @Transactional(readOnly = true)
     public InviteResponse inviteMember(List<String> toEmailList, long inviterId, long workspaceId) throws BusinessException {
 
-        MemberEntity inviter = getMemberOrThrow(inviterId);
-        WorkspaceEntity inviteWorkspace = getWorkspaceOrThrow(workspaceId);
-        WorkspaceMemberEntity workspaceMember = getWorkspaceMemberOrThrow(inviteWorkspace, inviter);
+        MemberEntity inviter = findMemberOrThrow(inviterId);
+        WorkspaceEntity inviteWorkspace = findWorkspaceOrThrow(workspaceId);
+        WorkspaceMemberEntity workspaceMember = findWorkspaceMemberOrThrow(inviteWorkspace, inviter);
 
         // TODO: 추후 결제 플랜 엔티티로 변경 필요
         int mailLimit = inviteWorkspace.getMailLimit(); // 현재 워크스페이스 플랜의 시간당 메일 할당량
@@ -130,7 +128,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         int sendCount = notJoinedEmails.size();
         int remainEmailSize = emailSendLimitRepository.getRemainLimit(mailLimit, workspaceId);
         if (remainEmailSize < sendCount) { // 시간당 할당량보다 많이 보내면 예외가 던저짐
-            throw new BusinessException(ErrorCode.TOO_MANY_INVITE, makeNotEnoughMailMessage(remainEmailSize));
+            throw new BusinessException(ErrorCode.TOO_MANY_INVITE);
         }
 
         ArrayList<String> success = new ArrayList<>(notJoinedEmails);
@@ -180,8 +178,8 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         String workspaceUrl = result.workspaceUrl();
         if (memberRepository.existsByEmail(toEmail)) {
             // 이미 회원일 경우
-            MemberEntity member = getMemberOrThrow(toEmail);
-            WorkspaceEntity workspace = getWorkspaceOrThrow(workspaceUrl);
+            MemberEntity member = findMemberOrThrow(toEmail);
+            WorkspaceEntity workspace = findWorkspaceOrThrow(workspaceUrl);
 
             if (workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)) {
                 throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
@@ -193,7 +191,11 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
                     WorkspaceMemberRole.MEMBER
             );
 
-            workspaceMemberRepository.save(workspaceMember);
+            try {
+                workspaceMemberRepository.save(workspaceMember);
+            } catch (DataIntegrityViolationException e) {
+                throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
+            }
         } else {
             Duration expiration = Duration.ofSeconds(jwtProperties.getValidateEmailExpirationSeconds());
             emailValidateRepository.saveAsValidated(toEmail, expiration);    // emailValidate와 pendingInvite는 하나의 트랜잭션으로 묶임.
@@ -206,9 +208,9 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     @Override
     @Transactional
     public void delete(long workspaceId, long requesterId) {
-        WorkspaceEntity workspace = getWorkspaceOrThrow(workspaceId);
-        MemberEntity member = getMemberOrThrow(requesterId);
-        WorkspaceMemberEntity workspaceMember = getWorkspaceMemberOrThrow(workspace, member);
+        WorkspaceEntity workspace = findWorkspaceOrThrow(workspaceId);
+        MemberEntity member = findMemberOrThrow(requesterId);
+        WorkspaceMemberEntity workspaceMember = findWorkspaceMemberOrThrow(workspace, member);
 
         if (!WorkspaceMemberRole.OWNER.equals(workspaceMember.getRole())) {
             throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
@@ -224,54 +226,49 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         // 들어가야 할 정보
         // 클릭할 URL + 메시지 내용
         String inviteUrl = FRONTEND_URL + "?token=" + token;
-
-        String message = """
-                <h2>tfinder 워크스페이스 초대</h2>
-                <p><b>%s</b>에서 초대가 왔습니다</p>
-                <p>아래 링크를 눌러 참가하세요.</p>
-                <p>만약 서비스에 아직 가입하지 않았다면 아래 초대 링크를 누른 후 10분 이내에 가입을 마쳐주세요.</p>
-                <p><a href="%s">참가하기</a></p>
-                <p>링크가 열리지 않는다면 아래 주소를 복사해서 브라우저에 붙여넣어 주세요.</p>
-                <p>%s</p>
-                """.formatted(workspace.getWorkspaceName(), inviteUrl, inviteUrl);
-
-        return message;
-    }
-
-    private String makeNotEnoughMailMessage(int remainMail) {
-        String message = """
-                시간당 초대 할당량을 모두 소진하였습니다.
-                남은 초대 할당량은 %d입니다. 잠시 후에 다시 시도해주세요
-                """.formatted(remainMail);
+        Locale locale = workspace.getLocale();
+        String message = null;
+        // TODO: 메시지 국제화 처리 및 MessageSource 활용해보기
+        if (locale.equals(Locale.KOREA)) {
+            message = """
+                    <h2>tfinder 워크스페이스 초대</h2>
+                    <p><b>%s</b>에서 초대가 왔습니다</p>
+                    <p>아래 링크를 눌러 참가하세요.</p>
+                    <p>만약 서비스에 아직 가입하지 않았다면 아래 초대 링크를 누른 후 10분 이내에 가입을 마쳐주세요.</p>
+                    <p><a href="%s">참가하기</a></p>
+                    <p>링크가 열리지 않는다면 아래 주소를 복사해서 브라우저에 붙여넣어 주세요.</p>
+                    <p>%s</p>
+                    """.formatted(workspace.getWorkspaceName(), inviteUrl, inviteUrl);
+        }
 
         return message;
     }
 
-    private MemberEntity getMemberOrThrow(long memberId) {
+    private MemberEntity findMemberOrThrow(long memberId) {
         return memberRepository.findById(memberId).orElseThrow(
                 () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
         );
     }
 
-    private MemberEntity getMemberOrThrow(String email) {
+    private MemberEntity findMemberOrThrow(String email) {
         return memberRepository.findByEmail(email).orElseThrow(
                 () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
         );
     }
 
-    private WorkspaceEntity getWorkspaceOrThrow(long workspaceId) {
+    private WorkspaceEntity findWorkspaceOrThrow(long workspaceId) {
         return workspaceRepository.findById(workspaceId).orElseThrow(
                 () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
         );
     }
 
-    private WorkspaceEntity getWorkspaceOrThrow(String workspaceUrl) {
+    private WorkspaceEntity findWorkspaceOrThrow(String workspaceUrl) {
         return workspaceRepository.findByWorkspaceUrl(workspaceUrl).orElseThrow(
                 () -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND)
         );
     }
 
-    private WorkspaceMemberEntity getWorkspaceMemberOrThrow(WorkspaceEntity workspace, MemberEntity member) {
+    private WorkspaceMemberEntity findWorkspaceMemberOrThrow(WorkspaceEntity workspace, MemberEntity member) {
         return workspaceMemberRepository.findByWorkspaceAndMember(workspace, member).orElseThrow(
                 () -> new BusinessException(ErrorCode.AUTHORIZATION_FAILED)
         );

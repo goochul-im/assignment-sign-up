@@ -25,8 +25,8 @@ public interface IMemberRepository extends JpaRepository<MemberEntity, Long> {
      */
     @Query(value = """
         select m.email
-        from member m
-        join workspace_member wm on m = wm.member
+        from MemberEntity m
+        join WorkspaceMemberEntity wm on m = wm.member
         where wm.workspace = :workspace
         and m.email in :emails
         """)
