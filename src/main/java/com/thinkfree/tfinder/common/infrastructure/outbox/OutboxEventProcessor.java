@@ -21,9 +21,9 @@ public class OutboxEventProcessor {
 
     @Transactional
     public void process() {
-        List<OutboxEntity> outboxes = outboxRepository.findPendingForUpdate(BATCH_SIZE);
+        List<OutboxEventEntity> outboxes = outboxRepository.findPendingForUpdate(BATCH_SIZE);
 
-        for (OutboxEntity outbox : outboxes) {
+        for (OutboxEventEntity outbox : outboxes) {
             try {
                 IOutboxEventHandler handler = handlerProvider.getHandler(outbox.getEventType());
                 handler.handle(outbox);

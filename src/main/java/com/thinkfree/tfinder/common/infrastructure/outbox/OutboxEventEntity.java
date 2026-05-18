@@ -10,10 +10,10 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 @Entity
-@Table(name = "outbox_entity")
+@Table(name = "outbox_event_entity")
 @Getter
 @NoArgsConstructor
-public class OutboxEntity extends BaseEntity {
+public class OutboxEventEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +34,7 @@ public class OutboxEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private OutboxEventStatus status;
 
-    public OutboxEntity(OutboxEventType eventType, String payload) {
+    public OutboxEventEntity(OutboxEventType eventType, String payload) {
         this.eventType = eventType;
         this.payload = payload;
         this.retryCount = 0;

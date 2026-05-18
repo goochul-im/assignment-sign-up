@@ -1,6 +1,6 @@
 package com.thinkfree.tfinder.common.infrastructure.outbox.iface;
 
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
+import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventEntity;
 import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventType;
 
 public interface IOutboxEventHandler {
@@ -15,6 +15,6 @@ public interface IOutboxEventHandler {
      * 핸들러에 정의된 로직을 실행합니다
      * @param outbox 핸들링할 outbox
      */
-    void handle(OutboxEntity outbox);
+    void handle(OutboxEventEntity outbox);
 
 }

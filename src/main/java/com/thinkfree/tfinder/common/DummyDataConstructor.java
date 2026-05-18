@@ -1,7 +1,5 @@
 package com.thinkfree.tfinder.common;
 
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
-import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventType;
 import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxRepository;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;

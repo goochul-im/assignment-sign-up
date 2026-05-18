@@ -11,7 +11,7 @@ import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.infrastructure.outbox.handler.JoinPendingInviteOutboxMapper;
 import com.thinkfree.tfinder.common.infrastructure.outbox.handler.JoinPendingInvitePayload;
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
+import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventEntity;
 import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventType;
 import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxRepository;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
@@ -108,7 +108,7 @@ public class AuthService implements IAuthUseCase {
                 savedMember.getId(),
                 savedMember.getEmail()
         ));
-        outboxRepository.save(new OutboxEntity( // 대기중 초대 가입 이벤트 발행
+        outboxRepository.save(new OutboxEventEntity( // 대기중 초대 가입 이벤트 발행
                 OutboxEventType.JOIN_WORKSPACE_PENDING_INVITE,
                 payload
         ));

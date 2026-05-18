@@ -1,13 +1,13 @@
 package com.thinkfree.tfinder.common.infrastructure.outbox.iface;
 
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
+import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface IOutboxRepository extends JpaRepository<OutboxEntity, Long> {
+public interface IOutboxRepository extends JpaRepository<OutboxEventEntity, Long> {
 
     @Query(
             value = """
@@ -20,5 +20,5 @@ public interface IOutboxRepository extends JpaRepository<OutboxEntity, Long> {
                     """,
             nativeQuery = true
     )
-    List<OutboxEntity> findPendingForUpdate(@Param("limit") int limit);
+    List<OutboxEventEntity> findPendingForUpdate(@Param("limit") int limit);
 }

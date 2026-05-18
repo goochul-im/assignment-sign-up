@@ -1,7 +1,7 @@
 package com.thinkfree.tfinder.common.infrastructure.outbox.handler;
 
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
+import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventEntity;
 import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxEventHandler;
 import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventType;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
@@ -15,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -38,7 +36,7 @@ public class JoinPendingInviteHandler implements IOutboxEventHandler {
     }
 
     @Override
-    public void handle(OutboxEntity outbox) {
+    public void handle(OutboxEventEntity outbox) {
         JoinPendingInvitePayload payload = mapper.fromPayload(outbox.getPayload());
         MemberEntity member = memberRepository.findById(payload.memberId()).orElseThrow(
                 RuntimeException::new

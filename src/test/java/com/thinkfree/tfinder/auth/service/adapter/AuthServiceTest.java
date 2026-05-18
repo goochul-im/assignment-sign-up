@@ -11,7 +11,7 @@ import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshTokenRepository;
 import com.thinkfree.tfinder.common.infrastructure.outbox.handler.JoinPendingInviteOutboxMapper;
 import com.thinkfree.tfinder.common.infrastructure.outbox.handler.JoinPendingInvitePayload;
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
+import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventEntity;
 import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxRepository;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
@@ -98,7 +98,7 @@ class AuthServiceTest {
         //then
         assertThat(result.memberId()).isEqualTo(returnMember.getId());
         assertThat(result.nickname()).isEqualTo(username);
-        verify(outboxRepository).save(any(OutboxEntity.class));
+        verify(outboxRepository).save(any(OutboxEventEntity.class));
     }
 
     @Test
