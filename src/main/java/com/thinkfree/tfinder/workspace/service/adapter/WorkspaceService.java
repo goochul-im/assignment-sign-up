@@ -56,16 +56,16 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
     @Override
     @Transactional
-    public CreateWorkspaceResponse create(CreateWorkspaceCommand dto) throws BusinessException {
-        MemberEntity creator = findMemberOrThrow(dto.requestMemberId());
+    public CreateWorkspaceResponse create(CreateWorkspaceCommand command) throws BusinessException {
+        MemberEntity creator = findMemberOrThrow(command.requestMemberId());
 
-        if (workspaceRepository.existsByWorkspaceUrl(dto.workspaceUrl())) {
+        if (workspaceRepository.existsByWorkspaceUrl(command.workspaceUrl())) {
             throw new BusinessException(ErrorCode.DUPLICATE_ERROR);
         }
 
         WorkspaceEntity workspace = new WorkspaceEntity(
-                dto.workspaceName(),
-                dto.workspaceUrl()
+                command.workspaceName(),
+                command.workspaceUrl()
         );
         workspace = workspaceRepository.save(workspace);
 
@@ -95,7 +95,11 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
     @Override
     @Transactional(readOnly = true)
-    public WorkspaceMembersPageResponse getWorkspaceMembersPage(long requesterId, long workspaceId, int page, int pageSize) throws BusinessException {
+    public WorkspaceMembersPageResponse getWorkspaceMembersPage(getWorkspaceMembersPageCommand command) throws BusinessException {
+        long requesterId = command.requesterId();
+        long workspaceId = command.workspaceId();
+        int page = command.page();
+        int pageSize = command.pageSize();
         MemberEntity requester = findMemberOrThrow(requesterId);
         WorkspaceEntity workspace = findWorkspaceOrThrow(workspaceId);
 

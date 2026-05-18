@@ -96,11 +96,12 @@ public class WorkspaceController {
             @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
 
-        WorkspaceMembersPageResponse response = workspaceQuery.getWorkspaceMembersPage(
+        WorkspaceMembersPageResponse response = workspaceQuery.getWorkspaceMembersPage(new getWorkspaceMembersPageCommand(
                 currentUser.getMemberId(),
                 workspaceId,
                 page - 1,
                 pageSize
+                )
         );
 
         return ResponseEntity.ok()

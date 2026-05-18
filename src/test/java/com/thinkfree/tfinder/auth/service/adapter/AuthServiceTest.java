@@ -177,36 +177,4 @@ class AuthServiceTest {
         assertThrows(BusinessException.class, () -> authService.login(dto));
     }
 
-//    @Test
-//    void 회원가입_시_정상적인_값이_아닐_경우_예외가_발생한다(){
-//        //given
-//        SignupDto dto1 = new SignupDto(
-//                null,
-//                "name",
-//                "password"
-//        );
-//        SignupDto dto2 = new SignupDto(
-//                "email",
-//                null,
-//                "password"
-//        );
-//        SignupDto dto3 = new SignupDto(
-//                "email",
-//                "name",
-//                null
-//        );
-//
-//        given(memberRepository.existsByEmail(null)).willReturn(false);
-//        given(memberRepository.existsByEmail(isNotNull())).willReturn(true);
-//        given(emailValidateRepository.isValidated(null)).willReturn(false);
-//        given(emailValidateRepository.isValidated(isNotNull())).willReturn(true);
-//
-//        //when
-//        assertThrows(BusinessException.class, () -> authService.signUp(dto1));
-//        assertThrows(BusinessException.class, () -> authService.signUp(dto2));
-//        assertThrows(BusinessException.class, () -> authService.signUp(dto3));
-//
-//        //then
-//    }
-
 }
