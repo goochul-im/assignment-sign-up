@@ -1,7 +1,7 @@
 package com.thinkfree.tfinder.common.infrastructure.messagequeue.iface;
 
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.MessageDto;
-import com.thinkfree.tfinder.workspace.domain.MessageKey;
+import com.thinkfree.tfinder.common.infrastructure.messagequeue.MessageKey;
 
 /**
  * no use not

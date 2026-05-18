@@ -3,12 +3,11 @@ package com.thinkfree.tfinder.common.infrastructure.messagequeue.adapter;
 import com.thinkfree.tfinder.common.config.RabbitMqConfig;
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.MessageDto;
 import com.thinkfree.tfinder.common.infrastructure.messagequeue.iface.IMessageQueue;
-import com.thinkfree.tfinder.workspace.domain.MessageKey;
+import com.thinkfree.tfinder.common.infrastructure.messagequeue.MessageKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.stereotype.Component;
 
 /**
  * @deprecated 현재 사용되지 않음

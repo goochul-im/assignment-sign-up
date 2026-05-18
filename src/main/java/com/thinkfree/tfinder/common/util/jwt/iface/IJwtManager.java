@@ -1,7 +1,7 @@
-package com.thinkfree.tfinder.common.service.iface;
+package com.thinkfree.tfinder.common.util.jwt.iface;
 
 import com.thinkfree.tfinder.common.exception.BusinessException;
-import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
+import com.thinkfree.tfinder.common.util.jwt.dto.InviteTokenResult;
 
 public interface IJwtManager {
 

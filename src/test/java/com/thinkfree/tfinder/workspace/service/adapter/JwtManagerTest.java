@@ -3,8 +3,8 @@ package com.thinkfree.tfinder.workspace.service.adapter;
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
-import com.thinkfree.tfinder.common.service.adpater.JwtManager;
-import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
+import com.thinkfree.tfinder.common.util.jwt.adpater.JwtManager;
+import com.thinkfree.tfinder.common.util.jwt.dto.InviteTokenResult;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.*;

@@ -9,3 +9,6 @@ Authorization: Bearer {{access_token}}
 ### 워크스페이스 멤버 조회
 GET localhost:8080/workspace/1/members
 Authorization: Bearer {{access_token}}
+
+### 비로그인 워크스페이스 조회
+GET localhost:8080/workspace/my

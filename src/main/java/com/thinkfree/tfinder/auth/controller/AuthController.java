@@ -7,10 +7,10 @@ import com.thinkfree.tfinder.auth.controller.request.LoginRequest;
 import com.thinkfree.tfinder.auth.controller.request.SignupRequest;
 import com.thinkfree.tfinder.auth.controller.response.AccessTokenResponse;
 import com.thinkfree.tfinder.auth.controller.response.ValidateEmailResponse;
-import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
+import com.thinkfree.tfinder.auth.service.dto.LoginResult;
 import com.thinkfree.tfinder.auth.service.dto.MemberSignupResponse;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
-import com.thinkfree.tfinder.common.concurrent.LockSupporter;
+import com.thinkfree.tfinder.common.util.concurrent.ILockSupporter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,7 +35,7 @@ public class AuthController {
 
     private final IAuthUseCase authUseCase;
     private final RefreshCookieProperties refreshCookieProperties;
-    private final LockSupporter lockSupporter;
+    private final ILockSupporter lockSupporter;
 
     @Operation(
             summary = "로그인",
@@ -52,7 +52,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AccessTokenResponse> login(@Valid @RequestBody LoginRequest request) {
 
-        LoginResultDto result = authUseCase.login(request);
+        LoginResult result = authUseCase.login(request);
 
         AccessTokenResponse response = new AccessTokenResponse(result.accessToken());
 
@@ -80,7 +80,7 @@ public class AuthController {
     ) {
 
         String refreshToken = extractRefreshToken(request);
-        LoginResultDto result = authUseCase.refresh(refreshToken);
+        LoginResult result = authUseCase.refresh(refreshToken);
 
         AccessTokenResponse response = new AccessTokenResponse(result.accessToken());
 

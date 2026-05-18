@@ -4,16 +4,16 @@ import com.thinkfree.tfinder.auth.controller.request.LoginRequest;
 import com.thinkfree.tfinder.auth.controller.request.SignupRequest;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
-import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
+import com.thinkfree.tfinder.auth.service.dto.LoginResult;
 import com.thinkfree.tfinder.auth.service.dto.MemberSignupResponse;
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshTokenRepository;
-import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInviteOutboxMapper;
-import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInvitePayload;
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
+import com.thinkfree.tfinder.common.infrastructure.outbox.join_pending_invite.JoinPendingInviteOutboxMapper;
+import com.thinkfree.tfinder.common.infrastructure.outbox.join_pending_invite.JoinPendingInvitePayload;
+import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventEntity;
 import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxRepository;
-import com.thinkfree.tfinder.common.service.iface.IJwtManager;
+import com.thinkfree.tfinder.common.util.jwt.iface.IJwtManager;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
@@ -98,7 +98,7 @@ class AuthServiceTest {
         //then
         assertThat(result.memberId()).isEqualTo(returnMember.getId());
         assertThat(result.nickname()).isEqualTo(username);
-        verify(outboxRepository).save(any(OutboxEntity.class));
+        verify(outboxRepository).save(any(OutboxEventEntity.class));
     }
 
     @Test
@@ -146,7 +146,7 @@ class AuthServiceTest {
         given(refreshTokenRepository.save(any(), any(), any())).willReturn(true);
 
         //when
-        LoginResultDto result = authService.login(dto);
+        LoginResult result = authService.login(dto);
 
         //then
         assertThat(result.accessToken()).isEqualTo(accessToken);
@@ -176,37 +176,5 @@ class AuthServiceTest {
         //when & then
         assertThrows(BusinessException.class, () -> authService.login(dto));
     }
-
-//    @Test
-//    void 회원가입_시_정상적인_값이_아닐_경우_예외가_발생한다(){
-//        //given
-//        SignupDto dto1 = new SignupDto(
-//                null,
-//                "name",
-//                "password"
-//        );
-//        SignupDto dto2 = new SignupDto(
-//                "email",
-//                null,
-//                "password"
-//        );
-//        SignupDto dto3 = new SignupDto(
-//                "email",
-//                "name",
-//                null
-//        );
-//
-//        given(memberRepository.existsByEmail(null)).willReturn(false);
-//        given(memberRepository.existsByEmail(isNotNull())).willReturn(true);
-//        given(emailValidateRepository.isValidated(null)).willReturn(false);
-//        given(emailValidateRepository.isValidated(isNotNull())).willReturn(true);
-//
-//        //when
-//        assertThrows(BusinessException.class, () -> authService.signUp(dto1));
-//        assertThrows(BusinessException.class, () -> authService.signUp(dto2));
-//        assertThrows(BusinessException.class, () -> authService.signUp(dto3));
-//
-//        //then
-//    }
 
 }

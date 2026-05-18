@@ -16,6 +16,11 @@ public class EmptyMailSender implements IMailSender {
     }
 
     @Override
+    public void asyncSend(String toEmail, String title, String message, long workspaceId) {
+        log.info("async send");
+    }
+
+    @Override
     public void send(String toEmail, String title, String message) {
         log.info("sync send");
     }

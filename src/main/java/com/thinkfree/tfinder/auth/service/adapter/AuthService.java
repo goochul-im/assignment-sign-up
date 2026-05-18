@@ -9,12 +9,12 @@ import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshToken
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
-import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInviteOutboxMapper;
-import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInvitePayload;
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
+import com.thinkfree.tfinder.common.infrastructure.outbox.join_pending_invite.JoinPendingInviteOutboxMapper;
+import com.thinkfree.tfinder.common.infrastructure.outbox.join_pending_invite.JoinPendingInvitePayload;
+import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventEntity;
 import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventType;
 import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxRepository;
-import com.thinkfree.tfinder.common.service.iface.IJwtManager;
+import com.thinkfree.tfinder.common.util.jwt.iface.IJwtManager;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
@@ -108,7 +108,7 @@ public class AuthService implements IAuthUseCase {
                 savedMember.getId(),
                 savedMember.getEmail()
         ));
-        outboxRepository.save(OutboxEntity.pending( // 현재 대기중인 초대 있는지 확인
+        outboxRepository.save(new OutboxEventEntity( // 대기중 초대 가입 이벤트 발행
                 OutboxEventType.JOIN_WORKSPACE_PENDING_INVITE,
                 payload
         ));
@@ -123,7 +123,7 @@ public class AuthService implements IAuthUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public LoginResultDto login(LoginRequest dto) throws BusinessException {
+    public LoginResult login(LoginRequest dto) throws BusinessException {
 
         MemberEntity member = memberRepository.findByEmail(dto.email()).orElseThrow(
                 () -> new BusinessException(ErrorCode.AUTHENTICATION_FAILED)
@@ -140,7 +140,7 @@ public class AuthService implements IAuthUseCase {
             throw new BusinessException(ErrorCode.LOGIN_FAILED, "서버 내부 요인으로 인해 로그인이 실패했습니다.");
         }
 
-        return new LoginResultDto(
+        return new LoginResult(
                 accessToken,
                 refreshToken
         );
@@ -148,7 +148,7 @@ public class AuthService implements IAuthUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public LoginResultDto refresh(String refreshToken) throws BusinessException {
+    public LoginResult refresh(String refreshToken) throws BusinessException {
 
         String email = jwtManager.getEmailFromRefreshToken(refreshToken);
         String savedRefreshToken = refreshTokenRepository.findByEmail(email).orElseThrow(
@@ -168,7 +168,7 @@ public class AuthService implements IAuthUseCase {
             throw new BusinessException(ErrorCode.REFRESH_FAILED, "서버 내부 요인으로 인해 리프레싱이 실패했습니다.");
         }
 
-        return new LoginResultDto(
+        return new LoginResult(
                 newAccessToken,
                 newRefreshToken
         );

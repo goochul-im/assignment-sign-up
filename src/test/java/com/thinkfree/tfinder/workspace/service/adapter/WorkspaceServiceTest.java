@@ -1,23 +1,18 @@
 package com.thinkfree.tfinder.workspace.service.adapter;
 
 import com.navercorp.fixturemonkey.FixtureMonkey;
-import com.navercorp.fixturemonkey.FixtureMonkeyBuilder;
 import com.navercorp.fixturemonkey.api.introspector.ConstructorPropertiesArbitraryIntrospector;
-import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailSendLimitRepository;
+import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IMailSendLimitRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.exception.SignupRequireException;
-import com.thinkfree.tfinder.common.infrastructure.messagequeue.iface.IMessageQueue;
-import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
-import com.thinkfree.tfinder.common.service.iface.IJwtManager;
+import com.thinkfree.tfinder.common.util.jwt.dto.InviteTokenResult;
+import com.thinkfree.tfinder.common.util.jwt.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceTier;
-import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceResponse;
-import com.thinkfree.tfinder.workspace.service.dto.InviteResponse;
-import com.thinkfree.tfinder.workspace.service.dto.MyWorkspaceResponse;
-import com.thinkfree.tfinder.workspace.service.dto.WorkspaceResponse;
+import com.thinkfree.tfinder.workspace.service.dto.*;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
@@ -26,9 +21,6 @@ import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemb
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
-import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceCommand;
-import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResponse;
-import net.jqwik.api.Arbitraries;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,10 +28,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,7 +55,7 @@ class WorkspaceServiceTest {
     @Mock
     IPendingInviteRepository pendingInviteRepository;
     @Mock
-    private IEmailSendLimitRepository emailSendLimitRepository;
+    private IMailSendLimitRepository emailSendLimitRepository;
     @InjectMocks
     private WorkspaceService workspaceService;
 
@@ -148,7 +137,7 @@ class WorkspaceServiceTest {
                 ));
 
         //when
-        List<WorkspaceMemberResponse> result = workspaceService.getWorkspaceMembersPage(requesterId, workspaceId, 0, 10).memberList();
+        List<WorkspaceMemberResponse> result = workspaceService.getWorkspaceMembersPage(new getWorkspaceMembersPageCommand(requesterId, workspaceId, 0, 10)).memberList();
 
         //then
         assertThat(result).hasSize(2);
@@ -172,7 +161,8 @@ class WorkspaceServiceTest {
                 .willReturn(Optional.empty());
 
         //when & then
-        BusinessException exception = assertThrows(BusinessException.class, () -> workspaceService.getWorkspaceMembersPage(requesterId, workspaceId, 0, 10));
+        BusinessException exception = assertThrows(BusinessException.class, () -> workspaceService.getWorkspaceMembersPage(
+                new getWorkspaceMembersPageCommand(requesterId, workspaceId, 0, 10)));
         then(workspaceMemberRepository).should(never()).findWorkspaceMemberPage(any(), any());
 
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.AUTHORIZATION_FAILED);
@@ -344,7 +334,8 @@ class WorkspaceServiceTest {
                 0L,
                 false,
                 null,
-                WorkspaceTier.FREE
+                WorkspaceTier.FREE,
+                Locale.KOREA
         );
 
         given(workspaceRepository.save(any())).willReturn(workspace);
@@ -419,7 +410,8 @@ class WorkspaceServiceTest {
                 100L,
                 false,
                 null,
-                WorkspaceTier.FREE
+                WorkspaceTier.FREE,
+                Locale.KOREA
         );
     }
 

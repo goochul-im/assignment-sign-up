@@ -1,6 +1,6 @@
 package com.thinkfree.tfinder.auth.controller.request;
 
-import com.thinkfree.tfinder.common.constant.ValidationMessage;
+import com.thinkfree.tfinder.common.util.constant.ValidationMessage;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotBlank;
  */
 public record EmailValidateRequest(
         @Schema(description = "인증 토큰", example = "ejyPosuaQw...")
-        @NotBlank(message = ValidationMessage.NOT_BLANK)
+        @NotBlank
         String token
 ) {
 }

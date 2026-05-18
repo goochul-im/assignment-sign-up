@@ -3,14 +3,12 @@ package com.thinkfree.tfinder.auth.service.adapter;
 import com.thinkfree.tfinder.annotation.IntegrationTest;
 import com.thinkfree.tfinder.auth.controller.request.SignupRequest;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
-import com.thinkfree.tfinder.common.exception.BusinessException;
-import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.exception.SignupRequireException;
-import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
+import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventEntity;
 import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventStatus;
 import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventType;
 import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxRepository;
-import com.thinkfree.tfinder.common.service.iface.IJwtManager;
+import com.thinkfree.tfinder.common.util.jwt.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
@@ -108,7 +106,7 @@ class AuthServiceIntegrationTest {
         assertThat(workspaceMemberRepository.existsByWorkspaceAndMember(workspace, signupMember)).isTrue();
         assertThat(outboxRepository.findAll())
                 .filteredOn(outbox -> outbox.getEventType() == OutboxEventType.JOIN_WORKSPACE_PENDING_INVITE)
-                .extracting(OutboxEntity::getStatus)
+                .extracting(OutboxEventEntity::getStatus)
                 .contains(OutboxEventStatus.DONE);
     }
 

@@ -7,11 +7,11 @@ import com.thinkfree.tfinder.auth.controller.request.SignupRequest;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshTokenRepository;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
-import com.thinkfree.tfinder.common.concurrent.LockSupporter;
+import com.thinkfree.tfinder.common.util.concurrent.RedisLockSupporter;
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
-import com.thinkfree.tfinder.common.service.iface.IJwtManager;
+import com.thinkfree.tfinder.common.util.jwt.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.*;
 public class SignupConcurrencyTest {
 
     @Autowired
-    private LockSupporter lockSupporter;
+    private RedisLockSupporter lockSupporter;
     @Autowired
     private IAuthUseCase authUseCase;
     @Autowired
@@ -80,6 +80,7 @@ public class SignupConcurrencyTest {
         int threadCount = 30;
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+        CountDownLatch startLatch = new CountDownLatch(1);
 
         String email = "cuncurrent@email.com";
         AtomicInteger successCount = new AtomicInteger(0);
@@ -93,6 +94,8 @@ public class SignupConcurrencyTest {
         for (int i = 0; i < threadCount; i++) {
             executor.submit(() -> {
                 try {
+                    countDownLatch.countDown();
+                    startLatch.await();
                     lockSupporter.lockSupport(() ->
                                     authUseCase.signUp(new SignupRequest(
                                             "just name",
@@ -105,13 +108,14 @@ public class SignupConcurrencyTest {
                     successCount.addAndGet(1);
                 } catch (BusinessException e) {
                     failedCount.addAndGet(1);
-                } finally {
-                    countDownLatch.countDown();
+                } catch (InterruptedException e) {
+                    System.out.println("인터럽트 예외");
                 }
             });
         }
 
         countDownLatch.await();
+        startLatch.countDown();
         executor.close();
         //then
 

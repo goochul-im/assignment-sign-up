@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.workspace.domain;
+package com.thinkfree.tfinder.common.infrastructure.messagequeue;
 
 import lombok.Getter;
 

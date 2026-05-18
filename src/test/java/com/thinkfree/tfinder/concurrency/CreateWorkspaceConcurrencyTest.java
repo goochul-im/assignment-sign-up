@@ -3,7 +3,7 @@ package com.thinkfree.tfinder.concurrency;
 import com.navercorp.fixturemonkey.FixtureMonkey;
 import com.navercorp.fixturemonkey.api.introspector.ConstructorPropertiesArbitraryIntrospector;
 import com.thinkfree.tfinder.annotation.IntegrationTest;
-import com.thinkfree.tfinder.common.concurrent.LockSupporter;
+import com.thinkfree.tfinder.common.util.concurrent.RedisLockSupporter;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
@@ -48,7 +48,7 @@ public class CreateWorkspaceConcurrencyTest {
     @Autowired
     private IMemberRepository memberRepository;
     @Autowired
-    private LockSupporter lockSupporter;
+    private RedisLockSupporter lockSupporter;
 
     private final FixtureMonkey fixture = FixtureMonkey.builder()
             .objectIntrospector(ConstructorPropertiesArbitraryIntrospector.INSTANCE)
@@ -60,6 +60,7 @@ public class CreateWorkspaceConcurrencyTest {
         int threadCount = 30;
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+        CountDownLatch startLatch = new CountDownLatch(1);
 
         String url = "cuncurrentUrl";
         AtomicInteger successCount = new AtomicInteger(0);
@@ -78,6 +79,8 @@ public class CreateWorkspaceConcurrencyTest {
             int memberId = i;
             executor.submit(() -> {
                 try {
+                    countDownLatch.countDown();
+                    startLatch.await();
                     lockSupporter.lockSupport(() ->
                             workspaceService.create(new CreateWorkspaceCommand(
                                     members.get(memberId).getId(),
@@ -90,13 +93,14 @@ public class CreateWorkspaceConcurrencyTest {
                     successCount.addAndGet(1);
                 } catch (BusinessException e) {
                     failedCount.addAndGet(1);
-                } finally {
-                    countDownLatch.countDown();
+                } catch (InterruptedException e) {
+                    System.out.println("인터럽트 예외");
                 }
             });
         }
 
         countDownLatch.await();
+        startLatch.countDown();
         executor.close();
         //then
 

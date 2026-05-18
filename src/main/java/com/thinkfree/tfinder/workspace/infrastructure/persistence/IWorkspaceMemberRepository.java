@@ -33,20 +33,21 @@ public interface IWorkspaceMemberRepository extends JpaRepository<WorkspaceMembe
      */
     @Query("""
             select workspaceMember
-            from workspace_member workspaceMember
+            from WorkspaceMemberEntity workspaceMember
             join fetch workspaceMember.workspace
             where workspaceMember.member = :member
             """)
     List<WorkspaceMemberEntity> findAllByMember(MemberEntity member);
 
     /**
-     * 워크스페이스에 속한 멤버를 반환
+     * 워크스페이스에 속한 멤버를 페이지로 반환
      * @param workspace 멤버들을 찾을 워크스페이스
+     * @param pageable 페이지 정보
      * @return 해당 워크스페이스에 속해있는 멤버 리스트, 없을 경우 empty list 반환
      */
     @Query("""
             select workspaceMember
-            from workspace_member workspaceMember
+            from WorkspaceMemberEntity workspaceMember
             join fetch workspaceMember.member
             where workspaceMember.workspace = :workspace
             """)
@@ -60,8 +61,8 @@ public interface IWorkspaceMemberRepository extends JpaRepository<WorkspaceMembe
      */
     @Query("""
         select case when (count(*) > 0) then true else false end
-        from workspace_member wm
-        join member m on wm.member.id = m.id
+        from WorkspaceMemberEntity wm
+        join MemberEntity m on wm.member.id = m.id
         where m.email = :email
         """)
     boolean existsByWorkspaceAndMemberEmail(WorkspaceEntity workspace, String email);

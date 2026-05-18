@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.common.concurrent;
+package com.thinkfree.tfinder.common.util.concurrent;
 
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class LockSupporter {
+public class RedisLockSupporter implements ILockSupporter{
 
     private final RedissonClient redissonClient;
 
@@ -24,11 +24,11 @@ public class LockSupporter {
         log.info("락 획득 시도");
 
         try {
-            if (myLock.tryLock(3, TimeUnit.SECONDS)) {
+            if (myLock.tryLock(5,10, TimeUnit.SECONDS)) {
                 return task.get();
             } else {
                 log.warn("락 획득 실패");
-                throw new BusinessException(ErrorCode.TOO_MANY_INVITE);
+                throw new BusinessException(ErrorCode.LOCK_ACQUIRE_FAILED, "너무 많은 요청이 몰렸을 수 있습니다. 잠시 후 다시 시도해주세요.");
             }
         } catch (InterruptedException e) {
             log.error("락 획득 중 인터럽트 발생");

@@ -3,6 +3,7 @@ package com.thinkfree.tfinder.common.config;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.SocketOptions;
+import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -15,12 +16,17 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnection;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
 
 @Configuration
+@RequiredArgsConstructor
 public class RedisConfig {
 
     @Value("${spring.data.redis.host}")
@@ -28,6 +34,8 @@ public class RedisConfig {
 
     @Value("${spring.data.redis.port}")
     private int port;
+
+    private final ObjectMapper objectMapper;
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
@@ -46,7 +54,6 @@ public class RedisConfig {
     @Bean
     public StringRedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
         StringRedisTemplate template = new StringRedisTemplate(redisConnectionFactory);
-        template.setEnableTransactionSupport(true);
         return template;
     }
 
@@ -57,13 +64,6 @@ public class RedisConfig {
                 .setAddress("redis://" + host + ":" + port);
 
         return Redisson.create(config);
-    }
-
-    @Bean
-    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory) {
-        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(redisConnectionFactory);
-        return container;
     }
 
 }

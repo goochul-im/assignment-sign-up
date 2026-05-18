@@ -1,5 +1,6 @@
 package com.thinkfree.tfinder.common;
 
+import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxRepository;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
@@ -11,6 +12,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
@@ -20,6 +22,8 @@ public class DummyDataConstructor {
     private final IWorkspaceRepository workspaceRepository;
     private final IWorkspaceMemberRepository workspaceMemberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final IOutboxRepository outboxRepository;
+    private final ObjectMapper mapper;
 
     @PostConstruct
     void init() {
@@ -49,6 +53,14 @@ public class DummyDataConstructor {
         workspaceMemberRepository.save(workspaceMember3);
         workspaceMemberRepository.save(workspaceMember4);
         workspaceMemberRepository.save(workspaceMember5);
+
+//        for (int i = 0; i < 100; i++) {
+//            outboxRepository.save(new OutboxEntity(
+//                    OutboxEventType.JOIN_WORKSPACE_PENDING_INVITE,
+//                    mapper.writeValueAsString("hello")
+//            ));
+//        }
+
     }
 
 }
