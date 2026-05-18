@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-@Profile("local")
+@Profile("test")
 public class EmptyMailSender implements IMailSender {
 
     @Override

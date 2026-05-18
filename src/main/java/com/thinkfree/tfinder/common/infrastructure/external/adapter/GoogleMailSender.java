@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Profile({"dev","prod"})
+@Profile("local")
 public class GoogleMailSender implements IMailSender {
 
     private final JavaMailSender mailSender;
@@ -31,6 +31,8 @@ public class GoogleMailSender implements IMailSender {
         send(toEmail, title, message);
     }
 
+    @Override
+    @Async
     public void asyncSend(String toEmail, String title, String message, long workspaceId) { send(toEmail, title, message, workspaceId); }
 
     private void send(String toEmail, String title, String message, long workspaceId) {
