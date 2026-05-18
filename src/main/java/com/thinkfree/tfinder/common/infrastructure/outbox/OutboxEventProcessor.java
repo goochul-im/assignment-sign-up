@@ -28,7 +28,7 @@ public class OutboxEventProcessor {
                 IOutboxEventHandler handler = handlerProvider.getHandler(outbox.getEventType());
                 handler.handle(outbox);
                 outbox.markDone();
-            } catch (Exception e) { // TODO: 여기서 catch하고 있는데 왜 바깥까지 예외가 던져지지?
+            } catch (Exception e) {
                 outbox.addRetryCount();
                 log.warn("outbox 처리 실패. outboxId = {}, eventType = {}, retryCount = {}, message = {}",
                         outbox.getId(),

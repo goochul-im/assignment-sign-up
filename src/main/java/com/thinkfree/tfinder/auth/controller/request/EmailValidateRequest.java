@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotBlank;
  */
 public record EmailValidateRequest(
         @Schema(description = "인증 토큰", example = "ejyPosuaQw...")
-        @NotBlank(message = ValidationMessage.NOT_BLANK)
+        @NotBlank
         String token
 ) {
 }

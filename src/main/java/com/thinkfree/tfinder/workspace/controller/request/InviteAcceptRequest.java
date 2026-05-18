@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record InviteAcceptRequest(
         @Schema(description = "초대 토큰", example = "ejyPosuaQw...")
-        @NotBlank(message = ValidationMessage.NOT_BLANK)
+        @NotBlank
         String inviteToken
 ) {
 }
