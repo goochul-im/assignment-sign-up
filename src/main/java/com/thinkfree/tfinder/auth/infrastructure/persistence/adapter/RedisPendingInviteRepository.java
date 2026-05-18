@@ -1,7 +1,10 @@
 package com.thinkfree.tfinder.auth.infrastructure.persistence.adapter;
 
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
+import com.thinkfree.tfinder.common.exception.BusinessException;
+import com.thinkfree.tfinder.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -14,6 +17,7 @@ import java.util.Date;
 import java.util.Set;
 
 @Repository
+@Slf4j
 @RequiredArgsConstructor
 public class RedisPendingInviteRepository implements IPendingInviteRepository {
 
@@ -28,7 +32,10 @@ public class RedisPendingInviteRepository implements IPendingInviteRepository {
         long expiresAt = now + expiration.toMillis();
 
         removeExpiredInvites(key, now); // 이미 만료된 대기 요청들을 삭제
-        redisTemplate.opsForZSet().add(key, workspaceUrl, expiresAt);
+        if (redisTemplate.opsForZSet().add(key, workspaceUrl, expiresAt) == null) {
+            log.warn("파이프라인이나 트랜잭션 안에서 실행되었습니다.");
+            throw new BusinessException(ErrorCode.EXTERNAL_ERROR);
+        }
         refreshKeyExpirationAtLatestInvite(key); // 가장 나중의 요청으로 zset 만료시간 설정
     }
 
@@ -46,17 +53,32 @@ public class RedisPendingInviteRepository implements IPendingInviteRepository {
 
     @Override
     public boolean delete(String email) {
-        return redisTemplate.delete(getKey(email));
+        Boolean delete = redisTemplate.delete(getKey(email));
+        if (delete == null) {
+            log.warn("파이프라인이나 트랜잭션 안에서 실행되었습니다.");
+            throw new BusinessException(ErrorCode.EXTERNAL_ERROR);
+        }
+        return delete;
     }
 
     @Override
     public boolean deleteOne(String email, String url) {
-        return redisTemplate.opsForZSet().remove(getKey(email), url) > 0;
+        Long remove = redisTemplate.opsForZSet().remove(getKey(email), url);
+        if (remove == null) {
+            log.warn("파이프라인이나 트랜잭션 안에서 실행되었습니다.");
+            throw new BusinessException(ErrorCode.EXTERNAL_ERROR);
+        }
+        return remove > 0;
     }
 
     @Override
     public boolean isRemain(String email) {
-        return !redisTemplate.opsForZSet().range(getKey(email), 0, Long.MAX_VALUE).isEmpty();
+        Set<String> range = redisTemplate.opsForZSet().range(getKey(email), 0, Long.MAX_VALUE);
+        if (range == null) {
+            log.warn("파이프라인이나 트랜잭션 안에서 실행되었습니다.");
+            throw new BusinessException(ErrorCode.EXTERNAL_ERROR);
+        }
+        return !range.isEmpty();
     }
 
     private String getKey(String email) {
@@ -64,7 +86,10 @@ public class RedisPendingInviteRepository implements IPendingInviteRepository {
     }
 
     private void removeExpiredInvites(String key, long now) {
-        redisTemplate.opsForZSet().removeRangeByScore(key, 0, now);
+        if (redisTemplate.opsForZSet().removeRangeByScore(key, 0, now) == null) {
+            log.warn("파이프라인이나 트랜잭션 안에서 실행되었습니다.");
+            throw new BusinessException(ErrorCode.EXTERNAL_ERROR);
+        }
     }
 
     private void refreshKeyExpirationAtLatestInvite(String key) {

@@ -24,6 +24,11 @@ public class RedisMailSendLimitRepository implements IMailSendLimitRepository {
     @Override
     public boolean decreaseRemainLimit(int decrease, long workspaceId) {
         Long remain = template.opsForValue().decrement(getKey(workspaceId));
+
+        if (remain == null) {
+            return false; // 파이프라인이나 트랜잭션 내에서 사용됨
+        }
+
         if (remain < 0) {
             template.opsForValue().increment(getKey(workspaceId), decrease); // 복구 시퀀스
             return false;

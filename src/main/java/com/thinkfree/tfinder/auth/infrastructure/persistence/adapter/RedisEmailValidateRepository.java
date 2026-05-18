@@ -3,12 +3,14 @@ package com.thinkfree.tfinder.auth.infrastructure.persistence.adapter;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
 import com.thinkfree.tfinder.auth.service.enumration.EmailValidateStatus;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
 
 @Repository
+@Slf4j
 @RequiredArgsConstructor
 public class RedisEmailValidateRepository implements IEmailValidateRepository {
 
@@ -18,7 +20,11 @@ public class RedisEmailValidateRepository implements IEmailValidateRepository {
 
     @Override
     public void saveAsValidated(String email, Duration expiration) {
-        redisTemplate.opsForValue().set(getKey(email), EmailValidateStatus.VALIDATE.getStatus(), expiration);
+        try {
+            redisTemplate.opsForValue().set(getKey(email), EmailValidateStatus.VALIDATE.getStatus(), expiration);
+        } catch (IllegalArgumentException e) {
+            log.warn("잘못된 인자로 인해 인증정보가 저장되지 않았습니다. email = {} , expiration = {}",email, expiration);
+        }
     }
 
     @Override

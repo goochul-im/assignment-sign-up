@@ -13,7 +13,7 @@ public interface IWorkspaceUseCase {
      * 워크스페이스를 생성합니다.
      * @param dto 워크스페이스 생성 요청 DTO
      * @return 생성된 워크스페이스
-     * @throws BusinessException 이름이 중복되거나, URL이 중복됨
+     * @throws BusinessException URL이 중복됨
      */
     CreateWorkspaceResponse create(CreateWorkspaceCommand dto) throws BusinessException;
 

@@ -23,7 +23,6 @@ public class RedisRefreshTokenRepository implements IRefreshTokenRepository {
         try {
             redisTemplate.opsForValue().set(getKey(email), refreshToken, expiration);
         } catch (IllegalArgumentException e) {
-            log.warn("잘못된 인자로 인해 레디스에서 토큰이 저장되지 않았습니다. email = {}, refreshToken = {}, expiration = {}", email, refreshToken, expiration);
             return false;
         }
         return true;
