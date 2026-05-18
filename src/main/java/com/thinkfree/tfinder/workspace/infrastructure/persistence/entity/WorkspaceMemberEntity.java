@@ -9,11 +9,18 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
-@Entity(name = "workspace_member")
+@Entity
+@Table(
+        name = "workspace_member",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_workspace_member",
+                columnNames = {"workspace_id","member_id"}
+        )
+)
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class WorkspaceMemberEntity {
+public class WorkspaceMemberEntity extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,16 +1,16 @@
 package com.thinkfree.tfinder.auth.controller;
 
 import com.thinkfree.tfinder.auth.config.RefreshCookieProperties;
-import com.thinkfree.tfinder.auth.controller.request.EmailValidateReqeust;
+import com.thinkfree.tfinder.auth.controller.request.EmailValidateRequest;
+import com.thinkfree.tfinder.auth.controller.request.ValidationEmailReqeust;
 import com.thinkfree.tfinder.auth.controller.request.LoginRequest;
 import com.thinkfree.tfinder.auth.controller.request.SignupRequest;
 import com.thinkfree.tfinder.auth.controller.response.AccessTokenResponse;
-import com.thinkfree.tfinder.auth.service.dto.LoginDto;
-import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
-import com.thinkfree.tfinder.auth.service.dto.SignupDto;
+import com.thinkfree.tfinder.auth.controller.response.ValidateEmailResponse;
+import com.thinkfree.tfinder.auth.service.dto.LoginResult;
+import com.thinkfree.tfinder.auth.service.dto.MemberSignupResponse;
 import com.thinkfree.tfinder.auth.service.iface.IAuthUseCase;
-import com.thinkfree.tfinder.common.exception.BusinessException;
-import com.thinkfree.tfinder.common.exception.ErrorCode;
+import com.thinkfree.tfinder.common.util.concurrent.ILockSupporter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,6 +35,7 @@ public class AuthController {
 
     private final IAuthUseCase authUseCase;
     private final RefreshCookieProperties refreshCookieProperties;
+    private final ILockSupporter lockSupporter;
 
     @Operation(
             summary = "로그인",
@@ -49,16 +50,15 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "A-001, 이메일 또는 비밀번호 불일치"),
     })
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<AccessTokenResponse> login(@Valid @RequestBody LoginRequest request) {
 
-        LoginResultDto result = authUseCase.login(new LoginDto(
-                request.email(),
-                request.password()
-        ));
+        LoginResult result = authUseCase.login(request);
+
+        AccessTokenResponse response = new AccessTokenResponse(result.accessToken());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, createRefreshCookie(result.refreshToken()).toString())
-                .body(new AccessTokenResponse(result.accessToken()));
+                .body(response);
     }
 
     @Operation(
@@ -75,17 +75,18 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "A-005, 리프레쉬 토큰에 오류가 있음"),
     })
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(
+    public ResponseEntity<AccessTokenResponse> refresh(
             HttpServletRequest request
     ) {
 
         String refreshToken = extractRefreshToken(request);
-        validateRefreshTokenCookie(refreshToken);
-        LoginResultDto result = authUseCase.refresh(refreshToken);
+        LoginResult result = authUseCase.refresh(refreshToken);
+
+        AccessTokenResponse response = new AccessTokenResponse(result.accessToken());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, createRefreshCookie(result.refreshToken()).toString())
-                .body(new AccessTokenResponse(result.accessToken()));
+                .body(response);
     }
 
     @Operation(
@@ -103,7 +104,6 @@ public class AuthController {
     ) {
 
         String refreshToken = extractRefreshToken(request);
-        validateRefreshTokenCookie(refreshToken);
         authUseCase.logout(refreshToken);
 
         return ResponseEntity.noContent()
@@ -116,38 +116,65 @@ public class AuthController {
             description = "회원가입을 진행합니다."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "회원가입 성공"),
+            @ApiResponse(responseCode = "200", description = "회원가입 성공", content =
+                @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = MemberSignupResponse.class)
+                )
+            ),
             @ApiResponse(responseCode = "409", description = "E-002, 중복 이메일"),
-            @ApiResponse(responseCode = "401", description = "A-010, 이메일이 인증되지 않았거나, 인증이 만료되었습니다.")
+            @ApiResponse(responseCode = "401", description = "A-010, 이메일이 인증되지 않았거나, 인증이 만료됨")
     })
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest request) {
 
-        authUseCase.signUp(new SignupDto(
-                request.email(),
-                request.nickname(),
-                request.password()
-        ));
+        final String lockKey = "try:signup:" + request.email();
 
-        return ResponseEntity.noContent()
+        MemberSignupResponse result = lockSupporter.lockSupport(() -> authUseCase.signUp(request), lockKey);
+
+        return ResponseEntity.ok()
+                .body(result);
+    }
+
+    @Operation(
+            summary = "이메일 인증 메일 요청",
+            description = "이메일 인증 메일을 요청합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "202", description = "이메일 인증 메일 요청 성공"),
+            @ApiResponse(responseCode = "409", description = "E-002, 이미 가입된 이메일"),
+    })
+    @PostMapping("/email/request")
+    public ResponseEntity<?> requestValidateEmail(@Valid @RequestBody ValidationEmailReqeust request){
+
+        authUseCase.requestEmailValidation(request.email());
+
+        return ResponseEntity.accepted()
                 .build();
     }
 
     @Operation(
-            summary = "이메일 인증",
-            description = "이메일 인증을 요청합니다."
+            summary = "이메일 인증요청",
+            description = "서버에서 대기중인 이메일 인증 정보를 인증합니다. 인증 token을 전달해주세요"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "202", description = "이메일 인증 요청 성공"),
-            @ApiResponse(responseCode = "409", description = "E-002, 이미 가입된 이메일"),
+            @ApiResponse(responseCode = "202", description = "이메일 인증 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ValidateEmailResponse.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "A-010, 인증 요청이 되지 않았거나, 인증 정보가 만료된 이메일"),
     })
     @PostMapping("/email/validate")
-    public ResponseEntity<?> validateEmail(@Valid @RequestBody EmailValidateReqeust request){
+    public ResponseEntity<ValidateEmailResponse> validateEmail(@Valid @RequestBody EmailValidateRequest request){
 
-        authUseCase.emailValidateRequest(request.email());
+        String validateEmail = authUseCase.emailValidate(request.token());
+        ValidateEmailResponse response = new ValidateEmailResponse(validateEmail);
 
         return ResponseEntity.accepted()
-                .build();
+                .body(response)
+                ;
     }
 
     private ResponseCookie createRefreshCookie(String refreshToken) {
@@ -168,12 +195,6 @@ public class AuthController {
                 .path(refreshCookieProperties.getPath())
                 .maxAge(0)
                 .build();
-    }
-
-    private void validateRefreshTokenCookie(String refreshToken) {
-        if (refreshToken == null || refreshToken.isBlank()) {
-            throw new BusinessException(ErrorCode.REFRESH_TOKEN_ERROR);
-        }
     }
 
     private String extractRefreshToken(HttpServletRequest request) {

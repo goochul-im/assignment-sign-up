@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 에러 응답을 위한 레코드
@@ -19,12 +20,12 @@ public record ErrorResponse(
         Map<String, String> cause
 ) {
 
-    public static ResponseEntity<ErrorResponse> toEntity(ErrorCode errorCode) {
+    public static ResponseEntity<ErrorResponse> toEntity(ErrorCode errorCode, Optional<String> message) {
         return ResponseEntity
                 .status(errorCode.getStatus().value())
                 .body(new ErrorResponse(
                         errorCode.getStatus().value(),
-                        errorCode.getStatus().getReasonPhrase(),
+                        message.orElse(errorCode.getStatus().getReasonPhrase()),
                         errorCode.getErrorCode(),
                         null
                 ));

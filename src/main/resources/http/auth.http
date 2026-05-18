@@ -7,22 +7,29 @@ POST localhost:8080/auth/login
 Content-Type: application/json
 
 {
-  "email": "gooch123@naver.com",
-  "password": "1234"
+  "email": "test@email.com",
+  "password": "12341234"
 }
+
+> {%
+ var token = response.body.accessToken
+
+ client
+     .global.set("access_token", token)
+ %}
 
 ### 액세스 토큰 검증
 GET localhost:8080/test
-Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJleHAiOjE3NzcxNTAyNzIsInN1YiI6ImFjY2Vzc190b2tlbiIsIm1lbWJlcl9lbWFpbCI6Imdvb2NoMTIzQG5hdmVyLmNvbSJ9.VB8L-4zH5OxkrK3I8XG2qoe2lyRMg8URovbtacsuZpYpmkV8DCXmG-N0P3ciC53k
+Authorization: Bearer {{access_token}}
 
 ### 새 유저 회원가입
 POST http://localhost:8080/auth/signup
 Content-Type: application/json
 
 {
-  "email": "gooch123@naver.com",
+  "email": "gooc@naver.com",
   "password": "12341234",
-  "username": "gooch123"
+  "nickname": "gooch123"
 }
 
 ### 새 유저 로그인
@@ -30,12 +37,35 @@ POST localhost:8080/auth/login
 Content-Type: application/json
 
 {
-  "email": "test@email.com",
+  "email": "gooc@naver.com",
   "password": "12341234"
 }
+
+> {%
+    var token = response.body.accessToken
+
+    client
+        .global.set("access_token", token)
+%}
 
 ### 리프레쉬 토큰 인증
 POST localhost:8080/auth/refresh
 
 ### 로그아웃
 POST localhost:8080/auth/logout
+
+### 이메일 인증 요청
+POST localhost:8080/auth/email/request
+Content-Type: application/json
+
+{
+  "email": "gooch@naver.com"
+}
+
+### 이메일 인증
+POST localhost:8080/auth/email/validate
+Content-Type: application/json
+
+{
+  "token": "eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3Nzg3Mzk1NzIsInN1YiI6ImVtYWlsX3ZhbGlkYXRlX3Rva2VuIiwidmFsaWRhdGVfZW1haWwiOiJnb29jaEBuYXZlci5jb20ifQ.Mcjm9-pEHwOiD1hjnlHJYJt9vKrWD69syNooJjJS1aA5tvOPCTaNTbuBi0aunF5-_P1Y_UL5Kfny7i-GrVKvvQ"
+}

@@ -1,6 +1,6 @@
 package com.thinkfree.tfinder.auth.security;
 
-import com.thinkfree.tfinder.common.service.iface.IJwtManager;
+import com.thinkfree.tfinder.common.util.jwt.iface.IJwtManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
@@ -24,7 +25,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -50,6 +51,7 @@ public class SecurityConfig {
                         matcher.matcher("/v3/api-docs/**")
                 );
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtManager, customUserDetailsService, permitRequestMather);
+        // 빈으로 등록하고 또 HttpSecurity에 추가하면 두개가 생김
 
         http
                 .authorizeHttpRequests(authorize -> authorize
@@ -58,13 +60,14 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(handler -> handler
+                .logout(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable) // UsernamePasswordAuthenticationFilter 등록 해제
+                .httpBasic(AbstractHttpConfigurer::disable) // http basic 인증 방식 꺼짐
+                .sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 로그인 상태를 HttpSession에 저장 안함
+                .exceptionHandling(handler -> handler // 커스텀 예외 핸들러 추가
                         .accessDeniedHandler(customAccessDeniedHandler)
                         .authenticationEntryPoint(customAuthenticationEntryPoint))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) //
                 ;
 
 
@@ -72,7 +75,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 

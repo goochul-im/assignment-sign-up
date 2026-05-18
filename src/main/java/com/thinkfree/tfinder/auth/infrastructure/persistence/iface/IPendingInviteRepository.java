@@ -22,8 +22,19 @@ public interface IPendingInviteRepository {
     Set<String> findWorkspaceUrlsByEmail(String email);
 
     /**
-     * 참여 대기중인 워크스페이스 URL 목록을 삭제합니다.
+     * 참여 대기중인 워크스페이스 URL 목록을 전부 삭제합니다.
      * @param email 참여 대기 정보를 삭제할 이메일
+     * @return 삭제가 이루어졌을 경우 true, 아닐경우 false
      */
-    void delete(String email);
+    boolean delete(String email);
+
+    /**
+     * 참여 대기중인 워크스페이스 URL을 하나 삭제합니다
+     * @param email 참여 대기 정보를 삭제할 이메일
+     * @param url 삭제할 url
+     * @return 삭제가 이루어졌을 경우 true, 아닐경우 false
+     */
+    boolean deleteOne(String email, String url);
+
+    boolean isRemain(String email);
 }

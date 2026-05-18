@@ -1,43 +1,58 @@
 package com.thinkfree.tfinder.workspace.service.adapter;
 
+import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
-import com.thinkfree.tfinder.common.config.JwtProperties;
-import com.thinkfree.tfinder.common.service.adpater.JwtManager;
-import com.thinkfree.tfinder.common.service.dto.AccessTokenResult;
-import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
-import com.thinkfree.tfinder.common.service.dto.RefreshTokenResult;
-import org.junit.jupiter.api.BeforeAll;
+import com.thinkfree.tfinder.common.util.jwt.adpater.JwtManager;
+import com.thinkfree.tfinder.common.util.jwt.dto.InviteTokenResult;
 import org.junit.jupiter.api.Test;
-
-import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JwtManagerTest {
 
-    private static JwtManager jwtManager;
+    private static final String TEST_SECRET_KEY = "test-secret-key-must-be-at-least-32-bytes";
 
-    @BeforeAll
-    static void before() {
-        jwtManager = new JwtManager(new JwtProperties(
-                "my-secret-key-Lorem-ipsum-dolor-sit-amet-sollicitudin-vel-dapibus-magna-condimentum. ",
-                600,
-                604800,
-                172800,
-                600
+    private JwtManager jwtManager() {
+        return jwtManager(600, 604800, 172800, 600);
+    }
+
+    private JwtManager expiredAccessJwtManager() {
+        return jwtManager(-1, 604800, 172800, 600);
+    }
+
+    private JwtManager expiredRefreshJwtManager() {
+        return jwtManager(600, -1, 172800, 600);
+    }
+
+    private JwtManager expiredInviteJwtManager() {
+        return jwtManager(600, 604800, -1, 600);
+    }
+
+    private JwtManager jwtManager(
+            long accessExpirationSeconds,
+            long refreshExpirationSeconds,
+            long inviteExpirationSeconds,
+            long validateEmailExpirationSeconds
+    ) {
+        return new JwtManager(new JwtProperties(
+                TEST_SECRET_KEY,
+                accessExpirationSeconds,
+                refreshExpirationSeconds,
+                inviteExpirationSeconds,
+                validateEmailExpirationSeconds
         ));
     }
 
     @Test
     void 초대_토큰이_정상적으로_만들어지고_정보를_파싱할수_있어야_한다(){
         //given
+        JwtManager jwtManager = jwtManager();
         String to = "to@email.com";
         String from = "from@email.com";
         String url = "1234-1234";
-        Instant expTime = Instant.now().plusSeconds(1000);
-        String token = jwtManager.generateInviteToken(from, to, url, expTime);
+        String token = jwtManager.generateInviteToken(from, to, url);
 
         //when
         InviteTokenResult result = jwtManager.parsingInviteToken(token);
@@ -51,11 +66,11 @@ class JwtManagerTest {
     @Test
     void 초대_토큰이_만료되었을_경우_예외를_반환해야_한다(){
         //given
+        JwtManager jwtManager = expiredInviteJwtManager();
         String to = "to@email.com";
         String from = "from@email.com";
         String url = "1234-1234";
-        Instant expTime = Instant.now().minusSeconds(1000);
-        String token = jwtManager.generateInviteToken(from, to, url, expTime);
+        String token = jwtManager.generateInviteToken(from, to, url);
 
         //when
         BusinessException exception = assertThrows(BusinessException.class, () -> jwtManager.parsingInviteToken(token));
@@ -67,8 +82,8 @@ class JwtManagerTest {
     @Test
     void 초대_토큰이_아닐_경우_예외를_반환해야_한다(){
         //given
-        Instant expTime = Instant.now().plusSeconds(1000);
-        String token = jwtManager.generateAccessToken("test@email.com", expTime);
+        JwtManager jwtManager = jwtManager();
+        String token = jwtManager.generateAccessToken("test@email.com");
 
         //when
         BusinessException exception = assertThrows(BusinessException.class, () -> jwtManager.parsingInviteToken(token));
@@ -80,9 +95,9 @@ class JwtManagerTest {
     @Test
     void 액세스_토큰이_정상적으로_만들어지고_정보를_파싱할수_있어야_한다(){
         //given
+        JwtManager jwtManager = jwtManager();
         String email = "test@email.com";
-        Instant date = Instant.now().plusSeconds(1000);
-        String accessToken = jwtManager.generateAccessToken(email, date);
+        String accessToken = jwtManager.generateAccessToken(email);
 
         //when
         String result = jwtManager.getEmailFromAccessToken(accessToken);
@@ -94,9 +109,9 @@ class JwtManagerTest {
     @Test
     void 액세스_토큰이_만료될_경우_만료_예외를_던져야_한다(){
         //given
+        JwtManager jwtManager = expiredAccessJwtManager();
         String email = "test@email.com";
-        Instant date = Instant.now().minusSeconds(1000);
-        String accessToken = jwtManager.generateAccessToken(email, date);
+        String accessToken = jwtManager.generateAccessToken(email);
 
         //when
         BusinessException exception = assertThrows(BusinessException.class,
@@ -109,9 +124,9 @@ class JwtManagerTest {
     @Test
     void 액세스_토큰이_올바르지_않을_경우_예외를_던져야_한다(){
         //given
+        JwtManager jwtManager = jwtManager();
         String email = "test@email.com";
-        Instant date = Instant.now().minusSeconds(1000);
-        String accessToken = jwtManager.generateRefreshToken(email, date);
+        String accessToken = jwtManager.generateRefreshToken(email);
         String invalidAccessToken = accessToken.substring(3);
 
         //when
@@ -125,9 +140,9 @@ class JwtManagerTest {
     @Test
     void 리프레쉬_토큰이_정상적으로_만들어지고_정보를_파싱할수_있어야_한다(){
         //given
+        JwtManager jwtManager = jwtManager();
         String email = "test@email.com";
-        Instant date = Instant.now().plusSeconds(1000);
-        String refreshToken = jwtManager.generateRefreshToken(email, date);
+        String refreshToken = jwtManager.generateRefreshToken(email);
 
         //when
         String result = jwtManager.getEmailFromRefreshToken(refreshToken);
@@ -139,9 +154,9 @@ class JwtManagerTest {
     @Test
     void 리프레쉬_토큰이_만료될_경우_만료_예외를_던져야_한다(){
         //given
+        JwtManager jwtManager = expiredRefreshJwtManager();
         String email = "test@email.com";
-        Instant date = Instant.now().minusSeconds(1000);
-        String refreshToken = jwtManager.generateRefreshToken(email, date);
+        String refreshToken = jwtManager.generateRefreshToken(email);
 
         //when
         BusinessException exception = assertThrows(BusinessException.class,
@@ -154,9 +169,9 @@ class JwtManagerTest {
     @Test
     void 리프레쉬_토큰이_올바르지_않을_경우_예외를_던져야_한다(){
         //given
+        JwtManager jwtManager = jwtManager();
         String email = "test@email.com";
-        Instant date = Instant.now().minusSeconds(1000);
-        String refreshToken = jwtManager.generateRefreshToken(email, date);
+        String refreshToken = jwtManager.generateRefreshToken(email);
         String invalidRefreshToken = refreshToken.substring(3);
 
         //when
