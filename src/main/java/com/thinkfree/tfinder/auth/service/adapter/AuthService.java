@@ -178,7 +178,7 @@ public class AuthService implements IAuthUseCase {
     public void logout(String refreshToken) {
         String email = jwtManager.getEmailFromRefreshToken(refreshToken);
         if (!refreshTokenRepository.deleteByEmail(email)) {
-            log.warn("리프레시 토큰이 삭제되지 않았습니다! 이미 삭제 처리가 되었거나, redis에 문제가 있을 수 있습니다.");
+            log.error("로그아웃 시 리프레시 토큰이 삭제되지 않았습니다! 이미 삭제 처리가 되었거나, redis에 문제가 있을 수 있습니다.");
         }
     }
 

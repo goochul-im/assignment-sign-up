@@ -9,6 +9,7 @@ import com.thinkfree.tfinder.auth.service.dto.MemberSignupResponse;
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshTokenRepository;
+import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.infrastructure.outbox.join_pending_invite.JoinPendingInviteOutboxMapper;
 import com.thinkfree.tfinder.common.infrastructure.outbox.join_pending_invite.JoinPendingInvitePayload;
 import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEventEntity;
@@ -175,6 +176,122 @@ class AuthServiceTest {
 
         //when & then
         assertThrows(BusinessException.class, () -> authService.login(dto));
+    }
+
+    @Test
+    void 이메일이_없다면_로그인_시_예외를_발생시켜야_한다(){
+        //given
+        String email = "test@email.com";
+        String passwd = "testPasswd";
+        LoginRequest dto = new LoginRequest(
+                email,
+                passwd
+        );
+        MemberEntity returnMember = new MemberEntity(
+                1L,
+                "name",
+                email,
+                "encodePasswd"
+        );
+
+        given(memberRepository.findByEmail(any())).willReturn(Optional.empty());
+
+        //when & then
+        BusinessException exception = assertThrows(BusinessException.class, () -> authService.login(dto));
+
+        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.AUTHENTICATION_FAILED);
+    }
+
+    @Test
+    void 로그인_시_리프레쉬_토큰이_저장되지_않았다면_예외를_발생시켜야_한다(){
+        //given
+        String email = "test@email.com";
+        String passwd = "testPasswd";
+        LoginRequest dto = new LoginRequest(
+                email,
+                passwd
+        );
+        MemberEntity returnMember = new MemberEntity(
+                1L,
+                "name",
+                email,
+                "encodePasswd"
+        );
+
+        given(memberRepository.findByEmail(any())).willReturn(Optional.of(returnMember));
+        given(encoder.matches(any(), any())).willReturn(true);
+        given(jwtManager.generateAccessToken(any())).willReturn("accessToken");
+        given(jwtManager.generateRefreshToken(any())).willReturn("refreshToken");
+        given(refreshTokenRepository.save(any(), any(), any())).willReturn(false);
+
+        //when & then
+        BusinessException exception = assertThrows(BusinessException.class, () -> authService.login(dto));
+        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.LOGIN_FAILED);
+    }
+
+    @Test
+    void 리프레싱_시_토큰에_저장된_이메일을_찾지_못하면_예외를_던진다(){
+        //given
+        String refreshToken = "testRefreshToken";
+
+        given(jwtManager.getEmailFromRefreshToken(any())).willReturn("testEmail");
+        given(refreshTokenRepository.findByEmail(any())).willReturn(Optional.empty());
+
+        //when & then
+        BusinessException exception = assertThrows(BusinessException.class, () -> authService.refresh(refreshToken));
+        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.REFRESH_TOKEN_ERROR);
+
+    }
+
+    @Test
+    void 리프레싱_시_토큰에_저장된_토늨과_레디스에_저장된_토큰이_다르면_예외를_던진다(){
+        //given
+        String refreshToken = "testRefreshToken";
+
+        given(jwtManager.getEmailFromRefreshToken(any())).willReturn("testEmail");
+        given(refreshTokenRepository.findByEmail(any())).willReturn(Optional.of("nono"));
+
+        //when & then
+        BusinessException exception = assertThrows(BusinessException.class, () -> authService.refresh(refreshToken));
+        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.REFRESH_TOKEN_ERROR);
+
+    }
+
+    @Test
+    void 리프레싱_시_토큰_저장에_실패하면_예외를_던진다(){
+        //given
+        String refreshToken = "testRefreshToken";
+
+        given(jwtManager.getEmailFromRefreshToken(any())).willReturn("testEmail");
+        given(refreshTokenRepository.findByEmail(any())).willReturn(Optional.of(refreshToken));
+        given(jwtManager.generateAccessToken(any())).willReturn("accessToken");
+        given(jwtManager.generateRefreshToken(any())).willReturn("refreshToken");
+        given(refreshTokenRepository.save(any(), any(), any())).willReturn(false);
+
+        //when & then
+        BusinessException exception = assertThrows(BusinessException.class, () -> authService.refresh(refreshToken));
+        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.REFRESH_FAILED);
+    }
+
+    @Test
+    void 리프레쉬_토큰으로_리프레싱이_가능하다(){
+        //given
+        String refreshToken = "testRefreshToken";
+
+        given(jwtManager.getEmailFromRefreshToken(any())).willReturn("testEmail");
+        given(refreshTokenRepository.findByEmail(any())).willReturn(Optional.of(refreshToken));
+        String accessToken = "accessToken";
+        given(jwtManager.generateAccessToken(any())).willReturn(accessToken);
+        String newRefreshToken = "refreshToken";
+        given(jwtManager.generateRefreshToken(any())).willReturn(newRefreshToken);
+        given(refreshTokenRepository.save(any(), any(), any())).willReturn(true);
+
+        //when
+        LoginResult refresh = authService.refresh(refreshToken);
+
+        //then
+        assertThat(refresh.accessToken()).isEqualTo(accessToken);
+        assertThat(refresh.refreshToken()).isEqualTo(newRefreshToken);
     }
 
 }
