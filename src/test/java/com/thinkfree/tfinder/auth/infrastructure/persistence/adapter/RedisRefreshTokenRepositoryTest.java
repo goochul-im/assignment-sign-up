@@ -11,6 +11,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Duration;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,14 +87,45 @@ class RedisRefreshTokenRepositoryTest {
 
         template.opsForValue().set("dec", "10");
         Long decrement = template.opsForValue().decrement("dec", 15);
+        String dec = template.opsForValue().get("dec");
 
         //then
         assertThat(delete).isFalse();
         assertThat(noKey).isFalse();
         assertThat(nullValue).isNull();
         assertThat(decrement).isEqualTo(-5);
+        assertThat(Integer.parseInt(dec)).isEqualTo(-5);
     }
-//
+
+    @Test
+    void zset_테스트(){
+        /**
+         * 같은 key안의 value는 중복되어 저장되지 않는다.
+         */
+        //given
+        StringRedisTemplate template = redisTemplate();
+        String key = "myKey";
+        String value = "myValue";
+        template.opsForZSet().add(key, value, 100);
+        template.opsForZSet().add(key, value, 200);
+
+        //when
+        Set<String> range = template.opsForZSet().range(key, 0, Long.MAX_VALUE);
+        System.out.println(range);
+
+        //then
+        assertThat(range.size()).isEqualTo(1);
+
+        template.opsForZSet().add(key, "newValue", 300);
+        range = template.opsForZSet().range(key, 0, Long.MAX_VALUE);
+        assertThat(range.size()).isEqualTo(2);
+        Long remove = template.opsForZSet().remove(key, value);
+
+        assertThat(remove).isEqualTo(1);
+        range = template.opsForZSet().range(key, 0, Long.MAX_VALUE);
+        assertThat(range.size()).isEqualTo(1);
+    }
+
 //    @Test
 //    void 레디스_테스트_2(){
 //        //given

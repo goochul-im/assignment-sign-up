@@ -1,8 +1,6 @@
-package com.thinkfree.tfinder.common.infrastructure.event.handler;
+package com.thinkfree.tfinder.common.infrastructure.outbox.handler;
 
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
-import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInviteOutboxMapper;
-import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInvitePayload;
 import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
 import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxEventHandler;
 import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventType;
@@ -17,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -45,6 +45,9 @@ public class JoinPendingInviteHandler implements IOutboxEventHandler {
         );
 
         handle(member);
+        if (pendingInviteRepository.isRemain(member.getEmail())) {
+            throw new RuntimeException("가입 완료되지 않은 워크스페이스 존재");
+        }
     }
 
     /**
@@ -60,8 +63,12 @@ public class JoinPendingInviteHandler implements IOutboxEventHandler {
 
         for (String workspaceUrl : pendingWorkspaceUrls) {
             try {
+                if (workspaceUrl.equals("dummy url4")) {
+                    throw new Exception();
+                }
+
                 WorkspaceEntity workspace = workspaceRepository.findByWorkspaceUrl(workspaceUrl).orElseThrow(
-                        RuntimeException::new
+                        Exception::new
                 );
 
                 if (!workspaceMemberRepository.existsByWorkspaceAndMember(workspace, member)) {
@@ -71,15 +78,14 @@ public class JoinPendingInviteHandler implements IOutboxEventHandler {
                             WorkspaceMemberRole.MEMBER
                     ));
                 }
+                pendingInviteRepository.deleteOne(email, workspaceUrl);
             } catch (DataIntegrityViolationException e) {
                 log.warn("워크스페이스 중복 참여 시도 발생, member = {}, workspaceUrl = {}", member.getEmail(), workspaceUrl);
+                pendingInviteRepository.deleteOne(email, workspaceUrl);
             } catch (Exception e) {
                 log.warn("참여 대기중인 워크스페이스에 참여 중 에러 발생, member = {}, workspaceUrl = {}", member.getEmail(), workspaceUrl);
             }
         }
-
-        String signupEmail = member.getEmail();
-        pendingInviteRepository.delete(signupEmail);
     }
 
 }

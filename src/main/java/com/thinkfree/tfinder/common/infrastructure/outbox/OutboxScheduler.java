@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OutboxScheduler {
 
-    private final OutboxEventProducer outboxEventProducer;
+    private final OutboxEventProcessor outboxEventProcessor;
 
     @Scheduled(cron = "*/5 * * * * *")
     void schedule() {
-        outboxEventProducer.process();
+        outboxEventProcessor.process();
     }
 
 

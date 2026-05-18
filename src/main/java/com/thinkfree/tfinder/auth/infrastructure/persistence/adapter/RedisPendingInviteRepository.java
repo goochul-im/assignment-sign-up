@@ -3,6 +3,7 @@ package com.thinkfree.tfinder.auth.infrastructure.persistence.adapter;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Repository;
@@ -16,7 +17,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class RedisPendingInviteRepository implements IPendingInviteRepository {
 
-    private static final String KEY_PREFIX = "invite:pending:";
+    private final String KEY_PREFIX = "invite:pending:";
 
     private final StringRedisTemplate redisTemplate;
 
@@ -28,7 +29,7 @@ public class RedisPendingInviteRepository implements IPendingInviteRepository {
 
         removeExpiredInvites(key, now); // 이미 만료된 대기 요청들을 삭제
         redisTemplate.opsForZSet().add(key, workspaceUrl, expiresAt);
-        refreshKeyExpirationAtLatestInvite(key); // 가장 나중의
+        refreshKeyExpirationAtLatestInvite(key); // 가장 나중의 요청으로 zset 만료시간 설정
     }
 
     @Override
@@ -46,6 +47,16 @@ public class RedisPendingInviteRepository implements IPendingInviteRepository {
     @Override
     public boolean delete(String email) {
         return redisTemplate.delete(getKey(email));
+    }
+
+    @Override
+    public boolean deleteOne(String email, String url) {
+        return redisTemplate.opsForZSet().remove(getKey(email), url) > 0;
+    }
+
+    @Override
+    public boolean isRemain(String email) {
+        return !redisTemplate.opsForZSet().range(getKey(email), 0, Long.MAX_VALUE).isEmpty();
     }
 
     private String getKey(String email) {

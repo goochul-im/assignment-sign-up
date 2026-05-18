@@ -1,16 +1,14 @@
 package com.thinkfree.tfinder.workspace.service.adapter;
 
 import com.navercorp.fixturemonkey.FixtureMonkey;
-import com.navercorp.fixturemonkey.FixtureMonkeyBuilder;
 import com.navercorp.fixturemonkey.api.introspector.ConstructorPropertiesArbitraryIntrospector;
-import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailSendLimitRepository;
+import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IMailSendLimitRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.exception.SignupRequireException;
-import com.thinkfree.tfinder.common.infrastructure.messagequeue.iface.IMessageQueue;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceTier;
@@ -28,7 +26,6 @@ import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.Workspa
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
 import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceCommand;
 import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMemberResponse;
-import net.jqwik.api.Arbitraries;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -66,7 +63,7 @@ class WorkspaceServiceTest {
     @Mock
     IPendingInviteRepository pendingInviteRepository;
     @Mock
-    private IEmailSendLimitRepository emailSendLimitRepository;
+    private IMailSendLimitRepository emailSendLimitRepository;
     @InjectMocks
     private WorkspaceService workspaceService;
 

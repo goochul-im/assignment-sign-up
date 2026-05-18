@@ -1,6 +1,6 @@
 package com.thinkfree.tfinder.workspace.service.adapter;
 
-import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailSendLimitRepository;
+import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IMailSendLimitRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
 import com.thinkfree.tfinder.common.config.JwtProperties;
@@ -8,15 +8,12 @@ import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
 import com.thinkfree.tfinder.common.exception.SignupRequireException;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
-import com.thinkfree.tfinder.common.infrastructure.messagequeue.dto.InviteMessageDto;
-import com.thinkfree.tfinder.common.infrastructure.messagequeue.iface.IMessageQueue;
 import com.thinkfree.tfinder.common.service.dto.InviteTokenResult;
 import com.thinkfree.tfinder.common.service.iface.IJwtManager;
 import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceResponse;
 import com.thinkfree.tfinder.workspace.service.dto.InviteResponse;
 import com.thinkfree.tfinder.workspace.service.dto.MyWorkspaceResponse;
 import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMembersPageResponse;
-import com.thinkfree.tfinder.workspace.domain.MessageKey;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
 import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
@@ -36,7 +33,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -53,7 +49,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
     private final IJwtManager jwtManager;
     private final IEmailValidateRepository emailValidateRepository;
     private final IPendingInviteRepository pendingInviteRepository;
-    private final IEmailSendLimitRepository emailSendLimitRepository;
+    private final IMailSendLimitRepository emailSendLimitRepository;
     private final IMailSender mailSender;
     private final JwtProperties jwtProperties;
 
@@ -122,7 +118,6 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         // TODO: 추후 결제 플랜 엔티티로 변경 필요
         int mailLimit = inviteWorkspace.getMailLimit(); // 현재 워크스페이스 플랜의 시간당 메일 할당량
 
-
         WorkspaceMemberRole role = workspaceMember.getRole();
         if (!(WorkspaceMemberRole.MANAGER.equals(role) || WorkspaceMemberRole.OWNER.equals(role))) {
             throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
@@ -137,14 +132,18 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         if (remainEmailSize < sendCount) { // 시간당 할당량보다 많이 보내면 예외가 던저짐
             throw new BusinessException(ErrorCode.TOO_MANY_INVITE, makeNotEnoughMailMessage(remainEmailSize));
         }
-        // 사용한 메일 할당량 감소시키기
-        emailSendLimitRepository.decreaseRemainLimit(notJoinedEmails.size(), workspaceId);
 
         ArrayList<String> success = new ArrayList<>(notJoinedEmails);
         ArrayList<String> alreadyJoined = new ArrayList<>(joinedEmails);
 
         for (String toEmail : notJoinedEmails) {
             // 이미 워크스페이스에 가입한 경우에는 이메일을 또 보낼 필요 없다
+
+            // 사용한 메일 할당량 감소시키기
+            // 사용할수있는 할당량이 없다면 stop
+            if (!emailSendLimitRepository.decreaseRemainLimit(1, workspaceId)) {
+                break;
+            }
 
             String inviteToken = jwtManager.generateInviteToken(
                     inviter.getEmail(),
@@ -160,7 +159,8 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
                     makeInviteMailMessage(
                             inviteWorkspace,
                             inviteToken
-                    )
+                    ),
+                    workspaceId
             );
 
         }

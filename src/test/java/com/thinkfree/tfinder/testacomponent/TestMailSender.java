@@ -19,6 +19,11 @@ public class TestMailSender implements IMailSender {
     }
 
     @Override
+    public void asyncSend(String toEmail, String title, String message, long workspaceId) {
+
+    }
+
+    @Override
     public void send(String toEmail, String title, String message) {
 
         RetryTemplate retryTemplate = new RetryTemplate(RetryPolicy.builder()

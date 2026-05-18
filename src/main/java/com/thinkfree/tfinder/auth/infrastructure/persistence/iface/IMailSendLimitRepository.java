@@ -1,6 +1,6 @@
 package com.thinkfree.tfinder.auth.infrastructure.persistence.iface;
 
-public interface IEmailSendLimitRepository {
+public interface IMailSendLimitRepository {
 
     /**
      * 남은 메일 전송 할당량을 가져옵니다.
@@ -17,5 +17,12 @@ public interface IEmailSendLimitRepository {
      * @return 남은 할당량
      */
     boolean decreaseRemainLimit(int decrease, long workspaceId);
+
+    /**
+     * 남은 메일 전송 제한량을 증가시킵니다.
+     * @param increase 증가시킬 할당량
+     * @param workspaceId 할당량을 증가시킬 워크스페이스
+     */
+    void increaseRemainLimit(int increase, long workspaceId);
 
 }

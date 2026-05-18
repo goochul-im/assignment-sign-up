@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.common.infrastructure.outbox;
+package com.thinkfree.tfinder.common.infrastructure.outbox.handler;
 
 public record JoinPendingInvitePayload(
         Long memberId,

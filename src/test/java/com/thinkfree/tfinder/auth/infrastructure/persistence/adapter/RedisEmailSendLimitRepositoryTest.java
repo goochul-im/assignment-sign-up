@@ -1,7 +1,6 @@
 package com.thinkfree.tfinder.auth.infrastructure.persistence.adapter;
 
 import com.thinkfree.tfinder.annotation.IntegrationTest;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -11,13 +10,12 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
 @IntegrationTest
 class RedisEmailSendLimitRepositoryTest {
 
-    private RedisEmailSendLimitRepository repository;
+    private RedisMailSendLimitRepository repository;
 
     @Container
     static final GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine")
@@ -46,7 +44,7 @@ class RedisEmailSendLimitRepositoryTest {
         //given
         long id = 1;
         String remainLimit = "10";
-        repository = new RedisEmailSendLimitRepository(redisTemplate());
+        repository = new RedisMailSendLimitRepository(redisTemplate());
         redisTemplate().opsForValue().set("send:limit:" + id, remainLimit);
 
         //when
@@ -61,7 +59,7 @@ class RedisEmailSendLimitRepositoryTest {
         //given
         long id = 1;
         StringRedisTemplate template = redisTemplate();
-        repository = new RedisEmailSendLimitRepository(template);
+        repository = new RedisMailSendLimitRepository(template);
 
         //when
         int mailLimit = 30;

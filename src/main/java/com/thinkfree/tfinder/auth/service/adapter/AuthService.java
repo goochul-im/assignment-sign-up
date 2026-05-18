@@ -9,8 +9,8 @@ import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshToken
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.exception.ErrorCode;
-import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInviteOutboxMapper;
-import com.thinkfree.tfinder.common.infrastructure.outbox.JoinPendingInvitePayload;
+import com.thinkfree.tfinder.common.infrastructure.outbox.handler.JoinPendingInviteOutboxMapper;
+import com.thinkfree.tfinder.common.infrastructure.outbox.handler.JoinPendingInvitePayload;
 import com.thinkfree.tfinder.common.infrastructure.outbox.OutboxEntity;
 import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventType;
 import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxRepository;
