@@ -30,7 +30,7 @@ public class RedisEmailSendLimitRepository implements IEmailSendLimitRepository 
         Long remain = template.opsForValue().decrement(key(workspaceId), decrease);
         if (remain < 0) {
             template.opsForValue().increment(key(workspaceId), decrease); //복구
-            throw new BusinessException(ErrorCode.INVALID_ARGUMENT);
+            return false;
         }
 
         return true;

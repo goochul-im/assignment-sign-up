@@ -4,7 +4,7 @@ import com.thinkfree.tfinder.auth.controller.request.LoginRequest;
 import com.thinkfree.tfinder.auth.controller.request.SignupRequest;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IEmailValidateRepository;
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IPendingInviteRepository;
-import com.thinkfree.tfinder.auth.service.dto.LoginResultDto;
+import com.thinkfree.tfinder.auth.service.dto.LoginResult;
 import com.thinkfree.tfinder.auth.service.dto.MemberSignupResponse;
 import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
@@ -146,7 +146,7 @@ class AuthServiceTest {
         given(refreshTokenRepository.save(any(), any(), any())).willReturn(true);
 
         //when
-        LoginResultDto result = authService.login(dto);
+        LoginResult result = authService.login(dto);
 
         //then
         assertThat(result.accessToken()).isEqualTo(accessToken);

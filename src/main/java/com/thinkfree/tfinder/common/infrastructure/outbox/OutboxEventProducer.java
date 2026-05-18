@@ -17,7 +17,7 @@ public class OutboxEventProducer {
     private static final int BATCH_SIZE = 100;
 
     private final IOutboxRepository outboxRepository;
-    private final OutboxEventHandlerProvider handlerRegistry;
+    private final OutboxEventHandlerProvider handlerProvider;
 
     @Transactional
     public void process() {
@@ -25,7 +25,7 @@ public class OutboxEventProducer {
 
         for (OutboxEntity outbox : outboxes) {
             try {
-                IOutboxEventHandler handler = handlerRegistry.getHandler(outbox.getEventType());
+                IOutboxEventHandler handler = handlerProvider.getHandler(outbox.getEventType());
                 handler.handle(outbox);
                 outbox.markDone();
             } catch (Exception e) {

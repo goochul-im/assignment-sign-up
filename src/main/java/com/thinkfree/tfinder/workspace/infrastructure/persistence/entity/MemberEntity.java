@@ -18,7 +18,6 @@ public class MemberEntity extends BaseEntity{
     private String email;
     @Column(nullable = false)
     private String password;
-    // OAuthAccount 추가 필요
 
     public MemberEntity(String nickname, String email, String password) {
         this.nickname = nickname;

@@ -51,6 +51,8 @@ public enum ErrorCode {
      */
     INVALID_ARGUMENT(HttpStatus.BAD_REQUEST, "R-001"),
     INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "R-002"),
+    LOCK_ACQUIRE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "R-003"),
+
 
     /**
      * 외부 모듈 장애로 인한 실패

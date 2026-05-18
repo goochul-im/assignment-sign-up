@@ -80,6 +80,7 @@ public class SignupConcurrencyTest {
         int threadCount = 30;
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+        CountDownLatch startLatch = new CountDownLatch(1);
 
         String email = "cuncurrent@email.com";
         AtomicInteger successCount = new AtomicInteger(0);
@@ -93,6 +94,8 @@ public class SignupConcurrencyTest {
         for (int i = 0; i < threadCount; i++) {
             executor.submit(() -> {
                 try {
+                    countDownLatch.countDown();
+                    startLatch.await();
                     lockSupporter.lockSupport(() ->
                                     authUseCase.signUp(new SignupRequest(
                                             "just name",
@@ -105,13 +108,14 @@ public class SignupConcurrencyTest {
                     successCount.addAndGet(1);
                 } catch (BusinessException e) {
                     failedCount.addAndGet(1);
-                } finally {
-                    countDownLatch.countDown();
+                } catch (InterruptedException e) {
+                    System.out.println("인터럽트 예외");
                 }
             });
         }
 
         countDownLatch.await();
+        startLatch.countDown();
         executor.close();
         //then
 

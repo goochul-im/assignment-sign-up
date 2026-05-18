@@ -10,6 +10,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 @Entity
+@Table(name = "outbox_entity")
 @Getter
 @NoArgsConstructor
 public class OutboxEntity extends BaseEntity {
@@ -33,15 +34,11 @@ public class OutboxEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private OutboxEventStatus status;
 
-    private OutboxEntity(OutboxEventType eventType, String payload) {
+    public OutboxEntity(OutboxEventType eventType, String payload) {
         this.eventType = eventType;
         this.payload = payload;
         this.retryCount = 0;
         this.status = OutboxEventStatus.PENDING;
-    }
-
-    public static OutboxEntity pending(OutboxEventType eventType, String payload) {
-        return new OutboxEntity(eventType, payload);
     }
 
     public void addRetryCount() {
