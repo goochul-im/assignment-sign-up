@@ -12,7 +12,7 @@ import com.thinkfree.tfinder.common.config.JwtProperties;
 import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
 import com.thinkfree.tfinder.common.util.jwt.iface.IJwtManager;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
+import com.thinkfree.tfinder.workspace.domain.IMemberRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

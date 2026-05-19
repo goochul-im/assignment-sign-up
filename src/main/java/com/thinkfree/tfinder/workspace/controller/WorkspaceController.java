@@ -160,6 +160,7 @@ public class WorkspaceController {
 
         workspaceUseCase.acceptInvite(request.inviteToken());
 
+        //분기처리하면서 가입워크스페이스 정보 넣기
         return ResponseEntity.noContent()
                 .build();
     }

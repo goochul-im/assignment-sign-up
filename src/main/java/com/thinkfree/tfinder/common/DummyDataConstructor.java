@@ -2,12 +2,12 @@ package com.thinkfree.tfinder.common;
 
 import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxRepository;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
+import com.thinkfree.tfinder.workspace.domain.IMemberRepository;
+import com.thinkfree.tfinder.workspace.domain.IWorkspaceMemberRepository;
+import com.thinkfree.tfinder.workspace.domain.IWorkspaceRepository;
+import com.thinkfree.tfinder.workspace.domain.MemberEntity;
+import com.thinkfree.tfinder.workspace.domain.WorkspaceEntity;
+import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberEntity;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

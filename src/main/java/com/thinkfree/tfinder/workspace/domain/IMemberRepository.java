@@ -1,7 +1,5 @@
-package com.thinkfree.tfinder.workspace.infrastructure.persistence;
+package com.thinkfree.tfinder.workspace.domain;
 
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

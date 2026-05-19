@@ -17,6 +17,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @EnableAsync
 public class AsyncConfig { // 비동기 스레드를 위해 설정
 
+    // 명시적으로 지정
     @Bean
     public Executor taskExecutor() {
         return new VirtualThreadTaskExecutor("mail-");

@@ -1,9 +1,8 @@
 package com.thinkfree.tfinder.workspace.infrastructure.persistence;
 
-import com.navercorp.fixturemonkey.FixtureMonkey;
-import com.navercorp.fixturemonkey.api.introspector.ConstructorPropertiesArbitraryIntrospector;
 import com.thinkfree.tfinder.annotation.IntegrationTest;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
+import com.thinkfree.tfinder.workspace.domain.IWorkspaceRepository;
+import com.thinkfree.tfinder.workspace.domain.WorkspaceEntity;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -10,7 +10,8 @@ public class OutboxScheduler {
 
     private final OutboxEventProcessor outboxEventProcessor;
 
-    @Scheduled(cron = "*/5 * * * * *")
+    @Scheduled(cron = "*/5 * * * * *") // 내부 처리가 길수도 있다
+    //워커가 죽었을 때 어떻게?
     void schedule() {
         outboxEventProcessor.process();
     }

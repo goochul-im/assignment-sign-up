@@ -1,6 +1,5 @@
-package com.thinkfree.tfinder.workspace.infrastructure.persistence.entity;
+package com.thinkfree.tfinder.workspace.domain;
 
-import com.thinkfree.tfinder.workspace.domain.WorkspaceTier;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

@@ -19,7 +19,7 @@ public class OutboxEventProcessor {
     private final IOutboxRepository outboxRepository;
     private final OutboxEventHandlerProvider handlerProvider;
 
-    @Transactional
+    // 커넥션을 오래 잡아서 생기는 문제 있음
     public void process() {
         List<OutboxEventEntity> outboxes = outboxRepository.findPendingForUpdate(BATCH_SIZE);
 
@@ -29,6 +29,7 @@ public class OutboxEventProcessor {
                 handler.handle(outbox);
                 outbox.markDone();
             } catch (Exception e) {
+                // 여기서도 예외가 터지면??
                 outbox.addRetryCount();
                 log.warn("outbox 처리 실패. outboxId = {}, eventType = {}, retryCount = {}, message = {}",
                         outbox.getId(),

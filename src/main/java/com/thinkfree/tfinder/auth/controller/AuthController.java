@@ -129,7 +129,7 @@ public class AuthController {
     public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest request) {
 
         final String lockKey = "try:signup:" + request.email();
-
+        //불필요한 동시성 제어
         MemberSignupResponse result = lockSupporter.lockSupport(() -> authUseCase.signUp(request), lockKey);
 
         return ResponseEntity.ok()

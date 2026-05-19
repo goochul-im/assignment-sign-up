@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.workspace.infrastructure.persistence.entity;
+package com.thinkfree.tfinder.workspace.domain;
 
 import jakarta.persistence.*;
 import lombok.*;

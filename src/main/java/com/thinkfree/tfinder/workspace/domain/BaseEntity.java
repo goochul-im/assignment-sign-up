@@ -1,4 +1,4 @@
-package com.thinkfree.tfinder.workspace.infrastructure.persistence.entity;
+package com.thinkfree.tfinder.workspace.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
@@ -8,7 +8,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)

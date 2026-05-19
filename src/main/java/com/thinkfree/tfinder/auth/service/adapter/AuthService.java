@@ -16,8 +16,8 @@ import com.thinkfree.tfinder.common.infrastructure.outbox.enumrate.OutboxEventTy
 import com.thinkfree.tfinder.common.infrastructure.outbox.iface.IOutboxRepository;
 import com.thinkfree.tfinder.common.util.jwt.iface.IJwtManager;
 import com.thinkfree.tfinder.common.infrastructure.external.iface.IMailSender;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
+import com.thinkfree.tfinder.workspace.domain.IMemberRepository;
+import com.thinkfree.tfinder.workspace.domain.MemberEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

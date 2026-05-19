@@ -1,8 +1,5 @@
-package com.thinkfree.tfinder.workspace.infrastructure.persistence;
+package com.thinkfree.tfinder.workspace.domain;
 
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

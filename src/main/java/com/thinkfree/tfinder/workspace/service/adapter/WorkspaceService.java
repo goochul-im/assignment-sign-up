@@ -15,12 +15,12 @@ import com.thinkfree.tfinder.workspace.service.dto.InviteResponse;
 import com.thinkfree.tfinder.workspace.service.dto.MyWorkspaceResponse;
 import com.thinkfree.tfinder.workspace.service.dto.WorkspaceMembersPageResponse;
 import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.IWorkspaceMemberRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
+import com.thinkfree.tfinder.workspace.domain.IMemberRepository;
+import com.thinkfree.tfinder.workspace.domain.IWorkspaceRepository;
+import com.thinkfree.tfinder.workspace.domain.IWorkspaceMemberRepository;
+import com.thinkfree.tfinder.workspace.domain.MemberEntity;
+import com.thinkfree.tfinder.workspace.domain.WorkspaceEntity;
+import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberEntity;
 import com.thinkfree.tfinder.workspace.service.dto.*;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceQuery;
 import com.thinkfree.tfinder.workspace.service.iface.IWorkspaceUseCase;
@@ -111,6 +111,7 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
 
     @Override
     @Transactional(readOnly = true)
+    //초대상태
     public InviteResponse inviteMember(List<String> toEmailList, long inviterId, long workspaceId) throws BusinessException {
 
         MemberEntity inviter = findMemberOrThrow(inviterId);

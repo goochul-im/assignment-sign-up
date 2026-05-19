@@ -5,8 +5,8 @@ import com.navercorp.fixturemonkey.api.introspector.ConstructorPropertiesArbitra
 import com.thinkfree.tfinder.annotation.IntegrationTest;
 import com.thinkfree.tfinder.common.util.concurrent.RedisLockSupporter;
 import com.thinkfree.tfinder.common.exception.BusinessException;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.IMemberRepository;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
+import com.thinkfree.tfinder.workspace.domain.IMemberRepository;
+import com.thinkfree.tfinder.workspace.domain.MemberEntity;
 import com.thinkfree.tfinder.workspace.service.adapter.WorkspaceService;
 import com.thinkfree.tfinder.workspace.service.dto.CreateWorkspaceCommand;
 import org.junit.jupiter.api.Test;

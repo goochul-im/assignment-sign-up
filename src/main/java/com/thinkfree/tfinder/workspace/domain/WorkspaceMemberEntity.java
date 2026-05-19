@@ -1,13 +1,10 @@
-package com.thinkfree.tfinder.workspace.infrastructure.persistence.entity;
+package com.thinkfree.tfinder.workspace.domain;
 
-import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.Instant;
 
 @Entity
 @Table(

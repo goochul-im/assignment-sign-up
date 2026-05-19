@@ -1,12 +1,8 @@
 package com.thinkfree.tfinder.workspace.infrastructure.persistence;
 
 import com.thinkfree.tfinder.annotation.IntegrationTest;
-import com.thinkfree.tfinder.workspace.domain.WorkspaceMemberRole;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.MemberEntity;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceEntity;
-import com.thinkfree.tfinder.workspace.infrastructure.persistence.entity.WorkspaceMemberEntity;
+import com.thinkfree.tfinder.workspace.domain.*;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
