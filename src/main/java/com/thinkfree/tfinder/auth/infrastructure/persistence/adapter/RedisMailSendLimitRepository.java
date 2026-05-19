@@ -1,13 +1,17 @@
 package com.thinkfree.tfinder.auth.infrastructure.persistence.adapter;
 
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IMailSendLimitRepository;
+import com.thinkfree.tfinder.common.exception.BusinessException;
+import com.thinkfree.tfinder.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class RedisMailSendLimitRepository implements IMailSendLimitRepository {
 
@@ -17,7 +21,10 @@ public class RedisMailSendLimitRepository implements IMailSendLimitRepository {
 
     @Override
     public int getRemainLimit(int mailLimit, long workspaceId) {
-        template.opsForValue().setIfAbsent(getKey(workspaceId), String.valueOf(mailLimit), TTL);
+        if (template.opsForValue().setIfAbsent(getKey(workspaceId), String.valueOf(mailLimit), TTL) == null) {
+            log.warn("파이프라인이나 트랜잭션 안에서 실행되었습니다.");
+            throw new BusinessException(ErrorCode.EXTERNAL_ERROR);
+        }
         return getLimit(workspaceId);
     }
 
@@ -26,7 +33,8 @@ public class RedisMailSendLimitRepository implements IMailSendLimitRepository {
         Long remain = template.opsForValue().decrement(getKey(workspaceId));
 
         if (remain == null) {
-            return false; // 파이프라인이나 트랜잭션 내에서 사용됨
+            log.warn("파이프라인이나 트랜잭션 안에서 실행되었습니다.");
+            throw new BusinessException(ErrorCode.EXTERNAL_ERROR);
         }
 
         if (remain < 0) {
@@ -38,7 +46,10 @@ public class RedisMailSendLimitRepository implements IMailSendLimitRepository {
 
     @Override
     public void increaseRemainLimit(int increase, long workspaceId) {
-        template.opsForValue().increment(getKey(workspaceId), increase);
+        if (template.opsForValue().increment(getKey(workspaceId), increase) == null) {
+            log.warn("파이프라인이나 트랜잭션 안에서 실행되었습니다.");
+            throw new BusinessException(ErrorCode.EXTERNAL_ERROR);
+        }
     }
 
     private int getLimit(long workspaceId) {

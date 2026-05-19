@@ -126,11 +126,11 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
         }
 
         Set<String> joinedEmails = memberRepository.findJoinedEmails(inviteWorkspace, toEmailList);
-        Set<String> notJoinedEmails = new HashSet<>(toEmailList);
+        Set<String> notJoinedEmails = new HashSet<>(toEmailList); // 중복 이메일 제거
         notJoinedEmails.removeAll(joinedEmails); // 이미 가입한 이메일을 제거
 
         int sendCount = notJoinedEmails.size();
-        int remainEmailSize = emailSendLimitRepository.getRemainLimit(mailLimit, workspaceId);
+        int remainEmailSize = emailSendLimitRepository.getRemainLimit(mailLimit, workspaceId); // 현재 가지고 있는 할당량 가져오기
         if (remainEmailSize < sendCount) { // 시간당 할당량보다 많이 보내면 예외가 던저짐
             throw new BusinessException(ErrorCode.TOO_MANY_INVITE);
         }
@@ -202,8 +202,8 @@ public class WorkspaceService implements IWorkspaceUseCase, IWorkspaceQuery {
             }
         } else {
             Duration expiration = Duration.ofSeconds(jwtProperties.getValidateEmailExpirationSeconds());
-            emailValidateRepository.saveAsValidated(toEmail, expiration);    // emailValidate와 pendingInvite는 하나의 트랜잭션으로 묶임.
-            pendingInviteRepository.save(toEmail, workspaceUrl, expiration); // 하나가 실패하면 다같이 롤백됨
+            emailValidateRepository.saveAsValidated(toEmail, expiration);
+            pendingInviteRepository.save(toEmail, workspaceUrl, expiration);
             throw new SignupRequireException();
         }
 
