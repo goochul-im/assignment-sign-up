@@ -1,6 +1,8 @@
 package com.thinkfree.tfinder.auth.infrastructure.persistence.adapter;
 
 import com.thinkfree.tfinder.auth.infrastructure.persistence.iface.IRefreshTokenRepository;
+import com.thinkfree.tfinder.common.exception.BusinessException;
+import com.thinkfree.tfinder.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -35,7 +37,12 @@ public class RedisRefreshTokenRepository implements IRefreshTokenRepository {
 
     @Override
     public boolean deleteByEmail(String email)  {
-        return redisTemplate.delete(getKey(email));
+        Boolean delete = redisTemplate.delete(getKey(email));
+        if (delete == null){
+            log.warn("파이프라인이나 트랜잭션 안에서 실행되었습니다.");
+            throw new BusinessException(ErrorCode.EXTERNAL_ERROR);
+        }
+        return delete;
     }
 
     private String getKey(String email) {

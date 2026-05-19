@@ -21,7 +21,10 @@ public class RedisMailSendLimitRepository implements IMailSendLimitRepository {
 
     @Override
     public int getRemainLimit(int mailLimit, long workspaceId) {
-        template.opsForValue().setIfAbsent(getKey(workspaceId), String.valueOf(mailLimit), TTL);
+        if (template.opsForValue().setIfAbsent(getKey(workspaceId), String.valueOf(mailLimit), TTL) == null) {
+            log.warn("파이프라인이나 트랜잭션 안에서 실행되었습니다.");
+            throw new BusinessException(ErrorCode.EXTERNAL_ERROR);
+        }
         return getLimit(workspaceId);
     }
 
