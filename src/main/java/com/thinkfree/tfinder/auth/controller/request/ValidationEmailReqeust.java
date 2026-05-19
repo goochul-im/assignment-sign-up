@@ -10,8 +10,8 @@ import jakarta.validation.constraints.NotBlank;
  */
 public record ValidationEmailReqeust(
         @Schema(description = "인증을 요청하는 이메일", example = "example@email.com")
-        @NotBlank(message = ValidationMessage.NOT_BLANK)
-        @Email(message = ValidationMessage.INVALID_EMAIL)
+        @NotBlank
+        @Email
         String email
 ) {
 }

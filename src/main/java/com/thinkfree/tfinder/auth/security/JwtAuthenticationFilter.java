@@ -1,5 +1,6 @@
 package com.thinkfree.tfinder.auth.security;
 
+import com.thinkfree.tfinder.common.exception.BusinessException;
 import com.thinkfree.tfinder.common.util.jwt.iface.IJwtManager;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -29,17 +31,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = extractTokenInRequest(request);
 
-        if (token != null) {
+        try {
+            if (token != null) {
 
-            String email = jwtManager.getEmailFromAccessToken(token);
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+                String email = jwtManager.getEmailFromAccessToken(token);
+                UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
 
-            if (userDetails != null) {
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, null);
+                if (userDetails != null) {
+                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, null);
 
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                }
+
             }
-
+        } catch (BusinessException e) {
+            request.setAttribute("exception",e);
         }
 
 
